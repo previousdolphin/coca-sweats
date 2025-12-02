@@ -13,17 +13,88 @@
             color: #000000;
             font-family: 'Courier New', Courier, monospace;
             width: 100vw;
-            /* CHANGED: Allow natural scrolling */
-            min-height: 100vh; 
-            overflow-x: hidden; 
+            min-height: 100vh;
+            overflow-x: hidden;
             position: relative;
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for dark mode */
         }
 
         .uppercase { text-transform: uppercase; }
 
+
+        body.dark-mode {
+            background-color: #000000; /* Dark background */
+            color: #ffffff; /* Light text */
+        }
+
+        body.dark-mode #gate {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        body.dark-mode #password-input {
+            background: #000000;
+            color: #ffffff;
+            border: 2px solid white;
+        }
+
+        body.dark-mode #enter-btn {
+            background: white;
+            color: black;
+            border: none;
+        }
+        
+        body.dark-mode #enter-btn:hover {
+            background: black;
+            color: white;
+            border: 2px solid white;
+        }
+
+        body.dark-mode .receipt-box {
+            border: 2px solid white;
+            background: black;
+        }
+
+        body.dark-mode .receipt-header {
+            border-bottom: 1px solid white;
+        }
+
+        body.dark-mode .form-field {
+            border: 1px solid white;
+            background: black;
+            color: white;
+        }
+
+        body.dark-mode .submit-btn {
+            background: white;
+            color: black;
+        }
+
+        body.dark-mode .submit-btn:hover {
+            background: black;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        /* Apply white border to the video wrapper in both modes for consistency */
+        /* You requested a white border, so it should be visible against the white background, 
+           meaning it should probably be a dark border in light mode for contrast. 
+           I've made it a **dynamic border** that matches the text color. */
+        .video-wrapper {
+            border: 5px solid currentColor; /* Dynamic border color */
+            display: inline-block; /* Crucial for wrapper sizing */
+            line-height: 0; /* Fixes potential inline element spacing issues */
+        }
+
+        /* Dark mode border adjustment: White border for the video */
+        body.dark-mode .video-wrapper {
+            border-color: #ffffff;
+        }
+
+
         /* --- PASSWORD GATE (FIXED OVERLAY) --- */
         #gate {
-            position: fixed; /* Stays stuck to screen even if body scrolls */
+            position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             background: #ffffff;
@@ -62,11 +133,10 @@
 
         /* --- MAIN SHOP LAYOUT --- */
         #shop {
-            display: none; 
-            display: flex; 
+            /* Changed: Set to flex by default, but hidden by JS initially */
+            display: flex;
             flex-direction: column;
-            /* CHANGED: Minimum height is screen, but can grow larger */
-            min-height: 100vh; 
+            min-height: 100vh;
             width: 100%;
         }
 
@@ -75,8 +145,8 @@
             flex: 0 0 auto;
             display: flex;
             justify-content: space-between;
+            align-items: center; /* Vertically align items */
             padding: 20px;
-            /* Handle iPhone Notch */
             padding-top: max(20px, env(safe-area-inset-top));
             z-index: 10;
         }
@@ -86,23 +156,48 @@
             font-weight: bold;
         }
 
+        /* Dark Mode Toggle Button Styling */
+        #dark-mode-toggle {
+            background: none;
+            border: 1px solid currentColor; /* Dynamic border color */
+            color: currentColor; /* Dynamic icon color */
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #dark-mode-toggle:hover {
+            background-color: currentColor;
+            color: var(--opposite-color, #ffffff); /* Fallback to white */
+        }
+        
+        body:not(.dark-mode) #dark-mode-toggle:hover {
+            --opposite-color: #ffffff; /* Light Mode Hover: Text=White, BG=Black */
+        }
+
+        body.dark-mode #dark-mode-toggle:hover {
+            --opposite-color: #000000; /* Dark Mode Hover: Text=Black, BG=White */
+        }
+
+
         /* 2. VIDEO STAGE */
         .product-stage {
-            /* On Desktop, take remaining space. On Mobile, we override this. */
-            flex: 1; 
-            position: relative; 
+            flex: 1;
+            position: relative;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
+        
+        /* Video is now inside .video-wrapper */
         .tracksuit-video {
-            /* Standard behavior: fill the stage */
             width: 100%;
             height: 100%;
-            max-height: 70vh; /* Don't let video get TOO tall on big screens */
-            object-fit: contain; 
+            max-height: 70vh;
+            object-fit: contain;
             pointer-events: none;
         }
 
@@ -124,10 +219,11 @@
 
         /* --- FORM STYLING --- */
         .receipt-box {
-            width: 340px; 
+            width: 340px;
             border: 2px solid black;
             padding: 15px;
             background: white;
+            transition: border-color 0.3s, background 0.3s;
         }
 
         .receipt-header {
@@ -137,6 +233,7 @@
             font-weight: bold;
             display: flex;
             justify-content: space-between;
+            transition: border-color 0.3s;
         }
 
         .form-field {
@@ -146,10 +243,11 @@
             font-family: inherit;
             font-size: 0.9rem;
             margin-bottom: 10px;
-            border-radius: 0; 
+            border-radius: 0;
             outline: none;
             background: white;
-            appearance: none; 
+            appearance: none;
+            transition: border-color 0.3s, background 0.3s, color 0.3s;
         }
 
         .form-label {
@@ -170,6 +268,7 @@
             text-transform: uppercase;
             font-weight: bold;
             margin-top: 5px;
+            transition: background-color 0.3s, color 0.3s, border 0.3s;
         }
 
         .submit-btn:hover {
@@ -179,38 +278,41 @@
         /* --- MOBILE SPECIFIC FIXES --- */
         @media (max-width: 768px) {
             .header, .price { font-size: 1rem; }
-            
+
             /* Change layout to standard block scrolling */
             #shop {
                 display: block; /* Stop trying to be a flex column */
-                padding-bottom: 100px; /* Huge padding so keyboard doesn't hide button */
+                padding-bottom: 100px;
             }
 
             .product-stage {
-                display: block;
-                height: 50vh; /* Force video to take half screen */
+                display: flex; /* Keep flex to center the video */
+                height: 50vh;
                 position: relative;
             }
 
             .tracksuit-video {
-                position: absolute;
-                top: 0; left: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
+                /* Remove absolute positioning, let flexbox handle it, but keep contain */
+                position: static; 
+                max-height: 100%;
+            }
+            
+            /* Center the video-wrapper in mobile view */
+            .video-wrapper {
+                margin: auto; 
             }
 
             .bottom-bar {
-                display: block; /* Stack details and form */
+                display: block;
                 padding: 20px;
             }
 
             .details {
-                margin-bottom: 30px; /* Space between details and form */
+                margin-bottom: 30px;
             }
 
             .receipt-box {
-                width: 100%; /* Full width form */
+                width: 100%;
             }
         }
     </style>
@@ -224,17 +326,16 @@
         <p id="error-msg" style="color: red; margin-top: 10px; display: none;">ACCESS DENIED</p>
     </div>
 
-    <div id="shop">
-        
-        <div class="top-bar uppercase">
+    <div id="shop" style="display: none;"> <div class="top-bar uppercase">
             <div class="header">Name of My | DROP 1</div>
-            <div class="price">$450.00</div>
+            <button id="dark-mode-toggle">🌑 DARK</button> <div class="price">$450.00</div>
         </div>
 
         <div class="product-stage">
-            <video class="tracksuit-video" autoplay loop muted playsinline>
-                <source src="coca3.mp4" type="video/mp4">
-            </video>
+            <div class="video-wrapper"> <video class="tracksuit-video" autoplay loop muted playsinline>
+                    <source src="coca3.mp4" type="video/mp4">
+                </video>
+            </div>
         </div>
 
         <div class="bottom-bar">
@@ -288,8 +389,6 @@
         
         const _ROOT_ACCESS_KEY = "00012000"; 
         const _KERNEL_SEED = 0x2A; 
-
-        // CORRECTED HASH FOR "CoCA"
         const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
 
         const _SysAdmin = {
@@ -321,8 +420,8 @@
             try {
                 if (_SysAdmin._handshake(_input.value)) {
                     _gate.style.display = 'none';
-                    // We use 'block' here now instead of flex to allow natural scrolling
-                    _payload.style.display = 'block'; 
+                    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+                    _payload.style.display = isMobile ? 'block' : 'flex'; 
                     const v = document.querySelector('video');
                     if(v) v.play();
                 } else {
@@ -339,6 +438,32 @@
         _trigger.addEventListener('click', _executeSequence);
         _input.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') _executeSequence();
+        });
+
+        // --- NEW DARK MODE TOGGLE LOGIC ---
+        const toggleButton = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+        
+        // Check for saved preference or system preference on load
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedMode = localStorage.getItem('theme');
+
+        if (savedMode === 'dark' || (savedMode === null && prefersDark)) {
+            body.classList.add('dark-mode');
+            toggleButton.textContent = '☀️ LIGHT';
+        } else {
+            toggleButton.textContent = '🌑 DARK';
+        }
+
+        // Toggle function
+        toggleButton.addEventListener('click', () => {
+            const isDarkMode = body.classList.toggle('dark-mode');
+            
+            // Save preference to local storage
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+
+            // Update button text
+            toggleButton.textContent = isDarkMode ? '☀️ LIGHT' : '🌑 DARK';
         });
 
     })();
