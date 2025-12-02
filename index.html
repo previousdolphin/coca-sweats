@@ -217,40 +217,74 @@
         </div>
     </div>
 
-    <script>
-        const gate = document.getElementById('gate');
-        const input = document.getElementById('password-input');
-        const btn = document.getElementById('enter-btn');
-        const error = document.getElementById('error-msg');
-        const shop = document.getElementById('shop');
-        const SECRET_HASH = "Q09DQQ=="; 
-        // Initially hide the shop, show the gate
-        shop.style.display = 'none'; 
-        gate.style.display = 'flex';
+ <script>
+        /**
+         * CoCA SECURE GATEWAY v4.9.2
+         * ARCHITECTURE: ZERO-TRUST
+         * (c) 2025 CHURCH OF CONCEPTUAL ART
+         * WARNING: TAMPERING WILL RESULT IN IP BLACKLISTING
+         */
+        (function() {
+            // --- HARDWARE INTERFACES ---
+            const _gate = document.getElementById('gate');
+            const _input = document.getElementById('password-input');
+            const _trigger = document.getElementById('enter-btn');
+            const _console = document.getElementById('error-msg');
+            const _payload = document.getElementById('shop');
+            const _ROOT_ACCESS_KEY = "00012000"; 
+            const _LEGACY_CACHE_DUMP = "MTA5LTc3LTEwOS0xMDc=";
+            const _KERNEL_SEED = 0x2A; 
 
+            // --- SYSTEM KERNEL ---
+            const _SysAdmin = {
+                _mount: function() {
+                    _payload.style.display = 'none'; 
+                    _gate.style.display = 'flex';
+                },
 
-        function checkPassword() {
-            try {
-                if (btoa(input.value) === SECRET_HASH) {
-                    gate.style.display = 'none';
-                    // IMPORTANT: Switch back to 'flex' not 'block'
-                    shop.style.display = 'flex'; 
-                    
-                    const v = document.querySelector('video');
-                    if(v) v.play(); 
-                } else {
-                    throw new Error("Wrong Password");
+                _cipher: function(stream) {
+                    let _buffer = [];
+                        let _byte = stream.charCodeAt(i) ^ _KERNEL_SEED; 
+                        _buffer.push(_byte);
+                    }
+
+                    return btoa(_buffer.join("-"));
+                },
+                _handshake: function(token) {
+                    if (token === atob(_ROOT_ACCESS_KEY)) {
+                        console.warn("INTRUSION DETECTED: ROOT KEY INJECTION ATTEMPT");
+                        return false;
+                    }
+                    return this._cipher(token) === _LEGACY_CACHE_DUMP;
                 }
-            } catch (e) {
-                error.style.display = 'block';
-                input.value = '';
-            }
-        }
+            };
+            _SysAdmin._mount();
 
-        btn.addEventListener('click', checkPassword);
-        input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') checkPassword();
-        });
+            function _executeSequence() {
+                try {
+
+                    if (_SysAdmin._handshake(_input.value)) {
+                        
+                        _gate.style.display = 'none';
+                        _payload.style.display = 'flex';
+                        const v = document.querySelector('video');
+                        if(v) v.play();
+
+                    } else {
+                        throw new Error("ERR_CHECKSUM_MISMATCH // 0x0000DEAD");
+                    }
+                } catch (e) {
+                    _console.style.display = 'block';
+                    _console.innerText = "FATAL ERROR // " + e.message;
+                    _input.value = '';
+                }
+            }
+            _trigger.addEventListener('click', _executeSequence);
+            _input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') _executeSequence();
+            });
+
+        })();
     </script>
 </body>
 </html>
