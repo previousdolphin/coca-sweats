@@ -1,347 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NAMEOFMY | ARCHIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concept Page</title>
     <style>
-        /* --- BRUTALIST RESEeT --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* --- 1. CSS Variables for Theming --- */
+        :root {
+            /* Light Mode Defaults */
+            --bg-color: #f4f4f0;
+            --text-color: #1a1a1a;
+            --card-bg: #ffffff;
+            --accent-color: #333;
+            --grain-opacity: 0.04;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Overrides */
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --accent-color: #ffffff;
+            --grain-opacity: 0.07; /* Slightly higher in dark mode for visibility */
+        }
+
+        /* --- 2. Global Resets & Scrolling Fixes --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            /* min-height ensures it covers screen but allows scrolling */
+            min-height: 100vh; 
+            overflow-x: hidden; /* Prevent horizontal scroll only */
+        }
 
         body {
-            background-color: #ffffff;
-            color: #000000;
-            font-family: 'Courier New', Courier, monospace;
-            width: 100vw;
-            /* CHANGED: Allow natural scrolling */
-            min-height: 100vh; 
-            overflow-x: hidden; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.6;
+            padding: 20px;
+            /* Ensure content sits above the grain background if needed */
             position: relative;
         }
 
-        .uppercase { text-transform: uppercase; }
-
-        /* --- PASSWORD GATE (FIXED OVERLAY) --- */
-        #gate {
-            position: fixed; /* Stays stuck to screen even if body scrolls */
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #ffffff;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #password-input {
-            width: 300px;
-            padding: 15px;
-            font-family: inherit;
-            font-size: 1rem;
-            border: 2px solid black;
-            outline: none;
-            margin-bottom: 10px;
-            text-align: center;
-            border-radius: 0;
-        }
-
-        #enter-btn {
-            background: black;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            font-family: inherit;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        #enter-btn:hover {
-            background: white; color: black; border: 2px solid black;
-        }
-
-        /* --- MAIN SHOP LAYOUT --- */
-        #shop {
-            display: none; 
-            display: flex; 
-            flex-direction: column;
-            /* CHANGED: Minimum height is screen, but can grow larger */
-            min-height: 100vh; 
-            width: 100%;
-        }
-
-        /* 1. TOP BAR */
-        .top-bar {
-            flex: 0 0 auto;
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            /* Handle iPhone Notch */
-            padding-top: max(20px, env(safe-area-inset-top));
-            z-index: 10;
-        }
-
-        .header, .price {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        /* 2. VIDEO STAGE */
-        .product-stage {
-            /* On Desktop, take remaining space. On Mobile, we override this. */
-            flex: 1; 
-            position: relative; 
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .tracksuit-video {
-            /* Standard behavior: fill the stage */
+        /* --- 3. The Subtle Grain Effect --- */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            max-height: 70vh; /* Don't let video get TOO tall on big screens */
-            object-fit: contain; 
-            pointer-events: none;
+            pointer-events: none; /* Allows clicking through the grain */
+            z-index: 9998;
+            opacity: var(--grain-opacity);
+            /* SVG Noise Data URI */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* 3. BOTTOM BAR */
-        .bottom-bar {
-            flex: 0 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 20px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            z-index: 10;
+        /* --- 4. Content Container --- */
+        .container {
+            max-width: 600px;
+            margin: 40px auto; /* Centered with vertical space */
+            position: relative;
+            z-index: 1; /* Above grain */
         }
 
-        .details {
-            font-size: 0.8rem;
-            line-height: 1.4;
+        h1 {
+            font-weight: 300;
+            letter-spacing: -0.5px;
+            margin-bottom: 2rem;
+            font-size: 2rem;
         }
 
-        /* --- FORM STYLING --- */
-        .receipt-box {
-            width: 340px; 
-            border: 2px solid black;
-            padding: 15px;
-            background: white;
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
         }
 
-        .receipt-header {
-            border-bottom: 1px solid black;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
+        .card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
         }
 
-        .form-field {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid black;
-            font-family: inherit;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            border-radius: 0; 
-            outline: none;
-            background: white;
-            appearance: none; 
-        }
-
-        .form-label {
-            font-size: 0.7rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: black;
-            color: white;
-            border: none;
-            font-family: inherit;
+        /* --- 5. Dark/Light Mode Toggle Button --- */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999; /* Topmost layer */
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 8px 16px;
+            border-radius: 30px;
             cursor: pointer;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-top: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            user-select: none;
         }
 
-        .submit-btn:hover {
-            background: white; color: black; border: 2px solid black;
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        /* --- MOBILE SPECIFIC FIXES --- */
-        @media (max-width: 768px) {
-            .header, .price { font-size: 1rem; }
-            
-            /* Change layout to standard block scrolling */
-            #shop {
-                display: block; /* Stop trying to be a flex column */
-                padding-bottom: 100px; /* Huge padding so keyboard doesn't hide button */
+        /* Mobile Adjustment for Content vs Toggle */
+        @media (max-width: 480px) {
+            .container {
+                margin-top: 60px; /* Push content down so toggle doesn't cover it */
             }
-
-            .product-stage {
-                display: block;
-                height: 50vh; /* Force video to take half screen */
-                position: relative;
-            }
-
-            .tracksuit-video {
-                position: absolute;
-                top: 0; left: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-            }
-
-            .bottom-bar {
-                display: block; /* Stack details and form */
-                padding: 20px;
-            }
-
-            .details {
-                margin-bottom: 30px; /* Space between details and form */
-            }
-
-            .receipt-box {
-                width: 100%; /* Full width form */
+            h1 {
+                font-size: 1.75rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <div id="gate">
-        <h1 class="uppercase" style="margin-bottom: 20px;">Restricted Access</h1>
-        <input type="password" id="password-input" placeholder="ENTER PASSWORD">
-        <button id="enter-btn" class="uppercase">Enter</button>
-        <p id="error-msg" style="color: red; margin-top: 10px; display: none;">ACCESS DENIED</p>
-    </div>
+    <div class="grain-overlay"></div>
 
-    <div id="shop">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+        Mode
+    </button>
+
+    <div class="container">
+        <h1>CoCA Philosophy</h1>
         
-        <div class="top-bar uppercase">
-            <div class="header">Name of My | DROP 1</div>
-            <div class="price">$450.00</div>
+        <div class="card">
+            <p><strong>Scroll Test:</strong> This layout uses a standard document flow. It allows the page to expand vertically based on the amount of text.</p>
+            <p>The "grain" effect you see is an SVG noise filter overlaying the entire screen with <code>pointer-events: none</code>, so it adds texture without blocking clicks or scrolling.</p>
         </div>
 
-        <div class="product-stage">
-            <video class="tracksuit-video" autoplay loop muted playsinline>
-                <source src="coca3.mp4" type="video/mp4">
-            </video>
+        <div class="card">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         </div>
 
-        <div class="bottom-bar">
-            <div class="details uppercase">
-                <p>Item: 001</p>
-                <p>Material: Heavy Cotton</p>
-                <p>Fit: Oversized</p>
-                <p>Status: Pre-Order Spot</p>
-            </div>
-
-            <div class="receipt-box">
-                <div class="receipt-header uppercase">
-                    <span>WAITLIST RECEIPT</span>
-                    <span>Item #001</span>
-                </div>
-                
-                <form action="https://formspree.io/f/mgvgynrj" method="POST">
-                    
-                    <label class="form-label uppercase">Name (For Embroidery)</label>
-                    <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
-
-                    <label class="form-label uppercase">Size</label>
-                    <select name="size" class="form-field" required>
-                        <option value="" disabled selected>SELECT SIZE</option>
-                        <option value="S">SMALL</option>
-                        <option value="M">MEDIUM</option>
-                        <option value="L">LARGE</option>
-                        <option value="XL">X-LARGE</option>
-                    </select>
-
-                    <label class="form-label uppercase">Contact</label>
-                    <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
-
-                    <button type="submit" class="submit-btn">Secure Spot</button>
-                </form>
-            </div>
+        <div class="card">
+            <p>You can click the "Mode" button in the top right to switch between light and dark themes. The grain texture persists in both.</p>
+            <p>Adding more text here to ensure the page is long enough to require scrolling on mobile devices...</p>
+            <p>End of content.</p>
         </div>
     </div>
 
-<script>
-    /**
-     * SECURE GATEWAY v5.4 (SCROLL UNLOCKED)
-     * (c) 2025 CHURCH OF CONCEPTUAL ART
-     */
-    (function() {
-        const _gate = document.getElementById('gate');
-        const _input = document.getElementById('password-input');
-        const _trigger = document.getElementById('enter-btn');
-        const _console = document.getElementById('error-msg');
-        const _payload = document.getElementById('shop');
-        
-        const _ROOT_ACCESS_KEY = "00012000"; 
-        const _KERNEL_SEED = 0x2A; 
+    <script>
+        const toggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
 
-        // CORRECTED HASH FOR "CoCA"
-        const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
+        // Check for saved user preference, if any, on load
+        const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
 
-        const _SysAdmin = {
-            _mount: function() {
-                _payload.style.display = 'none'; 
-                _gate.style.display = 'flex';
-                _console.style.display = 'none';
-            },
-
-            _cipher: function(stream) {
-                let _buffer = [];
-                for (let i = 0; i < stream.length; i++) { 
-                    let _byte = stream.charCodeAt(i) ^ _KERNEL_SEED; 
-                    _buffer.push(_byte);
-                }
-                return btoa(_buffer.join("-"));
-            },
-
-            _handshake: function(token) {
-                let cleanToken = token.trim(); 
-                if (cleanToken === atob(_ROOT_ACCESS_KEY)) return false;
-                return this._cipher(cleanToken) === _LEGACY_CACHE_DUMP;
-            }
-        };
-        
-        _SysAdmin._mount();
-
-        function _executeSequence() {
-            try {
-                if (_SysAdmin._handshake(_input.value)) {
-                    _gate.style.display = 'none';
-                    // We use 'block' here now instead of flex to allow natural scrolling
-                    _payload.style.display = 'block'; 
-                    const v = document.querySelector('video');
-                    if(v) v.play();
-                } else {
-                    throw new Error("ACCESS DENIED");
-                }
-            } catch (e) {
-                _console.style.display = 'block';
-                _console.innerText = e.message;
-                _input.value = ''; 
-                _input.focus();
-            }
+        if (currentTheme) {
+            htmlElement.setAttribute('data-theme', currentTheme);
+            updateBtnText(currentTheme);
         }
 
-        _trigger.addEventListener('click', _executeSequence);
-        _input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') _executeSequence();
+        toggleBtn.addEventListener('click', () => {
+            const current = htmlElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme); // Save preference
+            updateBtnText(newTheme);
         });
 
-    })();
-</script>
+        function updateBtnText(theme) {
+            // Optional: Change button text based on mode
+            toggleBtn.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+        }
+    </script>
 </body>
 </html>
