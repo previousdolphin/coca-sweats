@@ -218,8 +218,8 @@
     </div>
 <script>
     /**
-     * SECURE GATEWAY v5.1 (DIAGNOSTIC MODE)
-     * (c) 2025 CHURCH OF CONCEPTUAL ART
+     * SECURE GATEWAY v5.2 (PRODUCTION)
+
      */
     (function() {
         const _gate = document.getElementById('gate');
@@ -228,12 +228,11 @@
         const _console = document.getElementById('error-msg');
         const _payload = document.getElementById('shop');
         
-        // CONFIG
         const _ROOT_ACCESS_KEY = "00012000"; 
-        const _KERNEL_SEED = 0x2A; // 42
-        
-        // TARGET HASH FOR "CoCA"
-        const _LEGACY_CACHE_DUMP = "MTA5LTY5LTEwOS0xMDc="; 
+        const _KERNEL_SEED = 0x2A; 
+
+
+        const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
 
         const _SysAdmin = {
             _mount: function() {
@@ -252,17 +251,9 @@
             },
 
             _handshake: function(token) {
-                let cleanToken = token.trim(); // Removes accidental spaces
-                
-                // --- DIAGNOSTIC ALERT (REMOVE THIS AFTER FIXING) ---
-                let calculatedHash = this._cipher(cleanToken);
-                if (calculatedHash !== _LEGACY_CACHE_DUMP) {
-                    alert(`DIAGNOSTIC REPORT:\n\nYou Typed: "${cleanToken}"\nCalculated Hash: ${calculatedHash}\nExpected Hash:   ${_LEGACY_CACHE_DUMP}\n\nCheck for capitalization or hidden spaces.`);
-                }
-                // --------------------------------------------------
-
+                let cleanToken = token.trim(); 
                 if (cleanToken === atob(_ROOT_ACCESS_KEY)) return false;
-                return calculatedHash === _LEGACY_CACHE_DUMP;
+                return this._cipher(cleanToken) === _LEGACY_CACHE_DUMP;
             }
         };
         
@@ -282,6 +273,7 @@
                 _console.style.display = 'block';
                 _console.innerText = e.message;
                 _input.value = ''; 
+                _input.focus();
             }
         }
 
