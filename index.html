@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CoCA | ARCHIVE</title>
     <style>
         /* --- BRUTALIST RESET --- */
@@ -12,9 +12,9 @@
             background-color: #ffffff;
             color: #000000;
             font-family: 'Courier New', Courier, monospace;
-            height: 100vh;
+            height: 100vh; /* Use dvh for better mobile browser support if possible, but vh is fine for now */
             width: 100vw;
-            overflow: hidden; /* No scrolling allowed */
+            overflow: hidden;
             position: relative;
         }
 
@@ -59,50 +59,73 @@
             background: white; color: black; border: 2px solid black;
         }
 
-        /* --- MAIN SHOP LAYOUT --- */
+        /* --- MAIN SHOP LAYOUT (FLEXBOX) --- */
         #shop {
             display: none; /* Hidden until unlocked */
-            width: 100%;
+            /* This changes the layout to a vertical column */
+            display: flex; 
+            flex-direction: column;
             height: 100%;
-            position: relative;
+            width: 100%;
         }
 
-        /* 1. Header (Top Left) */
-        .header {
-            position: absolute;
-            top: 20px; left: 20px;
+        /* 1. TOP BAR (Header & Price) */
+        .top-bar {
+            flex: 0 0 auto; /* Don't grow or shrink */
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .header, .price {
             font-size: 1.5rem;
             font-weight: bold;
+        }
+
+        /* 2. VIDEO STAGE (The Flexible Middle) */
+        .product-stage {
+            /* flex: 1 means "take up all remaining space" */
+            flex: 1;
+            position: relative; /* Needed for child absolute positioning */
+            width: 100%;
+            min-height: 0; /* Crucial for flex containers to shrink properly */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tracksuit-video {
+            /* Position absolutely within the flexible parent */
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            /* 'contain' ensures the whole video is always visible */
+            object-fit: contain; 
+            pointer-events: none;
+        }
+
+        /* 3. BOTTOM BAR (Details & Receipt) */
+        .bottom-bar {
+            flex: 0 0 auto; /* Don't grow or shrink */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
             z-index: 10;
         }
 
-        /* 2. Details (Left, below Header) */
         .details {
-            position: absolute;
-            top: 60px; /* Pushed down to clear header */
-            left: 20px;
             font-size: 0.8rem;
             line-height: 1.4;
-            z-index: 10;
         }
 
-        /* 3. Price (Top Right) */
-        .price {
-            position: absolute;
-            top: 20px; right: 20px;
-            font-size: 1.5rem;
-            z-index: 10;
-        }
-
-        /* 4. Receipt Box (Bottom Right) */
         .receipt-box {
-            position: absolute;
-            bottom: 20px; right: 20px;
             width: 300px;
             border: 2px solid black;
             padding: 15px;
             background: white;
-            z-index: 20;
         }
 
         .receipt-header {
@@ -137,36 +160,19 @@
             background: white; color: black; border: 1px solid black;
         }
 
-        /* --- VIDEO CONTAINER (CENTER) --- */
-        .product-stage {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px; /* Large stage for video */
-            height: 600px;
-            z-index: 1; /* Behind text */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .tracksuit-video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Keeps entire video visible */
-            pointer-events: none;
-        }
-
         /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            .product-stage { width: 100%; height: 50%; }
             .header, .price { font-size: 1rem; }
             
-            /* On mobile, stack things neatly */
-            .details { top: auto; bottom: 150px; left: 20px; }
+            /* On mobile, stack the bottom bar vertically */
+            .bottom-bar {
+                flex-direction: column-reverse; /* Details on bottom, receipt on top of it */
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
             .receipt-box { 
-                bottom: 20px; right: 20px; left: 20px; 
-                width: auto; 
+                width: 100%; /* Full width on mobile */
             }
         }
     </style>
@@ -181,16 +187,11 @@
     </div>
 
     <div id="shop">
-        <div class="header uppercase">Church of Conceptual Art</div>
         
-        <div class="details uppercase">
-            <p>Item: 001</p>
-            <p>Material: Heavy Cotton</p>
-            <p>Fit: Oversized</p>
-            <p>Status: Pre-Order</p>
+        <div class="top-bar uppercase">
+            <div class="header">Church of Conceptual Art</div>
+            <div class="price">$450.00</div>
         </div>
-
-        <div class="price">$450.00</div>
 
         <div class="product-stage">
             <video class="tracksuit-video" autoplay loop muted playsinline>
@@ -198,31 +199,42 @@
             </video>
         </div>
 
-        <div class="receipt-box">
-            <div class="receipt-header uppercase">WAITLIST RECEIPT</div>
-            <form action="https://formspree.io/f/mgvgynrj" method="POST">
-                <input type="email" name="email" class="email-input" placeholder="EMAIL ADDRESS" required>
-                <button type="submit" class="submit-btn">Secure Spot</button>
-            </form>
+        <div class="bottom-bar">
+            <div class="details uppercase">
+                <p>Item: 001</p>
+                <p>Material: Heavy Cotton</p>
+                <p>Fit: Oversized</p>
+                <p>Status: Pre-Order</p>
+            </div>
+
+            <div class="receipt-box">
+                <div class="receipt-header uppercase">WAITLIST RECEIPT</div>
+                <form action="https://formspree.io/f/mgvgynrj" method="POST">
+                    <input type="email" name="email" class="email-input" placeholder="EMAIL ADDRESS" required>
+                    <button type="submit" class="submit-btn">Secure Spot</button>
+                </form>
+            </div>
         </div>
     </div>
 
-<script>
-
+    <script>
         const gate = document.getElementById('gate');
         const input = document.getElementById('password-input');
         const btn = document.getElementById('enter-btn');
         const error = document.getElementById('error-msg');
         const shop = document.getElementById('shop');
         const SECRET_HASH = "Q09DQQ=="; 
+        // Initially hide the shop, show the gate
+        shop.style.display = 'none'; 
+        gate.style.display = 'flex';
+
+
         function checkPassword() {
-            // We take what the user typed (input.value)
-            // convert it to Base64 (btoa)
-            // and see if it matches our secret hash.
             try {
                 if (btoa(input.value) === SECRET_HASH) {
                     gate.style.display = 'none';
-                    shop.style.display = 'block';
+                    // IMPORTANT: Switch back to 'flex' not 'block'
+                    shop.style.display = 'flex'; 
                     
                     const v = document.querySelector('video');
                     if(v) v.play(); 
@@ -230,7 +242,6 @@
                     throw new Error("Wrong Password");
                 }
             } catch (e) {
-                // If they type weird characters or the wrong password
                 error.style.display = 'block';
                 input.value = '';
             }
