@@ -95,19 +95,28 @@
             perspective: 1000px;
         }
 
+
         .spinner {
             width: 100%;
             height: 100%;
-            /* This animation spins the image on the Y axis */
-            animation: spin 8s infinite linear;
-            transform-style: preserve-3d;
+            /* animation: spin 8s infinite linear;  <-- REMOVE or COMMENT THIS OUT */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 2. Style the video to fit the brutalist box */
+        .tracksuit-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* or 'contain' if you don't want it cropped */
+            pointer-events: none; /* Prevents users from clicking/pausing the video */
         }
 
         .tracksuit-img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            /* If you don't have the image yet, this placeholder shows the space */
             background-color: transparent; 
         }
 
@@ -206,9 +215,10 @@
         <div class="price">$450.00</div>
 
         <div class="product-stage">
-            <div class="spinner">
-                <img src="tracksuit.png" alt="CoCA Tracksuit" class="tracksuit-img">
-            </div>
+        <div class="spinner">
+            <video class="tracksuit-video" autoplay loop muted playsinline>
+                <source src="coca.mp4" type="video/mp4">
+            </video>
         </div>
 
         <div class="details uppercase">
