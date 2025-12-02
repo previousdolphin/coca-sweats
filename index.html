@@ -12,7 +12,7 @@
             background-color: #ffffff;
             color: #000000;
             font-family: 'Courier New', Courier, monospace;
-            height: 100vh; /* Use dvh for better mobile browser support if possible, but vh is fine for now */
+            height: 100vh; 
             width: 100vw;
             overflow: hidden;
             position: relative;
@@ -62,7 +62,6 @@
         /* --- MAIN SHOP LAYOUT (FLEXBOX) --- */
         #shop {
             display: none; /* Hidden until unlocked */
-            /* This changes the layout to a vertical column */
             display: flex; 
             flex-direction: column;
             height: 100%;
@@ -71,7 +70,7 @@
 
         /* 1. TOP BAR (Header & Price) */
         .top-bar {
-            flex: 0 0 auto; /* Don't grow or shrink */
+            flex: 0 0 auto;
             display: flex;
             justify-content: space-between;
             padding: 20px;
@@ -83,32 +82,29 @@
             font-weight: bold;
         }
 
-        /* 2. VIDEO STAGE (The Flexible Middle) */
+        /* 2. VIDEO STAGE */
         .product-stage {
-            /* flex: 1 means "take up all remaining space" */
             flex: 1;
-            position: relative; /* Needed for child absolute positioning */
+            position: relative; 
             width: 100%;
-            min-height: 0; /* Crucial for flex containers to shrink properly */
+            min-height: 0; 
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         .tracksuit-video {
-            /* Position absolutely within the flexible parent */
             position: absolute;
             top: 0; left: 0;
             width: 100%;
             height: 100%;
-            /* 'contain' ensures the whole video is always visible */
             object-fit: contain; 
             pointer-events: none;
         }
 
         /* 3. BOTTOM BAR (Details & Receipt) */
         .bottom-bar {
-            flex: 0 0 auto; /* Don't grow or shrink */
+            flex: 0 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
@@ -119,10 +115,12 @@
         .details {
             font-size: 0.8rem;
             line-height: 1.4;
+            margin-bottom: 20px; /* Spacing on mobile if stacked */
         }
 
+        /* --- UPDATED FORM STYLING --- */
         .receipt-box {
-            width: 300px;
+            width: 340px; /* Slightly wider for form fields */
             border: 2px solid black;
             padding: 15px;
             background: white;
@@ -131,48 +129,64 @@
         .receipt-header {
             border-bottom: 1px solid black;
             padding-bottom: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .email-input {
+        /* Shared style for all inputs to ensure they look identical */
+        .form-field {
             width: 100%;
             padding: 10px;
             border: 1px solid black;
             font-family: inherit;
+            font-size: 0.9rem;
             margin-bottom: 10px;
-            border-radius: 0;
+            border-radius: 0; /* Crucial for brutalist look on iPhone */
             outline: none;
+            background: white;
+            appearance: none; /* Removes default dropdown arrow styling on some browsers */
+        }
+
+        .form-label {
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: block;
         }
 
         .submit-btn {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             background: black;
             color: white;
             border: none;
             font-family: inherit;
             cursor: pointer;
             text-transform: uppercase;
+            font-weight: bold;
+            margin-top: 5px;
         }
 
         .submit-btn:hover {
-            background: white; color: black; border: 1px solid black;
+            background: white; color: black; border: 2px solid black;
         }
 
         /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
             .header, .price { font-size: 1rem; }
             
-            /* On mobile, stack the bottom bar vertically */
             .bottom-bar {
-                flex-direction: column-reverse; /* Details on bottom, receipt on top of it */
+                flex-direction: column-reverse; 
                 align-items: flex-start;
-                gap: 20px;
+                gap: 0;
+                padding: 15px;
             }
             
             .receipt-box { 
-                width: 100%; /* Full width on mobile */
+                width: 100%; 
+                margin-bottom: 20px;
             }
         }
     </style>
@@ -203,23 +217,43 @@
             <div class="details uppercase">
                 <p>Item: 001</p>
                 <p>Material: Heavy Cotton</p>
-                <p>Fit: Oversized (S / M / L / XL)</p>
+                <p>Fit: Oversized</p>
                 <p>Status: Pre-Order Spot</p>
             </div>
 
             <div class="receipt-box">
-                <div class="receipt-header uppercase">WAITLIST RECEIPT</div>
+                <div class="receipt-header uppercase">
+                    <span>WAITLIST RECEIPT</span>
+                    <span>#001</span>
+                </div>
+                
                 <form action="https://formspree.io/f/mgvgynrj" method="POST">
-                    <input type="email" name="email" class="email-input" placeholder="EMAIL ADDRESS" required>
+                    
+                    <label class="form-label uppercase">Name (For Embroidery)</label>
+                    <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
+
+                    <label class="form-label uppercase">Size</label>
+                    <select name="size" class="form-field" required>
+                        <option value="" disabled selected>SELECT SIZE</option>
+                        <option value="S">SMALL</option>
+                        <option value="M">MEDIUM</option>
+                        <option value="L">LARGE</option>
+                        <option value="XL">X-LARGE</option>
+                    </select>
+
+                    <label class="form-label uppercase">Contact</label>
+                    <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
+
                     <button type="submit" class="submit-btn">Secure Spot</button>
                 </form>
             </div>
         </div>
     </div>
+
 <script>
     /**
      * SECURE GATEWAY v5.2 (PRODUCTION)
-
+     * (c) 2025 CHURCH OF CONCEPTUAL ART
      */
     (function() {
         const _gate = document.getElementById('gate');
@@ -231,7 +265,7 @@
         const _ROOT_ACCESS_KEY = "00012000"; 
         const _KERNEL_SEED = 0x2A; 
 
-
+        // CORRECTED HASH FOR "CoCA"
         const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
 
         const _SysAdmin = {
