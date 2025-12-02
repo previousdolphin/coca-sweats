@@ -217,88 +217,80 @@
         </div>
     </div>
 <script>
-        /**
-         * SECURE GATEWAY v5.0 (DEBUG MODE)
-         * ARCHITECTURE: ZERO-TRUST
-         * (c) 2025 CHURCH OF CONCEPTUAL ART
-         */
-        (function() {
-            // --- HARDWARE INTERFACES ---
-            const _gate = document.getElementById('gate');
-            const _input = document.getElementById('password-input');
-            const _trigger = document.getElementById('enter-btn');
-            const _console = document.getElementById('error-msg');
-            const _payload = document.getElementById('shop');
-            const _ROOT_ACCESS_KEY = "00012000"; 
-            
-            // PASSWORD CONFIG: "CoCA"
-            // If you want "COCA" (All Caps), change this to: "MTA5LTM3LTEwOS0xMDc="
-            const _LEGACY_CACHE_DUMP = "MTA5LTY5LTEwOS0xMDc="; 
-            const _KERNEL_SEED = 0x2A; 
+    /**
+     * SECURE GATEWAY v5.1 (DIAGNOSTIC MODE)
+     * (c) 2025 CHURCH OF CONCEPTUAL ART
+     */
+    (function() {
+        const _gate = document.getElementById('gate');
+        const _input = document.getElementById('password-input');
+        const _trigger = document.getElementById('enter-btn');
+        const _console = document.getElementById('error-msg');
+        const _payload = document.getElementById('shop');
+        
+        // CONFIG
+        const _ROOT_ACCESS_KEY = "00012000"; 
+        const _KERNEL_SEED = 0x2A; // 42
+        
+        // TARGET HASH FOR "CoCA"
+        const _LEGACY_CACHE_DUMP = "MTA5LTY5LTEwOS0xMDc="; 
 
-            // --- SYSTEM KERNEL ---
-            const _SysAdmin = {
-                _mount: function() {
-                    _payload.style.display = 'none'; 
-                    _gate.style.display = 'flex';
-                    // Clear any previous error states
-                    _console.style.display = 'none';
-                },
+        const _SysAdmin = {
+            _mount: function() {
+                _payload.style.display = 'none'; 
+                _gate.style.display = 'flex';
+                _console.style.display = 'none';
+            },
 
-                _cipher: function(stream) {
-                    let _buffer = [];
-                    for (let i = 0; i < stream.length; i++) { 
-                        let _byte = stream.charCodeAt(i) ^ _KERNEL_SEED; 
-                        _buffer.push(_byte);
-                    }
-                    // Debugging Line: Check your browser console (F12) to see this
-                    console.log("Input:", stream, "| Hash:", btoa(_buffer.join("-")));
-                    return btoa(_buffer.join("-"));
-                },
-
-                _handshake: function(token) {
-                    // 1. SANITIZE: Remove accidental spaces
-                    let cleanToken = token.trim(); 
-                    
-                    if (cleanToken === atob(_ROOT_ACCESS_KEY)) {
-                        console.warn("INTRUSION DETECTED");
-                        return false;
-                    }
-                    return this._cipher(cleanToken) === _LEGACY_CACHE_DUMP;
+            _cipher: function(stream) {
+                let _buffer = [];
+                for (let i = 0; i < stream.length; i++) { 
+                    let _byte = stream.charCodeAt(i) ^ _KERNEL_SEED; 
+                    _buffer.push(_byte);
                 }
-            };
-            
-            // Initialize
-            _SysAdmin._mount();
+                return btoa(_buffer.join("-"));
+            },
 
-            function _executeSequence() {
-                try {
-                    if (_SysAdmin._handshake(_input.value)) {
-                        // SUCCESS
-                        _gate.style.display = 'none';
-                        _payload.style.display = 'flex';
-                        const v = document.querySelector('video');
-                        if(v) v.play();
-                    } else {
-                        // FAILURE
-                        throw new Error("ERR_CHECKSUM_MISMATCH // 0x0000DEAD");
-                    }
-                } catch (e) {
-                    _console.style.display = 'block';
-                    _console.innerText = "FATAL ERROR // " + e.message;
-                    
-                    // Optional: Shake animation logic could go here
-                    _input.value = ''; 
-                    _input.focus();
+            _handshake: function(token) {
+                let cleanToken = token.trim(); // Removes accidental spaces
+                
+                // --- DIAGNOSTIC ALERT (REMOVE THIS AFTER FIXING) ---
+                let calculatedHash = this._cipher(cleanToken);
+                if (calculatedHash !== _LEGACY_CACHE_DUMP) {
+                    alert(`DIAGNOSTIC REPORT:\n\nYou Typed: "${cleanToken}"\nCalculated Hash: ${calculatedHash}\nExpected Hash:   ${_LEGACY_CACHE_DUMP}\n\nCheck for capitalization or hidden spaces.`);
                 }
+                // --------------------------------------------------
+
+                if (cleanToken === atob(_ROOT_ACCESS_KEY)) return false;
+                return calculatedHash === _LEGACY_CACHE_DUMP;
             }
+        };
+        
+        _SysAdmin._mount();
 
-            _trigger.addEventListener('click', _executeSequence);
-            _input.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') _executeSequence();
-            });
+        function _executeSequence() {
+            try {
+                if (_SysAdmin._handshake(_input.value)) {
+                    _gate.style.display = 'none';
+                    _payload.style.display = 'flex';
+                    const v = document.querySelector('video');
+                    if(v) v.play();
+                } else {
+                    throw new Error("ACCESS DENIED");
+                }
+            } catch (e) {
+                _console.style.display = 'block';
+                _console.innerText = e.message;
+                _input.value = ''; 
+            }
+        }
 
-        })();
-    </script>
+        _trigger.addEventListener('click', _executeSequence);
+        _input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') _executeSequence();
+        });
+
+    })();
+</script>
 </body>
 </html>
