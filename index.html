@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoCA | ARCHIVE</title>
     <style>
-        /* BRUTALIST RESET */
+        /* --- BRUTALIST RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -14,14 +14,13 @@
             font-family: 'Courier New', Courier, monospace;
             height: 100vh;
             width: 100vw;
-            overflow: hidden;
+            overflow: hidden; /* No scrolling allowed */
             position: relative;
         }
 
-        /* UTILITIES */
         .uppercase { text-transform: uppercase; }
 
-        /* PASSWORD GATE */
+        /* --- PASSWORD GATE --- */
         #gate {
             position: fixed;
             top: 0; left: 0;
@@ -43,6 +42,7 @@
             outline: none;
             margin-bottom: 10px;
             text-align: center;
+            border-radius: 0;
         }
 
         #enter-btn {
@@ -59,15 +59,15 @@
             background: white; color: black; border: 2px solid black;
         }
 
-        /* MAIN SHOP LAYOUT */
+        /* --- MAIN SHOP LAYOUT --- */
         #shop {
-            display: none; /* Hidden until password entered */
+            display: none; /* Hidden until unlocked */
             width: 100%;
             height: 100%;
             position: relative;
         }
 
-        /* CORNER TEXT ELEMENTS */
+        /* 1. Header (Top Left) */
         .header {
             position: absolute;
             top: 20px; left: 20px;
@@ -76,6 +76,17 @@
             z-index: 10;
         }
 
+        /* 2. Details (Left, below Header) */
+        .details {
+            position: absolute;
+            top: 60px; /* Pushed down to clear header */
+            left: 20px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            z-index: 10;
+        }
+
+        /* 3. Price (Top Right) */
         .price {
             position: absolute;
             top: 20px; right: 20px;
@@ -83,17 +94,7 @@
             z-index: 10;
         }
 
-        .details {
-            position: absolute;
-            bottom: 20px; left: 20px;
-            max-width: 200px;
-            font-size: 0.8rem;
-            line-height: 1.4;
-            z-index: 10;
-            background: white; /* Prevents transparency overlap issues */
-        }
-
-        /* RECEIPT BOX */
+        /* 4. Receipt Box (Bottom Right) */
         .receipt-box {
             position: absolute;
             bottom: 20px; right: 20px;
@@ -101,7 +102,7 @@
             border: 2px solid black;
             padding: 15px;
             background: white;
-            z-index: 20; /* Ensures it sits above other elements if screen is small */
+            z-index: 20;
         }
 
         .receipt-header {
@@ -136,39 +137,37 @@
             background: white; color: black; border: 1px solid black;
         }
 
-        /* VIDEO CONTAINER - CENTERED */
+        /* --- VIDEO CONTAINER (CENTER) --- */
         .product-stage {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px; /* Adjusted size for video visibility */
-            height: 500px;
-            z-index: 1; /* Sits behind text */
+            width: 600px; /* Large stage for video */
+            height: 600px;
+            z-index: 1; /* Behind text */
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .spinner {
-            width: 100%;
-            height: 100%;
-            /* Removed animation: spin - video handles movement now */
-        }
-
         .tracksuit-video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensures video fills the box */
-            pointer-events: none; /* User can't click pause */
+            object-fit: contain; /* Keeps entire video visible */
+            pointer-events: none;
         }
 
-        /* RESPONSIVE FIXES */
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            .product-stage { width: 100%; height: 400px; }
-            .header { font-size: 1rem; }
-            /* Stack bottom elements on mobile */
-            .details { bottom: 200px; } 
-            .receipt-box { bottom: 20px; right: 20px; width: calc(100% - 40px); }
+            .product-stage { width: 100%; height: 50%; }
+            .header, .price { font-size: 1rem; }
+            
+            /* On mobile, stack things neatly */
+            .details { top: auto; bottom: 150px; left: 20px; }
+            .receipt-box { 
+                bottom: 20px; right: 20px; left: 20px; 
+                width: auto; 
+            }
         }
     </style>
 </head>
@@ -183,21 +182,20 @@
 
     <div id="shop">
         <div class="header uppercase">Church of Conceptual Art</div>
-        <div class="price">$450.00</div>
-
-        <div class="product-stage">
-            <div class="spinner">
-                <video class="tracksuit-video" autoplay loop muted playsinline>
-                    <source src="coca.mp4" type="video/mp4">
-                </video>
-            </div>
-        </div>
-
+        
         <div class="details uppercase">
             <p>Item: 001</p>
             <p>Material: Heavy Cotton</p>
             <p>Fit: Oversized</p>
             <p>Status: Pre-Order</p>
+        </div>
+
+        <div class="price">$450.00</div>
+
+        <div class="product-stage">
+            <video class="tracksuit-video" autoplay loop muted playsinline>
+                <source src="coca.mp4" type="video/mp4">
+            </video>
         </div>
 
         <div class="receipt-box">
@@ -209,23 +207,30 @@
         </div>
     </div>
 
-    <script>
-        const CORRECT_PASSWORD = "COCA"; 
+<script>
 
         const gate = document.getElementById('gate');
         const input = document.getElementById('password-input');
         const btn = document.getElementById('enter-btn');
         const error = document.getElementById('error-msg');
         const shop = document.getElementById('shop');
-
+        const SECRET_HASH = "Q09DQQ=="; 
         function checkPassword() {
-            if (input.value === CORRECT_PASSWORD) {
-                gate.style.display = 'none';
-                shop.style.display = 'block';
-                // Ensure video plays (sometimes browsers pause hidden videos)
-                const video = document.querySelector('video');
-                if(video) video.play();
-            } else {
+            // We take what the user typed (input.value)
+            // convert it to Base64 (btoa)
+            // and see if it matches our secret hash.
+            try {
+                if (btoa(input.value) === SECRET_HASH) {
+                    gate.style.display = 'none';
+                    shop.style.display = 'block';
+                    
+                    const v = document.querySelector('video');
+                    if(v) v.play(); 
+                } else {
+                    throw new Error("Wrong Password");
+                }
+            } catch (e) {
+                // If they type weird characters or the wrong password
                 error.style.display = 'block';
                 input.value = '';
             }
