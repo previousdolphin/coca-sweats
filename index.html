@@ -244,9 +244,13 @@
 
                 _cipher: function(stream) {
                     let _buffer = [];
+                    // --- YOU WERE MISSING THIS LINE BELOW ---
+                    for (let i = 0; i < stream.length; i++) { 
                         let _byte = stream.charCodeAt(i) ^ _KERNEL_SEED; 
                         _buffer.push(_byte);
                     }
+                    return btoa(_buffer.join("-"));
+                },
 
                     return btoa(_buffer.join("-"));
                 },
