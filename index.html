@@ -216,12 +216,10 @@
             </div>
         </div>
     </div>
-
- <script>
+<script>
         /**
-         *  SECURE GATEWAY v4.9.2
+         * SECURE GATEWAY v4.9.2
          * ARCHITECTURE: ZERO-TRUST
-         * (c) 2025 NAME OF MY (Jesse Do, for Paul Pissarro)
          * WARNING: TAMPERING WILL RESULT IN IP BLACKLISTING
          */
         (function() {
@@ -232,7 +230,9 @@
             const _console = document.getElementById('error-msg');
             const _payload = document.getElementById('shop');
             const _ROOT_ACCESS_KEY = "00012000"; 
-            const _LEGACY_CACHE_DUMP = "MTA5LTc3LTEwOS0xMDc=";
+            
+            // --- UPDATED HASH FOR PASSWORD: "CoCA" ---
+            const _LEGACY_CACHE_DUMP = "MTA5LTY5LTEwOS0xMDc=";
             const _KERNEL_SEED = 0x2A; 
 
             // --- SYSTEM KERNEL ---
@@ -244,7 +244,7 @@
 
                 _cipher: function(stream) {
                     let _buffer = [];
-                    // --- YOU WERE MISSING THIS LINE BELOW ---
+                    // FIXED LOOP
                     for (let i = 0; i < stream.length; i++) { 
                         let _byte = stream.charCodeAt(i) ^ _KERNEL_SEED; 
                         _buffer.push(_byte);
@@ -252,8 +252,6 @@
                     return btoa(_buffer.join("-"));
                 },
 
-                    return btoa(_buffer.join("-"));
-                },
                 _handshake: function(token) {
                     if (token === atob(_ROOT_ACCESS_KEY)) {
                         console.warn("INTRUSION DETECTED: ROOT KEY INJECTION ATTEMPT");
@@ -266,9 +264,10 @@
 
             function _executeSequence() {
                 try {
-
+                    // Check password
                     if (_SysAdmin._handshake(_input.value)) {
                         
+                        // Unlock
                         _gate.style.display = 'none';
                         _payload.style.display = 'flex';
                         const v = document.querySelector('video');
@@ -283,6 +282,7 @@
                     _input.value = '';
                 }
             }
+
             _trigger.addEventListener('click', _executeSequence);
             _input.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') _executeSequence();
