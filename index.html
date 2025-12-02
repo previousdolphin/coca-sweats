@@ -6,40 +6,26 @@
     <title>CoCA | ARCHIVE</title>
     <style>
         /* BRUTALIST RESET */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: #ffffff;
             color: #000000;
-            font-family: 'Courier New', Courier, monospace; /* Monospace for raw feel */
+            font-family: 'Courier New', Courier, monospace;
             height: 100vh;
-            overflow: hidden; /* Stop scrolling */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
         }
 
         /* UTILITIES */
-        .border-black {
-            border: 2px solid #000000;
-        }
+        .uppercase { text-transform: uppercase; }
 
-        .uppercase {
-            text-transform: uppercase;
-        }
-
-        /* PASSWORD GATE OVERLAY */
+        /* PASSWORD GATE */
         #gate {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: #ffffff;
             z-index: 999;
             display: flex;
@@ -54,7 +40,6 @@
             font-family: inherit;
             font-size: 1rem;
             border: 2px solid black;
-            border-radius: 0;
             outline: none;
             margin-bottom: 10px;
             text-align: center;
@@ -71,94 +56,52 @@
         }
 
         #enter-btn:hover {
-            background: white;
-            color: black;
-            border: 2px solid black;
+            background: white; color: black; border: 2px solid black;
         }
 
-        /* MAIN SHOP INTERFACE */
+        /* MAIN SHOP LAYOUT */
         #shop {
-            display: none; /* Hidden by default */
+            display: none; /* Hidden until password entered */
             width: 100%;
             height: 100%;
             position: relative;
         }
 
-        /* SPINNING PRODUCT */
-        .product-stage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 600px;
-            perspective: 1000px;
-        }
-
-
-        .spinner {
-            width: 100%;
-            height: 100%;
-            /* animation: spin 8s infinite linear;  <-- REMOVE or COMMENT THIS OUT */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* 2. Style the video to fit the brutalist box */
-        .tracksuit-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* or 'contain' if you don't want it cropped */
-            pointer-events: none; /* Prevents users from clicking/pausing the video */
-        }
-
-        .tracksuit-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background-color: transparent; 
-        }
-
-        @keyframes spin {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
-        }
-
-        /* UI ELEMENTS */
+        /* CORNER TEXT ELEMENTS */
         .header {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 20px; left: 20px;
             font-size: 1.5rem;
             font-weight: bold;
+            z-index: 10;
         }
 
         .price {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             font-size: 1.5rem;
+            z-index: 10;
         }
 
         .details {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: 20px; left: 20px;
             max-width: 200px;
             font-size: 0.8rem;
             line-height: 1.4;
+            z-index: 10;
+            background: white; /* Prevents transparency overlap issues */
         }
 
-        /* EMAIL RECEIPT BOX */
+        /* RECEIPT BOX */
         .receipt-box {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 20px; right: 20px;
             width: 300px;
             border: 2px solid black;
             padding: 15px;
             background: white;
+            z-index: 20; /* Ensures it sits above other elements if screen is small */
         }
 
         .receipt-header {
@@ -175,6 +118,7 @@
             font-family: inherit;
             margin-bottom: 10px;
             border-radius: 0;
+            outline: none;
         }
 
         .submit-btn {
@@ -189,15 +133,42 @@
         }
 
         .submit-btn:hover {
-            background: white;
-            color: black;
-            border: 1px solid black;
+            background: white; color: black; border: 1px solid black;
         }
 
-        /* MOBILE ADJUSTMENTS */
+        /* VIDEO CONTAINER - CENTERED */
+        .product-stage {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px; /* Adjusted size for video visibility */
+            height: 500px;
+            z-index: 1; /* Sits behind text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 100%;
+            height: 100%;
+            /* Removed animation: spin - video handles movement now */
+        }
+
+        .tracksuit-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures video fills the box */
+            pointer-events: none; /* User can't click pause */
+        }
+
+        /* RESPONSIVE FIXES */
         @media (max-width: 768px) {
-            .product-stage { width: 300px; height: 450px; }
-            .receipt-box { width: calc(100% - 40px); }
+            .product-stage { width: 100%; height: 400px; }
+            .header { font-size: 1rem; }
+            /* Stack bottom elements on mobile */
+            .details { bottom: 200px; } 
+            .receipt-box { bottom: 20px; right: 20px; width: calc(100% - 40px); }
         }
     </style>
 </head>
@@ -215,10 +186,11 @@
         <div class="price">$450.00</div>
 
         <div class="product-stage">
-        <div class="spinner">
-            <video class="tracksuit-video" autoplay loop muted playsinline>
-                <source src="coca.mp4" type="video/mp4">
-            </video>
+            <div class="spinner">
+                <video class="tracksuit-video" autoplay loop muted playsinline>
+                    <source src="coca.mp4" type="video/mp4">
+                </video>
+            </div>
         </div>
 
         <div class="details uppercase">
@@ -238,10 +210,8 @@
     </div>
 
     <script>
-        // CONFIGURATION
-        const CORRECT_PASSWORD = "COCA"; // Set your password here
+        const CORRECT_PASSWORD = "COCA"; 
 
-        // LOGIC
         const gate = document.getElementById('gate');
         const input = document.getElementById('password-input');
         const btn = document.getElementById('enter-btn');
@@ -252,6 +222,9 @@
             if (input.value === CORRECT_PASSWORD) {
                 gate.style.display = 'none';
                 shop.style.display = 'block';
+                // Ensure video plays (sometimes browsers pause hidden videos)
+                const video = document.querySelector('video');
+                if(video) video.play();
             } else {
                 error.style.display = 'block';
                 input.value = '';
@@ -259,12 +232,8 @@
         }
 
         btn.addEventListener('click', checkPassword);
-        
-        // Allow pressing Enter key
         input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
+            if (e.key === 'Enter') checkPassword();
         });
     </script>
 </body>
