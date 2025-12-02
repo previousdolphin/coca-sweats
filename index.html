@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoCA | ARCHIVE</title>
+    <style>
+        /* BRUTALIST RESET */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Courier New', Courier, monospace; /* Monospace for raw feel */
+            height: 100vh;
+            overflow: hidden; /* Stop scrolling */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* UTILITIES */
+        .border-black {
+            border: 2px solid #000000;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+        }
+
+        /* PASSWORD GATE OVERLAY */
+        #gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #password-input {
+            width: 300px;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 1rem;
+            border: 2px solid black;
+            border-radius: 0;
+            outline: none;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #enter-btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-family: inherit;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #enter-btn:hover {
+            background: white;
+            color: black;
+            border: 2px solid black;
+        }
+
+        /* MAIN SHOP INTERFACE */
+        #shop {
+            display: none; /* Hidden by default */
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* SPINNING PRODUCT */
+        .product-stage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 600px;
+            perspective: 1000px;
+        }
+
+        .spinner {
+            width: 100%;
+            height: 100%;
+            /* This animation spins the image on the Y axis */
+            animation: spin 8s infinite linear;
+            transform-style: preserve-3d;
+        }
+
+        .tracksuit-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* If you don't have the image yet, this placeholder shows the space */
+            background-color: transparent; 
+        }
+
+        @keyframes spin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        /* UI ELEMENTS */
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .price {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+        }
+
+        .details {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            max-width: 200px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        /* EMAIL RECEIPT BOX */
+        .receipt-box {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            border: 2px solid black;
+            padding: 15px;
+            background: white;
+        }
+
+        .receipt-header {
+            border-bottom: 1px solid black;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid black;
+            font-family: inherit;
+            margin-bottom: 10px;
+            border-radius: 0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background: black;
+            color: white;
+            border: none;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .submit-btn:hover {
+            background: white;
+            color: black;
+            border: 1px solid black;
+        }
+
+        /* MOBILE ADJUSTMENTS */
+        @media (max-width: 768px) {
+            .product-stage { width: 300px; height: 450px; }
+            .receipt-box { width: calc(100% - 40px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="gate">
+        <h1 class="uppercase" style="margin-bottom: 20px;">Restricted Access</h1>
+        <input type="password" id="password-input" placeholder="ENTER PASSWORD">
+        <button id="enter-btn" class="uppercase">Enter</button>
+        <p id="error-msg" style="color: red; margin-top: 10px; display: none;">ACCESS DENIED</p>
+    </div>
+
+    <div id="shop">
+        <div class="header uppercase">Church of Conceptual Art</div>
+        <div class="price">$450.00</div>
+
+        <div class="product-stage">
+            <div class="spinner">
+                <img src="tracksuit.png" alt="CoCA Tracksuit" class="tracksuit-img">
+            </div>
+        </div>
+
+        <div class="details uppercase">
+            <p>Item: 001</p>
+            <p>Material: Heavy Cotton</p>
+            <p>Fit: Oversized</p>
+            <p>Status: Pre-Order</p>
+        </div>
+
+        <div class="receipt-box">
+            <div class="receipt-header uppercase">WAITLIST RECEIPT</div>
+            <form action="YOUR_FORMSPREE_ENDPOINT" method="POST">
+                <input type="email" name="email" class="email-input" placeholder="EMAIL ADDRESS" required>
+                <button type="submit" class="submit-btn">Secure Spot</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const CORRECT_PASSWORD = "COCA"; // Set your password here
+
+        // LOGIC
+        const gate = document.getElementById('gate');
+        const input = document.getElementById('password-input');
+        const btn = document.getElementById('enter-btn');
+        const error = document.getElementById('error-msg');
+        const shop = document.getElementById('shop');
+
+        function checkPassword() {
+            if (input.value === CORRECT_PASSWORD) {
+                gate.style.display = 'none';
+                shop.style.display = 'block';
+            } else {
+                error.style.display = 'block';
+                input.value = '';
+            }
+        }
+
+        btn.addEventListener('click', checkPassword);
+        
+        // Allow pressing Enter key
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+</html>
