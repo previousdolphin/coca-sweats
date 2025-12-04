@@ -10,7 +10,6 @@
 
         :root {
             /* --- MASTER COLOR CONTROL --- */
-            /* This is the single Red used for Text, Borders, Buttons, and Logo Filter */
             --brand-red: #ff3333; 
         }
 
@@ -40,7 +39,6 @@
         body.dark-mode .submit-btn { background: white; color: black; }
         body.dark-mode .submit-btn:hover { background: black; color: white; border: 2px solid white; }
 
-        /* Founder Specific Overrides for Dark Mode */
         body.dark-mode .receipt-box.founder-theme { border-color: var(--brand-red); }
         body.dark-mode .receipt-header.founder-theme { border-bottom-color: var(--brand-red); }
         body.dark-mode .submit-btn.founder-theme { background-color: var(--brand-red); color: white; }
@@ -70,14 +68,17 @@
             align-items: center;
         }
 
-        /* GATE LOGO */
+        /* GATE LOGO - Larger and non-interactive */
         .gate-logo {
             width: 180px;
             height: auto;
             margin-bottom: 30px; 
             display: block;
-            /* Filter to turn black SVG to --brand-red */
             filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
+            /* Prevent interaction */
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
         }
 
         #password-input {
@@ -108,19 +109,20 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
             z-index: 10;
+            position: relative; /* Needed for absolute positioning of logo */
         }
 
-        /* HEADER GROUP (Logo + Text) */
-        .header-group {
-            display: flex;
-            align-items: center;
-            gap: 15px; /* Space between logo and text */
-        }
-
+        /* HEADER LOGO - Larger, Centered, Non-interactive, doesn't affect height */
         .header-logo {
-            height: 1.6rem; /* Matches text height */
+            height: 3.5rem; /* Much larger */
             width: auto;
-            display: block;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            /* Prevent interaction */
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
         }
         
         /* Red Filter for Founder Logo */
@@ -128,7 +130,12 @@
             filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
         }
 
-        .header, .price { font-size: 1.5rem; font-weight: bold; }
+        /* Header Text - Hidden on desktop when logo is present */
+        .header {
+            font-size: 1.5rem; font-weight: bold;
+            display: none; 
+        }
+        .price { font-size: 1.5rem; font-weight: bold; }
         
         /* Founder Text Color */
         .founder-text-red { color: var(--brand-red); }
@@ -137,6 +144,7 @@
             background: none; border: 1px solid currentColor;
             color: currentColor; padding: 8px 12px;
             font-family: inherit; cursor: pointer;
+            position: relative; z-index: 2; /* Ensure clickable */
         }
 
         #dark-mode-toggle:hover, .dark-mode-toggle-btn:hover {
@@ -207,7 +215,6 @@
             font-weight: bold; display: flex; justify-content: space-between;
         }
         
-        /* Founder Colors for Receipt */
         .receipt-box.founder-theme { border-color: var(--brand-red); }
         .receipt-header.founder-theme { border-bottom-color: var(--brand-red); }
         .founder-accent { color: var(--brand-red); }
@@ -237,8 +244,9 @@
 
         /* --- MOBILE FIXES --- */
         @media (max-width: 768px) {
-            .header, .price { font-size: 1rem; }
-            .header-logo { height: 1.1rem; gap: 8px; } /* Smaller logo on mobile */
+            .header { display: block; font-size: 1rem; } /* Show text on mobile */
+            .header-logo { display: none; } /* Hide logo on mobile */
+            .price { font-size: 1rem; }
             
             .shop-container { display: none; padding-bottom: 100px; } 
             
@@ -246,7 +254,6 @@
             .video-wrapper { margin: auto; }
             .tracksuit-video { position: static; max-height: 100%; }
 
-            /* Dual Product View (Mobile) */
             .split-layout { padding: 0 5px; }
             .split-video-container { max-height: 50vh; border-width: 2px; }
             .plus-sign { font-size: 1.5rem; padding: 0 8px; }
@@ -263,7 +270,6 @@
 
     <div id="gate">
         <img src="CoCA-Vector-redrawn-photoshop.svg" class="gate-logo" alt="CoCA Logo">
-
         <h1 class="uppercase" style="margin-bottom: 20px;">Restricted Access</h1>
         <input type="password" id="password-input" placeholder="ENTER PASSWORD">
         <button id="enter-btn" class="uppercase">Enter</button>
@@ -272,10 +278,8 @@
 
     <div id="shop-standard" class="shop-container"> 
         <div class="top-bar uppercase">
-            <div class="header-group">
-                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
-                <div class="header">Name of My | DROP 1</div>
-            </div>
+            <div class="header">Name of My | DROP 1</div>
+            <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
             
             <button class="dark-mode-toggle-btn">🌑 DARK</button> 
             <div class="price">$450.00</div>
@@ -302,13 +306,10 @@
                     <span>WAITLIST RECEIPT</span>
                     <span>Item #001</span>
                 </div>
-                
                 <form action="https://formspree.io/f/mgvgynrj" method="POST">
                     <input type="hidden" name="order_type" value="STANDARD_DROP_1">
-                    
                     <label class="form-label uppercase">Name (For Embroidery)</label>
                     <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
-
                     <label class="form-label uppercase">Size</label>
                     <select name="size" class="form-field" required>
                         <option value="" disabled selected>SELECT SIZE</option>
@@ -317,10 +318,8 @@
                         <option value="L">LARGE</option>
                         <option value="XL">X-LARGE</option>
                     </select>
-
                     <label class="form-label uppercase">Contact</label>
                     <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
-
                     <button type="submit" class="submit-btn">Secure Spot</button>
                 </form>
             </div>
@@ -329,10 +328,8 @@
 
     <div id="shop-founder" class="shop-container"> 
         <div class="top-bar uppercase">
-            <div class="header-group">
-                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo founder-red-filter" alt="CoCA">
-                <div class="header founder-text-red">Name of My | FOUNDER</div>
-            </div>
+            <div class="header founder-text-red">Name of My | FOUNDER</div>
+            <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo founder-red-filter" alt="CoCA">
 
             <button class="dark-mode-toggle-btn">🌑 DARK</button> 
             <div class="price">$1500.00</div>
@@ -345,9 +342,7 @@
                         <source src="coca3.mp4" type="video/mp4">
                     </video>
                 </div>
-
                 <div class="plus-sign">+</div>
-
                 <div class="split-video-container">
                     <video class="split-video" autoplay loop muted playsinline>
                         <source src="coca4.mp4" type="video/mp4">
@@ -369,13 +364,10 @@
                     <span>FOUNDER RECEIPT</span>
                     <span class="founder-accent">1 of 5</span>
                 </div>
-                
                 <form action="https://formspree.io/f/mgvgynrj" method="POST">
                     <input type="hidden" name="order_type" value="FOUNDER_PACKAGE_1500">
-                    
                     <label class="form-label uppercase">Name (For Embroidery)</label>
                     <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
-
                     <label class="form-label uppercase">Tracksuit Size</label>
                     <select name="size" class="form-field" required>
                         <option value="" disabled selected>SELECT SIZE</option>
@@ -384,10 +376,8 @@
                         <option value="L">LARGE</option>
                         <option value="XL">X-LARGE</option>
                     </select>
-
                     <label class="form-label uppercase">Direct Contact</label>
                     <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
-
                     <button type="submit" class="submit-btn founder-theme">CLAIM PACKAGE</button>
                 </form>
             </div>
@@ -396,7 +386,7 @@
 
 <script>
     /**
-     * SECURE GATEWAY v6.4 (BRAND RED STANDARDIZATION)
+     * SECURE GATEWAY v6.6 (LARGE CENTERED LOGO)
      * (c) 2025 CHURCH OF CONCEPTUAL ART
      */
     (function() {
@@ -473,7 +463,6 @@
             if (e.key === 'Enter') _executeSequence();
         });
 
-        // --- DARK MODE TOGGLE ---
         const toggleButtons = document.querySelectorAll('.dark-mode-toggle-btn');
         const body = document.body;
         
