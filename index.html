@@ -39,6 +39,7 @@
         body.dark-mode .submit-btn { background: white; color: black; }
         body.dark-mode .submit-btn:hover { background: black; color: white; border: 2px solid white; }
 
+        /* Dark Mode overrides for Founder Theme (Red stays Red) */
         body.dark-mode .receipt-box.founder-theme { border-color: var(--brand-red); }
         body.dark-mode .receipt-header.founder-theme { border-bottom-color: var(--brand-red); }
         body.dark-mode .submit-btn.founder-theme { background-color: var(--brand-red); color: white; }
@@ -67,7 +68,7 @@
             align-items: center;
         }
 
-        /* GATE LOGO - Non-Interactive */
+        /* GATE LOGO - Non-Interactive, RED */
         .gate-logo {
             width: 180px;
             height: auto;
@@ -126,6 +127,15 @@
             -webkit-user-drag: none;    /* Cannot drag */
         }
         
+        /* DARK MODE LOGO FIX:
+           Invert the Standard Black Logo to White when Dark Mode is ON.
+           Exclude the Founder logo (which handles its own Red filter).
+        */
+        body.dark-mode .header-logo:not(.founder-red-filter) {
+            filter: invert(100%);
+        }
+
+        /* Founder Red Filter (Applied manually in HTML for founder page) */
         .founder-red-filter {
             filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
         }
@@ -383,23 +393,20 @@
 
 <script>
     /**
-     * SECURE GATEWAY v6.7 (FULL OBFUSCATION)
+     * SECURE GATEWAY v6.8 (FULL OBFUSCATION + DARK MODE FIX)
      * Nameofmy / Unsubscribe.llc colab with CHURCH OF CONCEPTUAL ART 
      */
     (function() {
         const _gate = document.getElementById('gate');
         const _input = document.getElementById('password-input');
         const _trigger = document.getElementById('enter-btn');
-        const _console = document.getElementById('error-msg');
-        
+        const _console = document.getElementById('error-msg');   
         const _standardShop = document.getElementById('shop-standard');
-        const _founderShop = document.getElementById('shop-founder');
-        
+        const _founderShop = document.getElementById('shop-founder');    
         const _KERNEL_SEED = 0x2A; 
-        
         const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
-        
         const _FOUNDER_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDctMjQ=";
+
         const _SysAdmin = {
             _mount: function() {
                 _standardShop.style.display = 'none'; 
