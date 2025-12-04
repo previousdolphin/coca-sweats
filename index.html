@@ -67,16 +67,16 @@
             align-items: center;
         }
 
-        /* GATE LOGO */
+        /* GATE LOGO - Non-Interactive */
         .gate-logo {
             width: 180px;
             height: auto;
             margin-bottom: 30px; 
             display: block;
             filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
+            pointer-events: none;       /* Clicks pass through */
+            user-select: none;          /* Cannot select */
+            -webkit-user-drag: none;    /* Cannot drag */
         }
 
         #password-input {
@@ -107,54 +107,37 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
             z-index: 10;
-            position: relative; 
         }
 
-        /* HEADER LOGO - Desktop Centered */
+        /* --- HEADER GROUP (LOGO + TEXT) --- */
+        .header-group {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Space between logo and text */
+        }
+
         .header-logo {
-            height: 3.5rem; 
+            height: 3.5rem; /* BIGGER than text */
             width: auto;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
+            display: block;
+            /* THE MAGIC MASKING */
+            pointer-events: none;       /* Clicks pass through */
+            user-select: none;          /* Cannot select */
+            -webkit-user-drag: none;    /* Cannot drag */
         }
         
-        /* Mobile Inline Logo (Hidden by default) */
-        .mobile-logo-inline {
-            display: none;
-            height: 20px;
-            width: auto;
-        }
-        
-        /* Dark mode filter for logos */
         .founder-red-filter {
             filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
         }
-        
-        /* Turn standard black logos white in dark mode */
-        body.dark-mode .mobile-logo-inline {
-            filter: brightness(0) invert(1);
-        }
 
-        /* Header Text */
-        .header {
-            font-size: 1.5rem; font-weight: bold;
-            display: none; /* Hidden on desktop so logo takes center stage */
-            align-items: center;
-            gap: 15px; /* Space between text and mobile logo */
-        }
+        .header { font-size: 1.5rem; font-weight: bold; }
         .price { font-size: 1.5rem; font-weight: bold; }
-        
         .founder-text-red { color: var(--brand-red); }
 
         #dark-mode-toggle, .dark-mode-toggle-btn {
             background: none; border: 1px solid currentColor;
             color: currentColor; padding: 8px 12px;
             font-family: inherit; cursor: pointer;
-            position: relative; z-index: 2;
         }
 
         #dark-mode-toggle:hover, .dark-mode-toggle-btn:hover {
@@ -254,29 +237,16 @@
 
         /* --- MOBILE FIXES --- */
         @media (max-width: 768px) {
-            .header { display: flex; font-size: 1rem; } /* Flex enables side-by-side text/logo */
-            .header-logo { display: none; } /* Hide center logo on mobile */
-            .mobile-logo-inline { display: block; } /* Show inline logo */
-            
-            .price { font-size: 1rem; }
+            .header, .price { font-size: 1rem; }
+            /* On mobile, we keep the logo group but scale it down slightly */
+            .header-logo { height: 2.5rem; gap: 10px; } 
             
             .shop-container { display: none; padding-bottom: 100px; } 
             
-            /* -- TRACKSUIT PAGE BREATHING ROOM -- */
-            #shop-standard .product-stage {
-                height: auto;
-                min-height: 50vh;
-                padding: 40px 30px; /* Added Breathing Room */
-            }
-            #shop-standard .video-wrapper {
-                width: 100%; 
-                margin: auto;
-            }
-            /* ----------------------------------- */
+            .product-stage { height: 50vh; display: flex; }
+            .video-wrapper { margin: auto; }
+            .tracksuit-video { position: static; max-height: 100%; }
 
-            .tracksuit-video { position: static; max-height: 100%; width: 100%; }
-
-            /* Founder Page Logic */
             .split-layout { padding: 0 5px; }
             .split-video-container { max-height: 50vh; border-width: 2px; }
             .plus-sign { font-size: 1.5rem; padding: 0 8px; }
@@ -301,12 +271,10 @@
 
     <div id="shop-standard" class="shop-container"> 
         <div class="top-bar uppercase">
-            <div class="header">
-                Name of My | DROP 1
-                <img src="CoCA-Vector-redrawn-photoshop.svg" class="mobile-logo-inline" alt="CoCA">
+            <div class="header-group">
+                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
+                <div class="header">Name of My | DROP 1</div>
             </div>
-
-            <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
             
             <button class="dark-mode-toggle-btn">🌑 DARK</button> 
             <div class="price">$450.00</div>
@@ -355,8 +323,10 @@
 
     <div id="shop-founder" class="shop-container"> 
         <div class="top-bar uppercase">
-            <div class="header founder-text-red">Name of My | FOUNDER</div>
-            <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo founder-red-filter" alt="CoCA">
+            <div class="header-group">
+                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo founder-red-filter" alt="CoCA">
+                <div class="header founder-text-red">Name of My | FOUNDER</div>
+            </div>
 
             <button class="dark-mode-toggle-btn">🌑 DARK</button> 
             <div class="price">$1500.00</div>
@@ -393,7 +363,7 @@
                 </div>
                 <form action="https://formspree.io/f/mgvgynrj" method="POST">
                     <input type="hidden" name="order_type" value="FOUNDER_PACKAGE_1500">
-                    <label class="form-label uppercase">Name (For Embroidery)</label>
+                    <label class="form-label uppercase">Name (For Bible + Suit)</label>
                     <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
                     <label class="form-label uppercase">Tracksuit Size</label>
                     <select name="size" class="form-field" required>
