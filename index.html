@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NAMEOFMY | ARCHIVE</title>
     <style>
-        /* --- BRUTALIST RESEeT --- */
+        /* --- BRUTALIST RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -16,83 +16,36 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-            transition: background-color 0.3s, color 0.3s; /* Smooth transition for dark mode */
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .uppercase { text-transform: uppercase; }
 
-
-        body.dark-mode {
-            background-color: #000000; /* Dark background */
-            color: #ffffff; /* Light text */
-        }
-
-        body.dark-mode #gate {
-            background: #000000;
-            color: #ffffff;
-        }
-
-        body.dark-mode #password-input {
-            background: #000000;
-            color: #ffffff;
-            border: 2px solid white;
-        }
-
-        body.dark-mode #enter-btn {
-            background: white;
-            color: black;
-            border: none;
-        }
+        /* --- DARK MODE --- */
+        body.dark-mode { background-color: #000000; color: #ffffff; }
+        body.dark-mode #gate { background: #000000; color: #ffffff; }
+        body.dark-mode #password-input { background: #000000; color: #ffffff; border: 2px solid white; }
+        body.dark-mode #enter-btn { background: white; color: black; border: none; }
+        body.dark-mode #enter-btn:hover { background: black; color: white; border: 2px solid white; }
         
-        body.dark-mode #enter-btn:hover {
-            background: black;
-            color: white;
-            border: 2px solid white;
-        }
+        body.dark-mode .receipt-box { border: 2px solid white; background: black; }
+        body.dark-mode .receipt-header { border-bottom: 1px solid white; }
+        body.dark-mode .form-field { border: 1px solid white; background: black; color: white; }
+        body.dark-mode .submit-btn { background: white; color: black; }
+        body.dark-mode .submit-btn:hover { background: black; color: white; border: 2px solid white; }
 
-        body.dark-mode .receipt-box {
-            border: 2px solid white;
-            background: black;
-        }
-
-        body.dark-mode .receipt-header {
-            border-bottom: 1px solid white;
-        }
-
-        body.dark-mode .form-field {
-            border: 1px solid white;
-            background: black;
-            color: white;
-        }
-
-        body.dark-mode .submit-btn {
-            background: white;
-            color: black;
-        }
-
-        body.dark-mode .submit-btn:hover {
-            background: black;
-            color: white;
-            border: 2px solid white;
-        }
-        
-        /* Apply white border to the video wrapper in both modes for consistency */
-        /* You requested a white border, so it should be visible against the white background, 
-           meaning it should probably be a dark border in light mode for contrast. 
-           I've made it a **dynamic border** that matches the text color. */
+        /* Dynamic Border for Media Wrappers */
         .video-wrapper {
-            border: 5px solid currentColor; /* Dynamic border color */
-            display: inline-block; /* Crucial for wrapper sizing */
-            line-height: 0; /* Fixes potential inline element spacing issues */
+            border: 5px solid currentColor;
+            line-height: 0;
+            position: relative;
+            /* Default single video behavior */
+            display: inline-block; 
         }
 
-        /* Dark mode border adjustment: White border for the video */
-        body.dark-mode .video-wrapper {
-            border-color: #ffffff;
-        }
+        body.dark-mode .video-wrapper { border-color: #ffffff; }
 
-
-        /* --- PASSWORD GATE (FIXED OVERLAY) --- */
+        /* --- PASSWORD GATE --- */
         #gate {
             position: fixed;
             top: 0; left: 0;
@@ -106,214 +59,170 @@
         }
 
         #password-input {
-            width: 300px;
-            padding: 15px;
-            font-family: inherit;
-            font-size: 1rem;
-            border: 2px solid black;
-            outline: none;
-            margin-bottom: 10px;
-            text-align: center;
-            border-radius: 0;
+            width: 300px; padding: 15px;
+            font-family: inherit; font-size: 1rem;
+            border: 2px solid black; outline: none;
+            margin-bottom: 10px; text-align: center; border-radius: 0;
         }
 
         #enter-btn {
-            background: black;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            font-family: inherit;
-            cursor: pointer;
-            font-weight: bold;
+            background: black; color: white; border: none;
+            padding: 10px 30px; font-family: inherit;
+            cursor: pointer; font-weight: bold;
         }
 
-        #enter-btn:hover {
-            background: white; color: black; border: 2px solid black;
-        }
+        #enter-btn:hover { background: white; color: black; border: 2px solid black; }
 
-        /* --- MAIN SHOP LAYOUT --- */
-        #shop {
-            /* Changed: Set to flex by default, but hidden by JS initially */
-            display: flex;
+        /* --- SHOP LAYOUT --- */
+        .shop-container {
+            display: none; /* Hidden by default */
             flex-direction: column;
             min-height: 100vh;
             width: 100%;
         }
 
-        /* 1. TOP BAR */
         .top-bar {
             flex: 0 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center; /* Vertically align items */
-            padding: 20px;
-            padding-top: max(20px, env(safe-area-inset-top));
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
             z-index: 10;
         }
 
-        .header, .price {
-            font-size: 1.5rem;
-            font-weight: bold;
+        .header, .price { font-size: 1.5rem; font-weight: bold; }
+
+        #dark-mode-toggle, .dark-mode-toggle-btn {
+            background: none; border: 1px solid currentColor;
+            color: currentColor; padding: 8px 12px;
+            font-family: inherit; cursor: pointer;
         }
 
-        /* Dark Mode Toggle Button Styling */
-        #dark-mode-toggle {
-            background: none;
-            border: 1px solid currentColor; /* Dynamic border color */
-            color: currentColor; /* Dynamic icon color */
-            padding: 8px 12px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        #dark-mode-toggle:hover {
+        #dark-mode-toggle:hover, .dark-mode-toggle-btn:hover {
             background-color: currentColor;
-            color: var(--opposite-color, #ffffff); /* Fallback to white */
+            color: var(--opposite-color, #ffffff);
         }
         
-        body:not(.dark-mode) #dark-mode-toggle:hover {
-            --opposite-color: #ffffff; /* Light Mode Hover: Text=White, BG=Black */
-        }
+        body:not(.dark-mode) .dark-mode-toggle-btn:hover { --opposite-color: #ffffff; }
+        body.dark-mode .dark-mode-toggle-btn:hover { --opposite-color: #000000; }
 
-        body.dark-mode #dark-mode-toggle:hover {
-            --opposite-color: #000000; /* Dark Mode Hover: Text=Black, BG=White */
-        }
-
-
-        /* 2. VIDEO STAGE */
+        /* --- PRODUCT STAGE (General) --- */
         .product-stage {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            flex: 1; position: relative; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
         }
-        
-        /* Video is now inside .video-wrapper */
-        .tracksuit-video {
+
+        /* --- DUAL VIDEO STAGE (Specific to CoCA2) --- */
+        .split-layout {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             height: 100%;
-            max-height: 70vh;
-            object-fit: contain;
+            padding: 0 10px;
+        }
+
+        .split-video-container {
+            flex: 1;
+            height: auto;
+            max-height: 65vh; /* Ensure it fits in viewport */
+            aspect-ratio: 9/16; /* Maintain vertical look */
+            border: 5px solid currentColor;
+            position: relative;
+            display: flex;
+        }
+        
+        body.dark-mode .split-video-container { border-color: white; }
+
+        .split-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Fill the frame completely */
+        }
+
+        .plus-sign {
+            font-size: 4rem;
+            font-weight: bold;
+            padding: 0 20px;
+            flex: 0 0 auto;
+        }
+
+        /* Standard Single Video */
+        .tracksuit-video {
+            width: 100%; height: 100%;
+            max-height: 70vh; object-fit: contain;
             pointer-events: none;
         }
 
-        /* 3. BOTTOM BAR */
+        /* --- BOTTOM BAR --- */
         .bottom-bar {
             flex: 0 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 20px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            display: flex; justify-content: space-between; align-items: flex-end;
+            padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom));
             z-index: 10;
         }
 
-        .details {
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
+        .details { font-size: 0.8rem; line-height: 1.4; }
 
-        /* --- FORM STYLING --- */
+        /* --- FORM --- */
         .receipt-box {
-            width: 340px;
-            border: 2px solid black;
-            padding: 15px;
-            background: white;
+            width: 340px; border: 2px solid black;
+            padding: 15px; background: white;
             transition: border-color 0.3s, background 0.3s;
         }
 
         .receipt-header {
             border-bottom: 1px solid black;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            transition: border-color 0.3s;
+            padding-bottom: 10px; margin-bottom: 15px;
+            font-weight: bold; display: flex; justify-content: space-between;
         }
 
         .form-field {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid black;
-            font-family: inherit;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            border-radius: 0;
-            outline: none;
-            background: white;
-            appearance: none;
-            transition: border-color 0.3s, background 0.3s, color 0.3s;
+            width: 100%; padding: 10px; border: 1px solid black;
+            font-family: inherit; font-size: 0.9rem; margin-bottom: 10px;
+            border-radius: 0; outline: none; background: white; appearance: none;
         }
 
         .form-label {
-            font-size: 0.7rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-            display: block;
+            font-size: 0.7rem; font-weight: bold;
+            margin-bottom: 4px; display: block;
         }
 
         .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: black;
-            color: white;
-            border: none;
-            font-family: inherit;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-top: 5px;
-            transition: background-color 0.3s, color 0.3s, border 0.3s;
+            width: 100%; padding: 12px; background: black;
+            color: white; border: none; font-family: inherit;
+            cursor: pointer; text-transform: uppercase;
+            font-weight: bold; margin-top: 5px;
         }
 
-        .submit-btn:hover {
-            background: white; color: black; border: 2px solid black;
-        }
+        .submit-btn:hover { background: white; color: black; border: 2px solid black; }
 
-        /* --- MOBILE SPECIFIC FIXES --- */
+        /* --- MOBILE FIXES --- */
         @media (max-width: 768px) {
             .header, .price { font-size: 1rem; }
+            .shop-container { display: none; padding-bottom: 100px; } /* Block display set via JS */
+            
+            /* Single Product View */
+            .product-stage { height: 50vh; display: flex; }
+            .video-wrapper { margin: auto; }
+            .tracksuit-video { position: static; max-height: 100%; }
 
-            /* Change layout to standard block scrolling */
-            #shop {
-                display: block; /* Stop trying to be a flex column */
-                padding-bottom: 100px;
+            /* Dual Product View (Mobile) */
+            .split-layout {
+                padding: 0 5px;
             }
-
-            .product-stage {
-                display: flex; /* Keep flex to center the video */
-                height: 50vh;
-                position: relative;
+            .split-video-container {
+                max-height: 50vh; /* Make smaller on mobile to fit vertical */
+                border-width: 2px;
             }
-
-            .tracksuit-video {
-                /* Remove absolute positioning, let flexbox handle it, but keep contain */
-                position: static; 
-                max-height: 100%;
+            .plus-sign {
+                font-size: 1.5rem;
+                padding: 0 8px;
             }
             
-            /* Center the video-wrapper in mobile view */
-            .video-wrapper {
-                margin: auto; 
-            }
-
-            .bottom-bar {
-                display: block;
-                padding: 20px;
-            }
-
-            .details {
-                margin-bottom: 30px;
-            }
-
-            .receipt-box {
-                width: 100%;
-            }
+            .bottom-bar { display: block; }
+            .details { margin-bottom: 30px; }
+            .receipt-box { width: 100%; }
         }
     </style>
 </head>
@@ -326,13 +235,16 @@
         <p id="error-msg" style="color: red; margin-top: 10px; display: none;">ACCESS DENIED</p>
     </div>
 
-    <div id="shop" style="display: none;"> <div class="top-bar uppercase">
+    <div id="shop-standard" class="shop-container"> 
+        <div class="top-bar uppercase">
             <div class="header">Name of My | DROP 1</div>
-            <button id="dark-mode-toggle">🌑 DARK</button> <div class="price">$450.00</div>
+            <button class="dark-mode-toggle-btn">🌑 DARK</button> 
+            <div class="price">$450.00</div>
         </div>
 
         <div class="product-stage">
-            <div class="video-wrapper"> <video class="tracksuit-video" autoplay loop muted playsinline>
+            <div class="video-wrapper"> 
+                <video class="tracksuit-video" autoplay loop muted playsinline>
                     <source src="coca3.mp4" type="video/mp4">
                 </video>
             </div>
@@ -353,6 +265,7 @@
                 </div>
                 
                 <form action="https://formspree.io/f/mgvgynrj" method="POST">
+                    <input type="hidden" name="order_type" value="STANDARD_DROP_1">
                     
                     <label class="form-label uppercase">Name (For Embroidery)</label>
                     <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
@@ -375,9 +288,72 @@
         </div>
     </div>
 
+    <div id="shop-founder" class="shop-container"> 
+        <div class="top-bar uppercase">
+            <div class="header" style="color: #ff3333;">Name of My | FOUNDER</div>
+            <button class="dark-mode-toggle-btn">🌑 DARK</button> 
+            <div class="price">$1500.00</div>
+        </div>
+
+        <div class="product-stage">
+            <div class="split-layout">
+                <div class="split-video-container">
+                    <video class="split-video" autoplay loop muted playsinline>
+                        <source src="coca3.mp4" type="video/mp4">
+                    </video>
+                </div>
+
+                <div class="plus-sign">+</div>
+
+                <div class="split-video-container">
+                    <video class="split-video" autoplay loop muted playsinline>
+                        <source src="coca4.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <div class="details uppercase">
+                <p>Item: 000 (FOUNDER)</p>
+                <p>Includes: Bible + Tracksuit</p>
+                <p>Edition: 1 of 5</p>
+                <p>Status: EXCLUSIVE</p>
+            </div>
+
+            <div class="receipt-box" style="border-color: #ff3333;">
+                <div class="receipt-header uppercase" style="border-bottom-color: #ff3333;">
+                    <span>FOUNDER RECEIPT</span>
+                    <span style="color: #ff3333;">1 of 5</span>
+                </div>
+                
+                <form action="https://formspree.io/f/mgvgynrj" method="POST">
+                    <input type="hidden" name="order_type" value="FOUNDER_PACKAGE_1500">
+                    
+                    <label class="form-label uppercase">Name (For Bible + Suit)</label>
+                    <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
+
+                    <label class="form-label uppercase">Tracksuit Size</label>
+                    <select name="size" class="form-field" required>
+                        <option value="" disabled selected>SELECT SIZE</option>
+                        <option value="S">SMALL</option>
+                        <option value="M">MEDIUM</option>
+                        <option value="L">LARGE</option>
+                        <option value="XL">X-LARGE</option>
+                    </select>
+
+                    <label class="form-label uppercase">Direct Contact</label>
+                    <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
+
+                    <button type="submit" class="submit-btn" style="background-color: #ff3333; border: none;">CLAIM PACKAGE</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 <script>
     /**
-     * SECURE GATEWAY v5.4 (SCROLL UNLOCKED)
+     * SECURE GATEWAY v6.1 (DUAL CORE / SPLIT SCREEN)
      * (c) 2025 CHURCH OF CONCEPTUAL ART
      */
     (function() {
@@ -385,15 +361,19 @@
         const _input = document.getElementById('password-input');
         const _trigger = document.getElementById('enter-btn');
         const _console = document.getElementById('error-msg');
-        const _payload = document.getElementById('shop');
         
-        const _ROOT_ACCESS_KEY = "00012000"; 
+        // PAYLOADS
+        const _standardShop = document.getElementById('shop-standard');
+        const _founderShop = document.getElementById('shop-founder');
+        
+        // LEGACY HASH FOR "CoCA"
         const _KERNEL_SEED = 0x2A; 
         const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
 
         const _SysAdmin = {
             _mount: function() {
-                _payload.style.display = 'none'; 
+                _standardShop.style.display = 'none'; 
+                _founderShop.style.display = 'none';
                 _gate.style.display = 'flex';
                 _console.style.display = 'none';
             },
@@ -407,24 +387,40 @@
                 return btoa(_buffer.join("-"));
             },
 
-            _handshake: function(token) {
+            _verifyStandard: function(token) {
                 let cleanToken = token.trim(); 
-                if (cleanToken === atob(_ROOT_ACCESS_KEY)) return false;
+                if (cleanToken === "") return false;
                 return this._cipher(cleanToken) === _LEGACY_CACHE_DUMP;
             }
         };
         
         _SysAdmin._mount();
 
+        function _unlock(viewElement) {
+            _gate.style.display = 'none';
+            const isMobile = window.matchMedia("(max-width: 768px)").matches;
+            viewElement.style.display = isMobile ? 'block' : 'flex'; 
+            
+            // Force play all videos in the active view
+            const videos = viewElement.querySelectorAll('video');
+            videos.forEach(v => {
+                v.play().catch(e => console.log("Autoplay blocked:", e));
+            });
+        }
+
         function _executeSequence() {
+            const val = _input.value.trim();
+            
             try {
-                if (_SysAdmin._handshake(_input.value)) {
-                    _gate.style.display = 'none';
-                    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-                    _payload.style.display = isMobile ? 'block' : 'flex'; 
-                    const v = document.querySelector('video');
-                    if(v) v.play();
-                } else {
+                if (val === "CoCA2") {
+                    // PATH 2: FOUNDER
+                    _unlock(_founderShop);
+                } 
+                else if (_SysAdmin._verifyStandard(val)) {
+                    // PATH 1: STANDARD ("CoCA")
+                    _unlock(_standardShop);
+                } 
+                else {
                     throw new Error("ACCESS DENIED");
                 }
             } catch (e) {
@@ -440,30 +436,32 @@
             if (e.key === 'Enter') _executeSequence();
         });
 
-        // --- NEW DARK MODE TOGGLE LOGIC ---
-        const toggleButton = document.getElementById('dark-mode-toggle');
+        // --- DARK MODE TOGGLE (HANDLES BOTH BUTTONS) ---
+        const toggleButtons = document.querySelectorAll('.dark-mode-toggle-btn');
         const body = document.body;
         
-        // Check for saved preference or system preference on load
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const updateButtons = (isDark) => {
+            toggleButtons.forEach(btn => {
+                btn.textContent = isDark ? '☀️ LIGHT' : '🌑 DARK';
+            });
+        };
+
         const savedMode = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
         if (savedMode === 'dark' || (savedMode === null && prefersDark)) {
             body.classList.add('dark-mode');
-            toggleButton.textContent = '☀️ LIGHT';
+            updateButtons(true);
         } else {
-            toggleButton.textContent = '🌑 DARK';
+            updateButtons(false);
         }
 
-        // Toggle function
-        toggleButton.addEventListener('click', () => {
-            const isDarkMode = body.classList.toggle('dark-mode');
-            
-            // Save preference to local storage
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-
-            // Update button text
-            toggleButton.textContent = isDarkMode ? '☀️ LIGHT' : '🌑 DARK';
+        toggleButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const isDarkMode = body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                updateButtons(isDarkMode);
+            });
         });
 
     })();
