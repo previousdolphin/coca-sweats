@@ -8,6 +8,12 @@
         /* --- BRUTALIST RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        :root {
+            /* --- MASTER COLOR CONTROL --- */
+            /* This is the single Red used for Text, Borders, Buttons, and Logo Filter */
+            --brand-red: #ff3333; 
+        }
+
         body {
             background-color: #ffffff;
             color: #000000;
@@ -34,6 +40,13 @@
         body.dark-mode .submit-btn { background: white; color: black; }
         body.dark-mode .submit-btn:hover { background: black; color: white; border: 2px solid white; }
 
+        /* Founder Specific Overrides for Dark Mode */
+        body.dark-mode .receipt-box.founder-theme { border-color: var(--brand-red); }
+        body.dark-mode .receipt-header.founder-theme { border-bottom-color: var(--brand-red); }
+        body.dark-mode .submit-btn.founder-theme { background-color: var(--brand-red); color: white; }
+        body.dark-mode .submit-btn.founder-theme:hover { background-color: white; color: var(--brand-red); border-color: var(--brand-red); }
+
+
         /* Dynamic Border for Media Wrappers */
         .video-wrapper {
             border: 5px solid currentColor;
@@ -57,16 +70,14 @@
             align-items: center;
         }
 
-        /* LOGO STYLING */
+        /* GATE LOGO */
         .gate-logo {
-            width: 180px;        /* Adjust size as needed */
+            width: 180px;
             height: auto;
             margin-bottom: 30px; 
             display: block;
-            
-            /* THIS FILTER TURNS A BLACK SVG IMAGE RED (#FF0000) */
-            /* Remove this line if your SVG file is already red */
-            filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%);
+            /* Filter to turn black SVG to --brand-red */
+            filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
         }
 
         #password-input {
@@ -99,7 +110,28 @@
             z-index: 10;
         }
 
+        /* HEADER GROUP (Logo + Text) */
+        .header-group {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Space between logo and text */
+        }
+
+        .header-logo {
+            height: 1.6rem; /* Matches text height */
+            width: auto;
+            display: block;
+        }
+        
+        /* Red Filter for Founder Logo */
+        .founder-red-filter {
+            filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
+        }
+
         .header, .price { font-size: 1.5rem; font-weight: bold; }
+        
+        /* Founder Text Color */
+        .founder-text-red { color: var(--brand-red); }
 
         #dark-mode-toggle, .dark-mode-toggle-btn {
             background: none; border: 1px solid currentColor;
@@ -174,6 +206,11 @@
             padding-bottom: 10px; margin-bottom: 15px;
             font-weight: bold; display: flex; justify-content: space-between;
         }
+        
+        /* Founder Colors for Receipt */
+        .receipt-box.founder-theme { border-color: var(--brand-red); }
+        .receipt-header.founder-theme { border-bottom-color: var(--brand-red); }
+        .founder-accent { color: var(--brand-red); }
 
         .form-field {
             width: 100%; padding: 10px; border: 1px solid black;
@@ -194,10 +231,15 @@
         }
 
         .submit-btn:hover { background: white; color: black; border: 2px solid black; }
+        
+        .submit-btn.founder-theme { background-color: var(--brand-red); border: none; }
+        .submit-btn.founder-theme:hover { background-color: white; color: var(--brand-red); border: 2px solid var(--brand-red); }
 
         /* --- MOBILE FIXES --- */
         @media (max-width: 768px) {
             .header, .price { font-size: 1rem; }
+            .header-logo { height: 1.1rem; gap: 8px; } /* Smaller logo on mobile */
+            
             .shop-container { display: none; padding-bottom: 100px; } 
             
             .product-stage { height: 50vh; display: flex; }
@@ -213,7 +255,6 @@
             .details { margin-bottom: 30px; }
             .receipt-box { width: 100%; }
             
-            /* Logo resizing for mobile */
             .gate-logo { width: 140px; margin-bottom: 20px; }
         }
     </style>
@@ -231,7 +272,11 @@
 
     <div id="shop-standard" class="shop-container"> 
         <div class="top-bar uppercase">
-            <div class="header">Name of My | DROP 1</div>
+            <div class="header-group">
+                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
+                <div class="header">Name of My | DROP 1</div>
+            </div>
+            
             <button class="dark-mode-toggle-btn">🌑 DARK</button> 
             <div class="price">$450.00</div>
         </div>
@@ -284,7 +329,11 @@
 
     <div id="shop-founder" class="shop-container"> 
         <div class="top-bar uppercase">
-            <div class="header" style="color: #ff3333;">Name of My | FOUNDER</div>
+            <div class="header-group">
+                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo founder-red-filter" alt="CoCA">
+                <div class="header founder-text-red">Name of My | FOUNDER</div>
+            </div>
+
             <button class="dark-mode-toggle-btn">🌑 DARK</button> 
             <div class="price">$1500.00</div>
         </div>
@@ -315,10 +364,10 @@
                 <p>Status: EXCLUSIVE</p>
             </div>
 
-            <div class="receipt-box" style="border-color: #ff3333;">
-                <div class="receipt-header uppercase" style="border-bottom-color: #ff3333;">
+            <div class="receipt-box founder-theme">
+                <div class="receipt-header uppercase founder-theme">
                     <span>FOUNDER RECEIPT</span>
-                    <span style="color: #ff3333;">1 of 5</span>
+                    <span class="founder-accent">1 of 5</span>
                 </div>
                 
                 <form action="https://formspree.io/f/mgvgynrj" method="POST">
@@ -339,7 +388,7 @@
                     <label class="form-label uppercase">Direct Contact</label>
                     <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
 
-                    <button type="submit" class="submit-btn" style="background-color: #ff3333; border: none;">CLAIM PACKAGE</button>
+                    <button type="submit" class="submit-btn founder-theme">CLAIM PACKAGE</button>
                 </form>
             </div>
         </div>
@@ -347,7 +396,7 @@
 
 <script>
     /**
-     * SECURE GATEWAY v6.3 (IMG LINK + RED FILTER)
+     * SECURE GATEWAY v6.4 (BRAND RED STANDARDIZATION)
      * (c) 2025 CHURCH OF CONCEPTUAL ART
      */
     (function() {
@@ -356,11 +405,9 @@
         const _trigger = document.getElementById('enter-btn');
         const _console = document.getElementById('error-msg');
         
-        // PAYLOADS
         const _standardShop = document.getElementById('shop-standard');
         const _founderShop = document.getElementById('shop-founder');
         
-        // LEGACY HASH FOR "CoCA"
         const _KERNEL_SEED = 0x2A; 
         const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
 
@@ -395,7 +442,6 @@
             const isMobile = window.matchMedia("(max-width: 768px)").matches;
             viewElement.style.display = isMobile ? 'block' : 'flex'; 
             
-            // Force play all videos in the active view
             const videos = viewElement.querySelectorAll('video');
             videos.forEach(v => {
                 v.play().catch(e => console.log("Autoplay blocked:", e));
@@ -404,7 +450,6 @@
 
         function _executeSequence() {
             const val = _input.value.trim();
-            
             try {
                 if (val === "CoCA2") {
                     _unlock(_founderShop);
