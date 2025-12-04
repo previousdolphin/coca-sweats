@@ -39,7 +39,6 @@
             border: 5px solid currentColor;
             line-height: 0;
             position: relative;
-            /* Default single video behavior */
             display: inline-block; 
         }
 
@@ -56,6 +55,18 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        /* LOGO STYLING */
+        .gate-logo {
+            width: 180px;        /* Adjust size as needed */
+            height: auto;
+            margin-bottom: 30px; 
+            display: block;
+            
+            /* THIS FILTER TURNS A BLACK SVG IMAGE RED (#FF0000) */
+            /* Remove this line if your SVG file is already red */
+            filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%);
         }
 
         #password-input {
@@ -75,7 +86,7 @@
 
         /* --- SHOP LAYOUT --- */
         .shop-container {
-            display: none; /* Hidden by default */
+            display: none; 
             flex-direction: column;
             min-height: 100vh;
             width: 100%;
@@ -104,47 +115,34 @@
         body:not(.dark-mode) .dark-mode-toggle-btn:hover { --opposite-color: #ffffff; }
         body.dark-mode .dark-mode-toggle-btn:hover { --opposite-color: #000000; }
 
-        /* --- PRODUCT STAGE (General) --- */
+        /* --- PRODUCT STAGE --- */
         .product-stage {
             flex: 1; position: relative; width: 100%;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
         }
 
-        /* --- DUAL VIDEO STAGE (Specific to CoCA2) --- */
+        /* --- DUAL VIDEO STAGE (CoCA2) --- */
         .split-layout {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            padding: 0 10px;
+            display: flex; flex-direction: row;
+            align-items: center; justify-content: center;
+            width: 100%; height: 100%; padding: 0 10px;
         }
 
         .split-video-container {
-            flex: 1;
-            height: auto;
-            max-height: 65vh; /* Ensure it fits in viewport */
-            aspect-ratio: 9/16; /* Maintain vertical look */
+            flex: 1; height: auto;
+            max-height: 65vh; aspect-ratio: 9/16; 
             border: 5px solid currentColor;
-            position: relative;
-            display: flex;
+            position: relative; display: flex;
         }
         
         body.dark-mode .split-video-container { border-color: white; }
 
-        .split-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Fill the frame completely */
-        }
+        .split-video { width: 100%; height: 100%; object-fit: cover; }
 
         .plus-sign {
-            font-size: 4rem;
-            font-weight: bold;
-            padding: 0 20px;
-            flex: 0 0 auto;
+            font-size: 4rem; font-weight: bold;
+            padding: 0 20px; flex: 0 0 auto;
         }
 
         /* Standard Single Video */
@@ -200,35 +198,31 @@
         /* --- MOBILE FIXES --- */
         @media (max-width: 768px) {
             .header, .price { font-size: 1rem; }
-            .shop-container { display: none; padding-bottom: 100px; } /* Block display set via JS */
+            .shop-container { display: none; padding-bottom: 100px; } 
             
-            /* Single Product View */
             .product-stage { height: 50vh; display: flex; }
             .video-wrapper { margin: auto; }
             .tracksuit-video { position: static; max-height: 100%; }
 
             /* Dual Product View (Mobile) */
-            .split-layout {
-                padding: 0 5px;
-            }
-            .split-video-container {
-                max-height: 50vh; /* Make smaller on mobile to fit vertical */
-                border-width: 2px;
-            }
-            .plus-sign {
-                font-size: 1.5rem;
-                padding: 0 8px;
-            }
+            .split-layout { padding: 0 5px; }
+            .split-video-container { max-height: 50vh; border-width: 2px; }
+            .plus-sign { font-size: 1.5rem; padding: 0 8px; }
             
             .bottom-bar { display: block; }
             .details { margin-bottom: 30px; }
             .receipt-box { width: 100%; }
+            
+            /* Logo resizing for mobile */
+            .gate-logo { width: 140px; margin-bottom: 20px; }
         }
     </style>
 </head>
 <body>
 
     <div id="gate">
+        <img src="CoCA-Vector-redrawn-photoshop.svg" class="gate-logo" alt="CoCA Logo">
+
         <h1 class="uppercase" style="margin-bottom: 20px;">Restricted Access</h1>
         <input type="password" id="password-input" placeholder="ENTER PASSWORD">
         <button id="enter-btn" class="uppercase">Enter</button>
@@ -353,7 +347,7 @@
 
 <script>
     /**
-     * SECURE GATEWAY v6.1 (DUAL CORE / SPLIT SCREEN)
+     * SECURE GATEWAY v6.3 (IMG LINK + RED FILTER)
      * (c) 2025 CHURCH OF CONCEPTUAL ART
      */
     (function() {
@@ -413,11 +407,9 @@
             
             try {
                 if (val === "CoCA2") {
-                    // PATH 2: FOUNDER
                     _unlock(_founderShop);
                 } 
                 else if (_SysAdmin._verifyStandard(val)) {
-                    // PATH 1: STANDARD ("CoCA")
                     _unlock(_standardShop);
                 } 
                 else {
@@ -436,7 +428,7 @@
             if (e.key === 'Enter') _executeSequence();
         });
 
-        // --- DARK MODE TOGGLE (HANDLES BOTH BUTTONS) ---
+        // --- DARK MODE TOGGLE ---
         const toggleButtons = document.querySelectorAll('.dark-mode-toggle-btn');
         const body = document.body;
         
