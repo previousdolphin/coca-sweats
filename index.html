@@ -44,7 +44,6 @@
         body.dark-mode .submit-btn.founder-theme { background-color: var(--brand-red); color: white; }
         body.dark-mode .submit-btn.founder-theme:hover { background-color: white; color: var(--brand-red); border-color: var(--brand-red); }
 
-
         /* Dynamic Border for Media Wrappers */
         .video-wrapper {
             border: 5px solid currentColor;
@@ -68,14 +67,13 @@
             align-items: center;
         }
 
-        /* GATE LOGO - Larger and non-interactive */
+        /* GATE LOGO */
         .gate-logo {
             width: 180px;
             height: auto;
             margin-bottom: 30px; 
             display: block;
             filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
-            /* Prevent interaction */
             pointer-events: none;
             user-select: none;
             -webkit-user-drag: none;
@@ -109,42 +107,54 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
             z-index: 10;
-            position: relative; /* Needed for absolute positioning of logo */
+            position: relative; 
         }
 
-        /* HEADER LOGO - Larger, Centered, Non-interactive, doesn't affect height */
+        /* HEADER LOGO - Desktop Centered */
         .header-logo {
-            height: 3.5rem; /* Much larger */
+            height: 3.5rem; 
             width: auto;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            /* Prevent interaction */
             pointer-events: none;
             user-select: none;
             -webkit-user-drag: none;
         }
         
-        /* Red Filter for Founder Logo */
+        /* Mobile Inline Logo (Hidden by default) */
+        .mobile-logo-inline {
+            display: none;
+            height: 20px;
+            width: auto;
+        }
+        
+        /* Dark mode filter for logos */
         .founder-red-filter {
             filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
         }
+        
+        /* Turn standard black logos white in dark mode */
+        body.dark-mode .mobile-logo-inline {
+            filter: brightness(0) invert(1);
+        }
 
-        /* Header Text - Hidden on desktop when logo is present */
+        /* Header Text */
         .header {
             font-size: 1.5rem; font-weight: bold;
-            display: none; 
+            display: none; /* Hidden on desktop so logo takes center stage */
+            align-items: center;
+            gap: 15px; /* Space between text and mobile logo */
         }
         .price { font-size: 1.5rem; font-weight: bold; }
         
-        /* Founder Text Color */
         .founder-text-red { color: var(--brand-red); }
 
         #dark-mode-toggle, .dark-mode-toggle-btn {
             background: none; border: 1px solid currentColor;
             color: currentColor; padding: 8px 12px;
             font-family: inherit; cursor: pointer;
-            position: relative; z-index: 2; /* Ensure clickable */
+            position: relative; z-index: 2;
         }
 
         #dark-mode-toggle:hover, .dark-mode-toggle-btn:hover {
@@ -244,16 +254,29 @@
 
         /* --- MOBILE FIXES --- */
         @media (max-width: 768px) {
-            .header { display: block; font-size: 1rem; } /* Show text on mobile */
-            .header-logo { display: none; } /* Hide logo on mobile */
+            .header { display: flex; font-size: 1rem; } /* Flex enables side-by-side text/logo */
+            .header-logo { display: none; } /* Hide center logo on mobile */
+            .mobile-logo-inline { display: block; } /* Show inline logo */
+            
             .price { font-size: 1rem; }
             
             .shop-container { display: none; padding-bottom: 100px; } 
             
-            .product-stage { height: 50vh; display: flex; }
-            .video-wrapper { margin: auto; }
-            .tracksuit-video { position: static; max-height: 100%; }
+            /* -- TRACKSUIT PAGE BREATHING ROOM -- */
+            #shop-standard .product-stage {
+                height: auto;
+                min-height: 50vh;
+                padding: 40px 30px; /* Added Breathing Room */
+            }
+            #shop-standard .video-wrapper {
+                width: 100%; 
+                margin: auto;
+            }
+            /* ----------------------------------- */
 
+            .tracksuit-video { position: static; max-height: 100%; width: 100%; }
+
+            /* Founder Page Logic */
             .split-layout { padding: 0 5px; }
             .split-video-container { max-height: 50vh; border-width: 2px; }
             .plus-sign { font-size: 1.5rem; padding: 0 8px; }
@@ -278,7 +301,11 @@
 
     <div id="shop-standard" class="shop-container"> 
         <div class="top-bar uppercase">
-            <div class="header">Name of My | DROP 1</div>
+            <div class="header">
+                Name of My | DROP 1
+                <img src="CoCA-Vector-redrawn-photoshop.svg" class="mobile-logo-inline" alt="CoCA">
+            </div>
+
             <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
             
             <button class="dark-mode-toggle-btn">🌑 DARK</button> 
@@ -386,8 +413,8 @@
 
 <script>
     /**
-     * SECURE GATEWAY v6.6 (LARGE CENTERED LOGO)
-     * (c) 2025 CHURCH OF CONCEPTUAL ART
+     * SECURE GATEWAY v6.7 (FULL OBFUSCATION)
+     * Nameofmy / Unsubscribe.llc colab with CHURCH OF CONCEPTUAL ART 
      */
     (function() {
         const _gate = document.getElementById('gate');
@@ -399,7 +426,10 @@
         const _founderShop = document.getElementById('shop-founder');
         
         const _KERNEL_SEED = 0x2A; 
+        
         const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
+        
+        const _FOUNDER_CACHE_DUMP = "MTA5LTY5LTEwOS0xMDctMjQ=";
 
         const _SysAdmin = {
             _mount: function() {
@@ -418,10 +448,10 @@
                 return btoa(_buffer.join("-"));
             },
 
-            _verifyStandard: function(token) {
+            _verify: function(token, targetHash) {
                 let cleanToken = token.trim(); 
                 if (cleanToken === "") return false;
-                return this._cipher(cleanToken) === _LEGACY_CACHE_DUMP;
+                return this._cipher(cleanToken) === targetHash;
             }
         };
         
@@ -441,10 +471,10 @@
         function _executeSequence() {
             const val = _input.value.trim();
             try {
-                if (val === "CoCA2") {
+                if (_SysAdmin._verify(val, _FOUNDER_CACHE_DUMP)) {
                     _unlock(_founderShop);
                 } 
-                else if (_SysAdmin._verifyStandard(val)) {
+                else if (_SysAdmin._verify(val, _LEGACY_CACHE_DUMP)) {
                     _unlock(_standardShop);
                 } 
                 else {
