@@ -134,8 +134,8 @@
         </div>
     </div>
 
-    <!-- FIXED IMPORT: Reverted to default export -->
     <script type="module">
+        // 1. FIX IMPORT: Using default export to avoid 'PrivyClient' syntax error
         import Privy from "https://esm.sh/@privy-io/js-sdk-core@latest";
 
         const APP_ID = 'cmitb8a5900p6l40c4tkqqwbq'; 
@@ -160,10 +160,9 @@
 
         let privy;
 
-        // --- INIT ---
         async function init() {
             try {
-                // Initialize Client with Default Export
+                // Initialize Client
                 privy = new Privy({ appId: APP_ID });
                 
                 // Mount Iframe
@@ -177,9 +176,9 @@
                 privy.setMessagePoster(iframe.contentWindow);
                 window.addEventListener('message', (e) => privy.embeddedWallet.onMessage(e.data));
 
-                // Check for existing session
-                const session = await privy.auth.getSession();
-                if (session) {
+                // 2. FIX SESSION CHECK: using getUser() instead of getSession()
+                const user = await privy.getUser();
+                if (user) {
                     enterApp();
                 }
             } catch (e) {
@@ -193,6 +192,7 @@
             els.app.classList.remove('hidden');
             try {
                 const user = await privy.getUser();
+                // Filter for the specific embedded wallet
                 const wallet = user.linked_accounts.find(a => a.type === 'wallet' && a.wallet_client_type === 'privy');
                 if (wallet) {
                     els.dispAddress.innerText = wallet.address;
@@ -210,17 +210,15 @@
             els.terminal.appendChild(span);
         }
 
-        // --- HANDLERS ---
         els.btnLogin.addEventListener('click', async () => {
             els.btnLogin.innerText = "CONNECTING...";
-            els.loginStatus.innerText = ""; // Clear previous errors
+            els.loginStatus.innerText = ""; 
             
             try {
                 await privy.login();
                 enterApp();
             } catch (e) {
                 console.error(e);
-                // PRINT THE ACTUAL ERROR TO THE SCREEN
                 els.loginStatus.innerText = "LOGIN ERROR: " + (e.message || JSON.stringify(e));
                 els.btnLogin.innerText = "TRY AGAIN";
             }
@@ -250,6 +248,7 @@
 
             try {
                 const provider = await privy.embeddedWallet.getEthereumProvider();
+                // Conversion: 1 ETH = 10^18 Wei. Using BigInt for safety.
                 const wei = BigInt(Math.floor(parseFloat(amount) * 1e18)).toString(16);
                 
                 log(`SENDING ${amount} ETH...`);
@@ -276,7 +275,6 @@
             }
         });
 
-        // Dark Mode Logic
         const toggleBtn = els.toggleBtn;
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
