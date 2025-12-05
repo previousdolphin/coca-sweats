@@ -75,7 +75,7 @@
             box-sizing: border-box;
         }
 
-        button#connect-wallet {
+        button.action-btn {
             width: 100%;
             padding: 15px;
             background-color: var(--accent-color);
@@ -86,13 +86,14 @@
             cursor: pointer;
             text-transform: uppercase;
             transition: all 0.1s;
+            margin-bottom: 10px;
         }
 
-        button#connect-wallet:hover {
+        button.action-btn:hover {
             background-color: var(--text-color);
         }
 
-        button#connect-wallet:active {
+        button.action-btn:active {
             transform: translate(2px, 2px);
         }
 
@@ -105,9 +106,16 @@
             margin-top: 20px;
             font-size: 0.8rem;
             color: #666;
-            text-align: center;
+            text-align: left;
             word-wrap: break-word;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            font-family: monospace;
         }
+
+        .log-entry { margin-bottom: 5px; }
+        .log-error { color: red; }
+        .log-success { color: green; }
 
         #privy-iframe {
             width: 0; height: 0; border: none; position: absolute; visibility: hidden;
@@ -136,10 +144,10 @@
             <input type="number" id="amount" placeholder="0.00" step="0.01">
         </div>
 
-        <button id="connect-wallet">Initialize Protocol</button>
+        <button id="main-action" class="action-btn">Connect Wallet</button>
 
-        <div class="status-msg" id="status">
-            * All transactions are final and purely conceptual until validated on-chain.
+        <div class="status-msg" id="console-output">
+            <div>> System Ready.</div>
         </div>
     </div>
 
@@ -153,18 +161,28 @@
         const CHURCH_WALLET = '0x0828C77922838a06587eBe8463aDBDeD6eb95f74'; 
         // ==============
 
-        const statusMsg = document.getElementById('status');
-        const connectBtn = document.getElementById('connect-wallet');
+        const outputDiv = document.getElementById('console-output');
+        const actionBtn = document.getElementById('main-action');
         const amountInput = document.getElementById('amount');
         const currencySelect = document.getElementById('currency');
 
+        // Helper for on-screen logging
+        function log(msg, type = 'normal') {
+            const entry = document.createElement('div');
+            entry.className = type === 'error' ? 'log-entry log-error' : type === 'success' ? 'log-entry log-success' : 'log-entry';
+            entry.innerText = `> ${msg}`;
+            outputDiv.appendChild(entry);
+            console.log(msg);
+        }
+
+        // 1. Initialize Privy
         const privy = new Privy({
             appId: APP_ID,
             clientId: CLIENT_ID,
             storage: new LocalStorage()
         });
 
-        // Mount Iframe
+        // 2. Mount Iframe (Crucial for embedded wallets)
         try {
             const iframe = document.createElement('iframe');
             iframe.src = privy.embeddedWallet.getURL();
@@ -173,50 +191,47 @@
             privy.setMessagePoster(iframe.contentWindow);
             window.addEventListener('message', (e) => privy.embeddedWallet.onMessage(e.data));
         } catch (e) {
-            console.error("Iframe Error:", e);
+            log("Iframe Init Failed: " + e.message, 'error');
         }
 
-        // --- HELPER: ROBUST WALLET FINDER & CREATOR ---
-        async function ensureWalletExists() {
-            const user = privy.user;
-            if (!user) throw new Error("User not found");
-
-            // FIX: Safely access linkedAccounts with a fallback to empty array
-            const linkedAccounts = user.linkedAccounts || [];
-            
-            const embeddedWallet = linkedAccounts.find(
-                (account) => account.type === 'wallet' && account.walletClientType === 'privy'
-            );
-
-            if (embeddedWallet) {
-                console.log("Found existing embedded wallet:", embeddedWallet);
-                return embeddedWallet;
+        // --- CORE LOGIC: Get Provider Robustly ---
+        async function getProviderAndSigner() {
+            // 1. Check for External Wallets (MetaMask, etc.)
+            const externalWallets = privy.wallets;
+            if (externalWallets.length > 0) {
+                log(`Found external wallet: ${externalWallets[0].walletClientType}`, 'success');
+                const provider = await externalWallets[0].getEthersProvider();
+                return provider.getSigner();
             }
 
-            // If we get here, we didn't find it in the list.
-            statusMsg.innerText = "Initializing secure container...";
+            // 2. Fallback to Embedded Wallet
+            log("Attempting to load embedded wallet...");
             
+            // Try to create one. If it exists (400 error), we ignore and proceed.
             try {
-                // Try to create it.
-                // If it already exists (but was invisible in linkedAccounts), this might throw an error.
-                const wallet = await privy.embeddedWallet.create({ 
-                    recoveryMethod: 'privy-managed' 
-                });
-                console.log("Wallet created:", wallet);
-                return wallet;
-            } catch (err) {
-                // If the error suggests it already exists, we are actually fine.
-                // We just proceed to use it.
-                if (err.message && (err.message.includes("400") || err.message.includes("already has"))) {
-                    console.log("Wallet already exists on server, proceeding...");
-                    return; // Returning undefined is fine, getEthereumProvider will still work
+                // 'privy-managed' means no password prompt for user
+                await privy.embeddedWallet.create({ recoveryMethod: 'privy-managed' });
+                log("Created new embedded wallet.", 'success');
+            } catch (e) {
+                // If error is NOT "already exists", report it.
+                if (!e.message.includes("400") && !e.message.includes("already has")) {
+                    log("Creation warning: " + e.message, 'error');
+                } else {
+                    log("Wallet already exists. Connecting...", 'success');
                 }
-                // If it's a different error, re-throw it
-                throw err;
+            }
+
+            // Now try to get the provider
+            try {
+                const embeddedProvider = await privy.embeddedWallet.getEthereumProvider();
+                const provider = new ethers.BrowserProvider(embeddedProvider);
+                return provider.getSigner();
+            } catch (e) {
+                throw new Error("Could not connect to any wallet. " + e.message);
             }
         }
 
-        // 3. Tithe Function
+        // --- ACTION: Tithe ---
         async function performTithe() {
             const amount = amountInput.value;
             const currency = currencySelect.value;
@@ -227,119 +242,73 @@
             }
 
             try {
-                connectBtn.disabled = true;
-                statusMsg.innerText = "Verifying wallet status...";
+                actionBtn.disabled = true;
+                actionBtn.innerText = "Processing...";
+                log("Initiating transaction...");
 
-                if (!privy.user) {
-                    await handleLogin();
-                    return;
-                }
-
-                await ensureWalletExists();
-
-                statusMsg.innerText = "Connecting to embedded wallet...";
+                const signer = await getProviderAndSigner();
                 
-                // This call works as long as the wallet exists on the backend
-                const embeddedProvider = await privy.embeddedWallet.getEthereumProvider();
-                const provider = new ethers.BrowserProvider(embeddedProvider);
-                const signer = await provider.getSigner();
-
+                log("Requesting signature...");
+                
                 if (currency === 'ETH') {
-                    statusMsg.innerText = "Sign the transaction in the popup...";
-                    
                     const tx = await signer.sendTransaction({
                         to: CHURCH_WALLET,
                         value: ethers.parseEther(amount.toString())
                     });
                     
-                    statusMsg.innerText = "Sent! Hash: " + tx.hash;
-                    statusMsg.style.color = "green";
-                    console.log(tx);
+                    log("Transaction Sent!", 'success');
+                    log("Hash: " + tx.hash);
+                    actionBtn.innerText = "TITHE AGAIN";
                 } else {
-                    alert("Only ETH is supported in this version.");
-                    statusMsg.innerText = "Transaction Cancelled.";
+                    alert("Only ETH is supported.");
+                    log("Cancelled: Unsupported Currency", 'error');
                 }
 
             } catch (error) {
+                log("Transaction Failed: " + error.message, 'error');
                 console.error(error);
-                statusMsg.style.color = "red";
-                if (error.message && error.message.includes('frame')) {
-                    statusMsg.innerText = "Error: Domain not allowed in Privy Dashboard.";
-                } else {
-                    statusMsg.innerText = "Error: " + error.message;
-                }
             } finally {
-                connectBtn.disabled = false;
+                actionBtn.disabled = false;
+                if(actionBtn.innerText === "Processing...") actionBtn.innerText = "TITHE NOW";
             }
         }
 
-        // 4. Initialization Logic
-        window.addEventListener('load', async () => {
-            if (!connectBtn) return;
+        // --- ACTION: Connect / Login ---
+        async function handleConnect() {
+            try {
+                log("Opening connection modal...");
+                // This replaces the custom email prompt. 
+                // It opens the official Privy UI for Email, SMS, or External Wallets.
+                await privy.connectWallet(); 
+                
+                log("Connected.", 'success');
+                updateUIState();
+            } catch (e) {
+                log("Connection failed: " + e.message, 'error');
+            }
+        }
 
-            let attempts = 0;
-            const checkSession = setInterval(async () => {
-                attempts++;
-                try {
-                    const user = privy.user;
-                    if (user) {
-                        console.log("User found:", user);
-                        connectBtn.innerText = "TITHE NOW";
-                        statusMsg.innerText = "Welcome back, initiate.";
-                        connectBtn.onclick = performTithe;
-                        clearInterval(checkSession);
-                    } else if (attempts > 5) {
-                        console.log("No active session found.");
-                        connectBtn.onclick = handleLogin;
-                        clearInterval(checkSession);
-                    }
-                } catch (e) {
-                    console.error("User check failed", e);
-                    connectBtn.onclick = handleLogin;
-                    clearInterval(checkSession);
-                }
-            }, 500);
+        function updateUIState() {
+            const user = privy.user;
+            if (user) {
+                console.dir(user); // Dump user to console for debugging
+                log(`User: ${user.id.substring(0,8)}...`);
+                actionBtn.innerText = "TITHE NOW";
+                actionBtn.onclick = performTithe;
+            } else {
+                actionBtn.innerText = "Connect Wallet";
+                actionBtn.onclick = handleConnect;
+            }
+        }
+
+        // --- INIT ---
+        window.addEventListener('load', () => {
+            log("Checking session...");
+            setTimeout(() => {
+                updateUIState();
+            }, 1000);
         });
 
-        async function handleLogin() {
-            const email = prompt("Enter email for Absolution:");
-            if (!email) return;
-
-            try {
-                statusMsg.innerText = "Sending code to " + email + "...";
-                await privy.auth.email.sendCode(email);
-                
-                const code = prompt("Enter the verification code:");
-                if (!code) {
-                    statusMsg.innerText = "Login cancelled.";
-                    return;
-                }
-
-                statusMsg.innerText = "Verifying credentials...";
-                await privy.auth.email.loginWithCode(email, code);
-                
-                // Check and create wallet immediately
-                try {
-                   await ensureWalletExists();
-                } catch (walletErr) {
-                   console.log("Initial wallet check:", walletErr);
-                }
-
-                statusMsg.innerText = "Logged in. Ready to Tithe.";
-                connectBtn.innerText = "TITHE NOW";
-                
-                connectBtn.onclick = performTithe;
-                
-                if (amountInput.value > 0) {
-                   await performTithe();
-                }
-
-            } catch (err) {
-                console.error(err);
-                statusMsg.innerText = "Login Failed: " + err.message;
-                statusMsg.style.color = "red";
-            }
-        }
     </script>
 </body>
 </html>
