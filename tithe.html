@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tithe & Token Issue | Privy Integration</title>
+    <!-- Using Tailwind CSS for quick, pretty styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom spinner animation */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen font-sans">
+
+    <div class="w-full max-w-md bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-400 mb-2">Tithes</h1>
+            <p class="text-gray-400 text-sm">Secure login & Token Claim</p>
+        </div>
+
+        <!-- STATE: Logged Out -->
+        <div id="view-logged-out">
+            <p class="text-gray-300 text-center mb-6">
+                Connect your account to tithe or claim your community tokens.
+            </p>
+            <button id="btn-login" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold transition flex justify-center items-center gap-2">
+                Log in with Privy
+            </button>
+        </div>
+
+        <!-- STATE: Logged In -->
+        <div id="view-logged-in" class="hidden space-y-6">
+            
+            <!-- User Info Card -->
+            <div class="bg-gray-700/50 p-4 rounded-lg border border-gray-600">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Your Wallet Address</p>
+                <div class="flex items-center justify-between">
+                    <code id="user-address" class="text-indigo-300 font-mono text-sm truncate mr-2">...</code>
+                    <button onclick="navigator.clipboard.writeText(document.getElementById('user-address').innerText)" class="text-xs text-gray-400 hover:text-white underline">Copy</button>
+                </div>
+            </div>
+
+            <!-- Action: Fund Wallet -->
+            <div>
+                <button id="btn-fund" class="w-full py-2 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition border border-gray-600">
+                    💳 Fund Wallet (Buy Crypto)
+                </button>
+                <p class="text-xs text-center text-gray-500 mt-2">Required before tithing</p>
+            </div>
+
+            <hr class="border-gray-700">
+
+            <!-- Action: Tithe (Send Money) -->
+            <div>
+                <h3 class="font-semibold text-lg mb-3">Give Tithe</h3>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <button class="btn-amount py-2 bg-gray-700 hover:bg-indigo-900 border border-gray-600 rounded-lg text-sm" data-eth="0.001">$3 (0.001 ETH)</button>
+                    <button class="btn-amount py-2 bg-gray-700 hover:bg-indigo-900 border border-gray-600 rounded-lg text-sm" data-eth="0.01">$30 (0.01 ETH)</button>
+                </div>
+                <button id="btn-send-tithe" class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-lg font-bold shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    Confirm Tithe
+                </button>
+            </div>
+
+            <hr class="border-gray-700">
+
+            <!-- Action: Issue/Claim Token -->
+            <div class="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/30">
+                <h3 class="font-semibold text-indigo-300 mb-1">Community Token</h3>
+                <p class="text-xs text-gray-400 mb-4">Mint your proof-of-donation token.</p>
+                <button id="btn-mint-token" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold transition">
+                    Mint Token
+                </button>
+            </div>
+
+            <!-- Logout -->
+            <button id="btn-logout" class="w-full text-xs text-gray-500 hover:text-gray-300 underline mt-4">
+                Log out
+            </button>
+        </div>
+
+        <!-- Status / Error Messages -->
+        <div id="status-message" class="mt-6 text-center text-sm min-h-[20px] text-yellow-400"></div>
+    </div>
+
+    <!-- PRIVY IMPLEMENTATION (Vanilla JS) -->
+    <script type="module">
+        // Import Privy SDK Core from a CDM
+        import Privy from "https://esm.sh/@privy-io/js-sdk-core@latest";
+
+        // CONFIGURATION
+        const APP_ID = 'cmitb8a5900p6l40c4tkqqwbq'; // From your screenshot
+        const RECIPIENT_WALLET = '0x0000000000000000000000000000000000000000'; // REPLACE THIS with your Church/Org Wallet
+        
+        // DOM Elements
+        const views = {
+            loggedOut: document.getElementById('view-logged-out'),
+            loggedIn: document.getElementById('view-logged-in')
+        };
+        const els = {
+            loginBtn: document.getElementById('btn-login'),
+            logoutBtn: document.getElementById('btn-logout'),
+            fundBtn: document.getElementById('btn-fund'),
+            titheBtn: document.getElementById('btn-send-tithe'),
+            mintBtn: document.getElementById('btn-mint-token'),
+            addressDisplay: document.getElementById('user-address'),
+            status: document.getElementById('status-message'),
+            amountBtns: document.querySelectorAll('.btn-amount')
+        };
+
+        let selectedAmount = '0.001'; // Default tithe amount
+
+        // Initialize Privy Client
+        const privy = new Privy({
+            appId: APP_ID,
+            // You can configure supported chains here (e.g., Base, Mainnet)
+            // supportedChains: [base, mainnet] 
+        });
+
+        // --- IFRAME SETUP (Required for Vanilla JS SDK) ---
+        // The Vanilla SDK requires you to manually mount an iframe to handle the secure wallet connection.
+        async function setupPrivyIframe() {
+            try {
+                // Get the iframe URL from the SDK
+                const url = privy.embeddedWallet.getURL();
+                
+                // Create the iframe element
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.style.display = 'none'; // Keep it hidden
+                iframe.id = 'privy-iframe';
+                
+                // Mount it
+                document.body.appendChild(iframe);
+
+                // Connect the SDK to the iframe window
+                // We wait for the iframe to load
+                await new Promise((resolve) => {
+                    iframe.onload = resolve;
+                });
+                
+                privy.setMessagePoster(iframe.contentWindow);
+
+                // Listen for messages from the iframe
+                window.addEventListener('message', (event) => {
+                    // Pass messages back to Privy SDK
+                    privy.embeddedWallet.onMessage(event.data);
+                });
+
+                console.log("Privy secure iframe initialized.");
+            } catch (err) {
+                console.error("Failed to setup iframe:", err);
+            }
+        }
+
+        // --- AUTH FLOW ---
+
+        async function updateUIState() {
+            try {
+                // Check if user is already authenticated
+                const session = await privy.auth.getSession();
+                
+                if (session) {
+                    views.loggedOut.classList.add('hidden');
+                    views.loggedIn.classList.remove('hidden');
+                    
+                    // Get User Data
+                    const user = await privy.getUser();
+                    
+                    // Find the embedded wallet
+                    const embeddedWallet = user.linked_accounts.find(
+                        (account) => account.type === 'wallet' && account.wallet_client_type === 'privy'
+                    );
+
+                    if (embeddedWallet) {
+                        els.addressDisplay.innerText = embeddedWallet.address;
+                    } else {
+                        els.addressDisplay.innerText = "Creating wallet...";
+                        // If no wallet exists yet, Privy usually creates one on first login
+                        // You might need to trigger privy.embeddedWallet.create() if using custom auth flows
+                    }
+                } else {
+                    views.loggedOut.classList.remove('hidden');
+                    views.loggedIn.classList.add('hidden');
+                }
+            } catch (e) {
+                console.error("State update error", e);
+            }
+        }
+
+        // Login Handler
+        els.loginBtn.addEventListener('click', async () => {
+            els.loginBtn.innerHTML = '<span class="spinner"></span>';
+            try {
+                // This triggers the standard Privy email/sms modal
+                await privy.login();
+                updateUIState();
+            } catch (error) {
+                console.error(error);
+                els.status.innerText = "Login cancelled or failed.";
+            } finally {
+                els.loginBtn.innerText = 'Log in with Privy';
+            }
+        });
+
+        // Logout Handler
+        els.logoutBtn.addEventListener('click', async () => {
+            await privy.logout();
+            updateUIState();
+            els.status.innerText = "Logged out.";
+        });
+
+        // --- WALLET ACTIONS ---
+
+        // 1. Fund Wallet
+        // This opens the on-ramp (Moonpay/Coinbase) for the user to buy crypto
+        els.fundBtn.addEventListener('click', async () => {
+             // Note: In React SDK this is useFundWallet. In Vanilla, you might need to 
+             // construct the URL or check if the method is exposed directly in your version.
+             // If not exposed in Vanilla Core, you direct them to their wallet address to send funds.
+             
+             // Check documentation for `privy.embeddedWallet.fund()` or similar if available in core
+             // Fallback: Copy address to clipboard
+             const addr = els.addressDisplay.innerText;
+             navigator.clipboard.writeText(addr);
+             els.status.innerText = "Address copied! Send funds to this address.";
+        });
+
+        // 2. Handle Amount Selection
+        els.amountBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Reset styles
+                els.amountBtns.forEach(b => b.classList.remove('bg-indigo-900', 'border-indigo-500'));
+                // Set active style
+                e.target.classList.add('bg-indigo-900', 'border-indigo-500');
+                selectedAmount = e.target.getAttribute('data-eth');
+            });
+        });
+
+        // 3. Send Tithe (Transaction)
+        els.titheBtn.addEventListener('click', async () => {
+            if(RECIPIENT_WALLET === '0x0000000000000000000000000000000000000000') {
+                alert("Please configure the RECIPIENT_WALLET in the HTML code.");
+                return;
+            }
+
+            els.titheBtn.innerHTML = '<span class="spinner"></span> Processing...';
+            els.status.innerText = "";
+
+            try {
+                // Get the provider
+                const provider = await privy.embeddedWallet.getEthereumProvider();
+                
+                // Request transaction
+                // Note: The value must be in Hex Wei. 
+                // For simplicity, this example assumes 1 ETH = 10^18 Wei.
+                // You should use a library like 'viem' or 'ethers' to parseEther securely.
+                // rough calc: 0.001 * 10^18 = 1000000000000000 -> Hex
+                
+                const valWei = BigInt(parseFloat(selectedAmount) * 1e18).toString(16);
+
+                const txHash = await provider.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        from: els.addressDisplay.innerText,
+                        to: RECIPIENT_WALLET,
+                        value: '0x' + valWei,
+                        // data: '0x' // Add optional message data here
+                    }]
+                });
+
+                els.status.innerText = `Tithe Sent! Hash: ${txHash}`;
+                els.status.className = "mt-6 text-center text-sm text-green-400";
+            } catch (error) {
+                console.error(error);
+                els.status.innerText = "Transaction failed. Do you have enough funds?";
+                els.status.className = "mt-6 text-center text-sm text-red-400";
+            } finally {
+                els.titheBtn.innerText = 'Confirm Tithe';
+            }
+        });
+
+        // 4. Issue/Mint Token
+        els.mintBtn.addEventListener('click', async () => {
+            els.mintBtn.innerHTML = '<span class="spinner"></span>';
+            try {
+                const provider = await privy.embeddedWallet.getEthereumProvider();
+                
+                // MINTING LOGIC
+                // Usually involves calling a Smart Contract function like "mint(address to)"
+                // You need the Contract Address and the function signature encoded in 'data'
+                
+                // Example Data Payload (Pseudo-code):
+                // const data = encodeFunctionData({ abi, functionName: 'mint', args: [userAddr] })
+                
+                // For now, we simulate a call
+                els.status.innerText = "To implement minting, add your Contract ABI and Address in the code.";
+                
+                // Actual call would look like:
+                /*
+                const tx = await provider.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        to: 'YOUR_TOKEN_CONTRACT_ADDRESS',
+                        from: els.addressDisplay.innerText,
+                        data: '0x...' // Encoded mint function
+                    }]
+                });
+                */
+            } catch (e) {
+                els.status.innerText = "Mint failed.";
+            } finally {
+                els.mintBtn.innerText = "Mint Token";
+            }
+        });
+
+        // Initialize App
+        setupPrivyIframe().then(() => {
+            updateUIState();
+        });
+
+    </script>
+</body>
+</html>
+
