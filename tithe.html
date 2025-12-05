@@ -179,11 +179,9 @@
         }
 
         // --- HELPER: Ensure Wallet Exists ---
-        // This is the missing link. We cannot get a provider if the wallet is null.
         async function ensureWalletExists(user) {
             if (!user.wallet) {
                 statusMsg.innerText = "Creating secure wallet container...";
-                // This creates the wallet on the Privy side
                 const wallet = await privy.embeddedWallet.create();
                 console.log("Wallet created:", wallet);
                 return wallet;
@@ -208,15 +206,16 @@
                 // Get latest user state
                 let user = await privy.getUser();
                 if (!user) {
-                    throw new Error("User not authenticated");
+                    // If performTithe is called but user isn't found, force login
+                    await handleLogin();
+                    return;
                 }
 
-                // FIX: Ensure wallet exists before requesting provider
+                // Ensure wallet exists before requesting provider
                 await ensureWalletExists(user);
 
                 statusMsg.innerText = "Connecting to embedded wallet...";
                 
-                // Now it is safe to call getEthereumProvider
                 const embeddedProvider = await privy.embeddedWallet.getEthereumProvider();
                 const provider = new ethers.BrowserProvider(embeddedProvider);
                 const signer = await provider.getSigner();
@@ -257,9 +256,11 @@
             // Small delay to ensure SDK handles storage loading
             setTimeout(async () => {
                 try {
-                    const session = await privy.auth.getSession();
-                    if (session) {
-                        console.log("Session found", session);
+                    // FIXED: Use getUser() instead of getSession()
+                    const user = await privy.getUser();
+                    
+                    if (user) {
+                        console.log("User found:", user);
                         connectBtn.innerText = "TITHE NOW";
                         statusMsg.innerText = "Welcome back, initiate.";
                         connectBtn.onclick = performTithe;
@@ -267,7 +268,7 @@
                         connectBtn.onclick = handleLogin;
                     }
                 } catch (e) {
-                    console.error("Session check failed", e);
+                    console.error("User check failed", e);
                     connectBtn.onclick = handleLogin;
                 }
             }, 500);
@@ -288,10 +289,12 @@
                 }
 
                 statusMsg.innerText = "Verifying credentials...";
-                const session = await privy.auth.email.loginWithCode(email, code);
+                
+                // Login returns a user object in this SDK version
+                const user = await privy.auth.email.loginWithCode(email, code);
                 
                 // FIX: Check for wallet immediately after login
-                if (!session.user.wallet) {
+                if (user && !user.wallet) {
                     statusMsg.innerText = "Initializing fresh wallet...";
                     await privy.embeddedWallet.create();
                 }
