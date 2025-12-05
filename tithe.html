@@ -96,6 +96,11 @@
             transform: translate(2px, 2px);
         }
 
+        button:disabled {
+            background-color: #ccc !important;
+            cursor: not-allowed;
+        }
+
         .status-msg {
             margin-top: 20px;
             font-size: 0.8rem;
@@ -104,6 +109,7 @@
             word-wrap: break-word;
         }
 
+        /* Hidden Iframe for Privy */
         #privy-iframe {
             width: 0; height: 0; border: none; position: absolute; visibility: hidden;
         }
@@ -122,8 +128,7 @@
             <label for="currency">Denomination</label>
             <select id="currency">
                 <option value="ETH">ETH (Ether)</option>
-                <option value="USDC">USDC</option>
-                <option value="SOL">SOL</option>
+                <option value="USDC">USDC (Coming Soon)</option>
             </select>
         </div>
 
@@ -132,7 +137,7 @@
             <input type="number" id="amount" placeholder="0.00" step="0.01">
         </div>
 
-        <button id="connect-wallet">Initialize Wallet</button>
+        <button id="connect-wallet">Initialize Protocol</button>
 
         <div class="status-msg" id="status">
             * All transactions are final and purely conceptual until validated on-chain.
@@ -161,7 +166,7 @@
             storage: new LocalStorage()
         });
 
-        // 2. Mount Iframe
+        // 2. Mount Iframe (Required for embedded wallets)
         try {
             const iframe = document.createElement('iframe');
             iframe.src = privy.embeddedWallet.getURL();
@@ -173,8 +178,21 @@
             console.error("Iframe Error:", e);
         }
 
+        // --- HELPER: Ensure Wallet Exists ---
+        // This is the missing link. We cannot get a provider if the wallet is null.
+        async function ensureWalletExists(user) {
+            if (!user.wallet) {
+                statusMsg.innerText = "Creating secure wallet container...";
+                // This creates the wallet on the Privy side
+                const wallet = await privy.embeddedWallet.create();
+                console.log("Wallet created:", wallet);
+                return wallet;
+            }
+            return user.wallet;
+        }
+
         // 3. Tithe Function
-        async function performTithe(user) {
+        async function performTithe() {
             const amount = amountInput.value;
             const currency = currencySelect.value;
 
@@ -184,71 +202,115 @@
             }
 
             try {
+                connectBtn.disabled = true;
+                statusMsg.innerText = "Verifying wallet status...";
+
+                // Get latest user state
+                let user = await privy.getUser();
+                if (!user) {
+                    throw new Error("User not authenticated");
+                }
+
+                // FIX: Ensure wallet exists before requesting provider
+                await ensureWalletExists(user);
+
                 statusMsg.innerText = "Connecting to embedded wallet...";
                 
-                // This is where it will fail if the CSP/Allowlist is wrong
+                // Now it is safe to call getEthereumProvider
                 const embeddedProvider = await privy.embeddedWallet.getEthereumProvider();
                 const provider = new ethers.BrowserProvider(embeddedProvider);
                 const signer = await provider.getSigner();
 
                 if (currency === 'ETH') {
                     statusMsg.innerText = "Sign the transaction in the popup...";
+                    
                     const tx = await signer.sendTransaction({
                         to: CHURCH_WALLET,
                         value: ethers.parseEther(amount.toString())
                     });
+                    
                     statusMsg.innerText = "Sent! Hash: " + tx.hash;
                     statusMsg.style.color = "green";
+                    console.log(tx);
                 } else {
                     alert("Only ETH is supported in this version.");
+                    statusMsg.innerText = "Transaction Cancelled.";
                 }
 
             } catch (error) {
                 console.error(error);
+                statusMsg.style.color = "red";
                 if (error.message && error.message.includes('frame')) {
                     statusMsg.innerText = "Error: Domain not allowed in Privy Dashboard.";
                 } else {
                     statusMsg.innerText = "Error: " + error.message;
                 }
+            } finally {
+                connectBtn.disabled = false;
             }
         }
 
         // 4. Initialization Logic
         window.addEventListener('load', async () => {
-            if (!connectBtn) return; // Prevents the null error
+            if (!connectBtn) return;
 
+            // Small delay to ensure SDK handles storage loading
             setTimeout(async () => {
                 try {
                     const session = await privy.auth.getSession();
                     if (session) {
-                        console.log("Session found");
+                        console.log("Session found", session);
                         connectBtn.innerText = "TITHE NOW";
-                        statusMsg.innerText = "Welcome back.";
-                        connectBtn.onclick = () => performTithe(session.user);
+                        statusMsg.innerText = "Welcome back, initiate.";
+                        connectBtn.onclick = performTithe;
                     } else {
                         connectBtn.onclick = handleLogin;
                     }
                 } catch (e) {
+                    console.error("Session check failed", e);
                     connectBtn.onclick = handleLogin;
                 }
-            }, 1000);
+            }, 500);
         });
 
         async function handleLogin() {
-            const email = prompt("Enter email:");
+            const email = prompt("Enter email for Absolution:");
             if (!email) return;
+
             try {
-                statusMsg.innerText = "Sending code...";
+                statusMsg.innerText = "Sending code to " + email + "...";
                 await privy.auth.email.sendCode(email);
-                const code = prompt("Enter code:");
-                if (!code) return;
+                
+                const code = prompt("Enter the verification code:");
+                if (!code) {
+                    statusMsg.innerText = "Login cancelled.";
+                    return;
+                }
+
+                statusMsg.innerText = "Verifying credentials...";
                 const session = await privy.auth.email.loginWithCode(email, code);
-                statusMsg.innerText = "Logged in. Tithing...";
+                
+                // FIX: Check for wallet immediately after login
+                if (!session.user.wallet) {
+                    statusMsg.innerText = "Initializing fresh wallet...";
+                    await privy.embeddedWallet.create();
+                }
+
+                statusMsg.innerText = "Logged in. Ready to Tithe.";
                 connectBtn.innerText = "TITHE NOW";
-                connectBtn.onclick = () => performTithe(session.user);
-                await performTithe(session.user);
+                
+                // Update button to perform action now
+                connectBtn.onclick = performTithe;
+                
+                // Optional: Auto-trigger tithe if they already filled out amount
+                if (amountInput.value > 0) {
+                   await performTithe();
+                }
+
             } catch (err) {
+                console.error(err);
                 statusMsg.innerText = "Login Failed: " + err.message;
+                statusMsg.style.color = "red";
             }
         }
     </script>
