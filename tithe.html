@@ -1,225 +1,129 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoCA | Tithe</title>
-    <style>
-        :root {
-            --bg-color: #f4f4f4; /* Off-white concrete */
-            --text-color: #1a1a1a;
-            --accent-color: #0000ff; /* Brutalist Blue */
-            --font-main: 'Courier New', Courier, monospace;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* The CoCA Logo/Header Image */
-        .coca-header {
-            max-width: 300px;
-            width: 100%;
-            margin-bottom: 40px;
-            /* Multiply helps SVGs/PNGs blend if they aren't transparent */
-            mix-blend-mode: multiply; 
-        }
-        
-        .coca-header img {
-            width: 100%;
-            height: auto;
-            border: 1px solid var(--text-color);
-        }
-
-        /* Tithe Interface Container */
-        .tithe-container {
-            border: 2px solid var(--text-color);
-            padding: 2rem;
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            box-shadow: 10px 10px 0px var(--text-color);
-        }
-
-        h1 {
-            text-transform: uppercase;
-            font-size: 1.5rem;
-            border-bottom: 2px solid var(--text-color);
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        input[type="number"], 
-        select {
-            width: 100%;
-            padding: 10px;
-            font-family: var(--font-main);
-            border: 1px solid var(--text-color);
-            background: #eee;
-            box-sizing: border-box;
-        }
-
-        button#connect-wallet {
-            width: 100%;
-            padding: 15px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            font-family: var(--font-main);
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.1s;
-        }
-
-        button#connect-wallet:hover {
-            background-color: var(--text-color);
-        }
-
-        button#connect-wallet:active {
-            transform: translate(2px, 2px);
-        }
-
-        .status-msg {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: #666;
-            text-align: center;
-            word-wrap: break-word; /* Prevents long error messages from breaking layout */
-        }
-        
-        /* Hide the Privy iframe visually but keep it in DOM */
-        #privy-iframe {
-            width: 0;
-            height: 0;
-            border: none;
-            position: absolute;
-            visibility: hidden;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="coca-header">
-        <img src="CoCA-Vector-redrawn-photoshop.svg" alt="Church of Conceptual Art">
-    </div>
-
-    <div class="tithe-container">
-        <h1>Absolution / Tithe</h1>
-        
-        <div class="input-group">
-            <label for="currency">Denomination</label>
-            <select id="currency">
-                <option value="ETH">ETH (Ether)</option>
-                <option value="USDC">USDC</option>
-                <option value="SOL">SOL</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label for="amount">Amount</label>
-            <input type="number" id="amount" placeholder="0.00" step="0.01">
-        </div>
-
-        <button id="connect-wallet">Initialize Wallet</button>
-
-        <div class="status-msg" id="status">
-            * All transactions are final and purely conceptual until validated on-chain.
-        </div>
-    </div>
-
-    <script type="module">
+<script type="module">
         import Privy, { LocalStorage } from 'https://esm.sh/@privy-io/js-sdk-core@latest';
+        // We use ethers.js to make sending money easier (handling decimals, etc.)
+        import { ethers } from 'https://esm.sh/ethers@6.7.0';
+
+        // ================= CONFIGURATION =================
+        const APP_ID = 'cmitb8a5900p6l40c4tkqqwbq'; 
+        const CLIENT_ID = 'client-WY6TPxCtXyQ7hbZmtXpqQ4hML83kmRDPuKZUoriz1TQVq';
+        
+        // REPLACE THIS WITH YOUR REAL ETHEREUM WALLET ADDRESS
+        const CHURCH_WALLET = '0x0828C77922838a06587eBe8463aDBDeD6eb95f74'; 
+        // =================================================
 
         const statusMsg = document.getElementById('status');
         const connectBtn = document.getElementById('connect-wallet');
-  
-        const appId = 'cmitb8a5900p6l40c4tkqqwbq'; 
-        const clientId = 'client-WY6TPxCtXyQ7hbZmtXpqQ4hML83kmRDPuKaAQgMAtGWCj';
+        const amountInput = document.getElementById('amount');
+        const currencySelect = document.getElementById('currency');
 
-        // Simple check to warn you if you forgot the keys
-        if (appId.includes('INSERT')) {
-            statusMsg.innerText = "⚠️ Missing Privy Keys. Please edit the HTML file.";
-            statusMsg.style.color = "red";
-            connectBtn.disabled = true;
-            connectBtn.style.backgroundColor = "#999";
+        // Initialize Privy
+        const privy = new Privy({
+            appId: APP_ID,
+            clientId: CLIENT_ID,
+            storage: new LocalStorage()
+        });
+
+        // Mount the invisible security iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = privy.embeddedWallet.getURL();
+        iframe.id = "privy-iframe";
+        document.body.appendChild(iframe);
+        privy.setMessagePoster(iframe.contentWindow);
+        window.addEventListener('message', (e) => privy.embeddedWallet.onMessage(e.data));
+
+        // 1. HELPER: The function that actually sends the money
+        async function performTithe(user) {
+            const amount = amountInput.value;
+            const currency = currencySelect.value;
+
+            if (!amount || amount <= 0) {
+                alert("Please enter a valid amount to tithe.");
+                return;
+            }
+
+            if (CHURCH_WALLET.includes('0x0000')) {
+                alert("CONFIG ERROR: The Church wallet address has not been set in the code.");
+                return;
+            }
+
+            try {
+                statusMsg.innerText = `Preparing to tithe ${amount} ${currency}...`;
+                
+                // Get the provider from the embedded wallet
+                const embeddedProvider = await privy.embeddedWallet.getEthereumProvider();
+                const provider = new ethers.BrowserProvider(embeddedProvider);
+                const signer = await provider.getSigner();
+
+                // Check specific currencies
+                if (currency === 'ETH') {
+                    // Send ETH
+                    const tx = await signer.sendTransaction({
+                        to: CHURCH_WALLET,
+                        value: ethers.parseEther(amount.toString()) // Converts 0.01 to Wei
+                    });
+                    
+                    statusMsg.innerText = "Transaction Sent! Hash: " + tx.hash;
+                    statusMsg.style.color = "green";
+                    console.log("Transaction:", tx);
+                    alert("Bless you. The tithe has been received (on-chain).");
+                } 
+                else {
+                    // Placeholder for USDC/SOL complexity
+                    statusMsg.innerText = `Support for ${currency} is coming in the next update. Please tithe in ETH.`;
+                }
+
+            } catch (error) {
+                console.error(error);
+                statusMsg.innerText = "Tithe Failed: " + error.message;
+                statusMsg.style.color = "red";
+            }
         }
 
-        try {
-            // 1. Initialize Privy
-            const privy = new Privy({
-                appId,
-                clientId,
-                storage: new LocalStorage()
-            });
-
-            // 2. Mount the secure iframe
-            const iframeUrl = privy.embeddedWallet.getURL();
-            const iframe = document.createElement('iframe');
-            iframe.src = iframeUrl;
-            iframe.id = "privy-iframe";
-            document.body.appendChild(iframe);
-
-            privy.setMessagePoster(iframe.contentWindow);
-            window.addEventListener('message', (e) => privy.embeddedWallet.onMessage(e.data));
-
-            console.log("Privy SDK Initialized");
-
-            // 3. Handle Login
-            connectBtn.addEventListener('click', async () => {
-                statusMsg.innerText = "Processing...";
-                
-                const email = prompt("Enter email for receipt/wallet connection:");
-                
-                if (email) {
-                    try {
-                        statusMsg.innerText = `Sending code to ${email}...`;
-                        await privy.auth.email.sendCode(email);
-                        
-                        const code = prompt("Enter the verification code:");
-                        if (code) {
-                            const session = await privy.auth.email.loginWithCode(email, code);
-                            statusMsg.innerText = "Wallet Connected. Processing Tithe...";
-                            statusMsg.style.color = "green";
-                            console.log("User Logged In:", session);
-                            
-                            // NOTE: Actual transaction logic would go here
-                            // e.g. await privy.embeddedWallet.getEthereumProvider()...
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        // Show the actual error message on screen to help debug
-                        statusMsg.innerText = "Error: " + (err.message || err);
-                        statusMsg.style.color = "red";
-                    }
+        // 2. CHECK LOGIN ON LOAD (So they don't have to log in every time)
+        // We give it a second to initialize
+        setTimeout(async () => {
+            try {
+                const session = await privy.auth.getSession(); // Check if session exists
+                if (session) {
+                    console.log("User already logged in");
+                    connectBtn.innerText = "TITHE NOW";
+                    statusMsg.innerText = "Welcome back, faithful.";
+                    
+                    // Update button to skip login and go straight to tithe
+                    connectBtn.onclick = () => performTithe(session.user);
                 } else {
-                    statusMsg.innerText = "Operation cancelled.";
+                    // 3. IF NOT LOGGED IN, ATTACH LOGIN LISTENER
+                    connectBtn.onclick = handleLogin;
                 }
-            });
+            } catch (e) {
+                console.log("No existing session");
+                connectBtn.onclick = handleLogin;
+            }
+        }, 1000);
 
-        } catch (error) {
-            console.error("Privy Initialization Error:", error);
-            statusMsg.innerText = "SDK Error: " + error.message;
+        // 4. LOGIN HANDLER
+        async function handleLogin() {
+            const email = prompt("Enter email to connect wallet:");
+            if (!email) return;
+
+            try {
+                statusMsg.innerText = `Sending code to ${email}...`;
+                await privy.auth.email.sendCode(email);
+                
+                const code = prompt("Enter verification code:");
+                if (!code) return;
+
+                const session = await privy.auth.email.loginWithCode(email, code);
+                
+                statusMsg.innerText = "Wallet Connected.";
+                connectBtn.innerText = "TITHE NOW";
+                
+                // Immediately ask to tithe after login
+                await performTithe(session.user);
+
+            } catch (err) {
+                console.error(err);
+                statusMsg.innerText = "Error: " + err.message;
+            }
         }
     </script>
-</body>
-</html>
