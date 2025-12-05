@@ -134,9 +134,9 @@
         </div>
     </div>
 
-    <!-- UPDATE: Importing PrivyClient specifically to avoid CDN ambiguity -->
+    <!-- FIXED IMPORT: Reverted to default export -->
     <script type="module">
-        import { PrivyClient } from "https://esm.sh/@privy-io/js-sdk-core@latest";
+        import Privy from "https://esm.sh/@privy-io/js-sdk-core@latest";
 
         const APP_ID = 'cmitb8a5900p6l40c4tkqqwbq'; 
         const RECIPIENT_WALLET = '0x0828C77922838a06587eBe8463aDBDeD6eb95f74';
@@ -163,8 +163,8 @@
         // --- INIT ---
         async function init() {
             try {
-                // Initialize Client
-                privy = new PrivyClient({ appId: APP_ID });
+                // Initialize Client with Default Export
+                privy = new Privy({ appId: APP_ID });
                 
                 // Mount Iframe
                 const url = privy.embeddedWallet.getURL();
@@ -292,5 +292,3 @@
     </script>
 </body>
 </html>
-
-
