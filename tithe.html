@@ -203,10 +203,9 @@
                 connectBtn.disabled = true;
                 statusMsg.innerText = "Verifying wallet status...";
 
-                // Get latest user state
-                let user = await privy.getUser();
+                // Get user from property, not function
+                let user = privy.user;
                 if (!user) {
-                    // If performTithe is called but user isn't found, force login
                     await handleLogin();
                     return;
                 }
@@ -253,23 +252,30 @@
         window.addEventListener('load', async () => {
             if (!connectBtn) return;
 
-            // Small delay to ensure SDK handles storage loading
-            setTimeout(async () => {
+            // Wait loop to check for user session initialization
+            let attempts = 0;
+            const checkSession = setInterval(async () => {
+                attempts++;
                 try {
-                    // FIXED: Use getUser() instead of getSession()
-                    const user = await privy.getUser();
+                    // Access property directly: privy.user
+                    const user = privy.user;
                     
                     if (user) {
                         console.log("User found:", user);
                         connectBtn.innerText = "TITHE NOW";
                         statusMsg.innerText = "Welcome back, initiate.";
                         connectBtn.onclick = performTithe;
-                    } else {
+                        clearInterval(checkSession);
+                    } else if (attempts > 5) {
+                        // Stop checking after 5 attempts (approx 2.5s) and default to login
+                        console.log("No active session found.");
                         connectBtn.onclick = handleLogin;
+                        clearInterval(checkSession);
                     }
                 } catch (e) {
                     console.error("User check failed", e);
                     connectBtn.onclick = handleLogin;
+                    clearInterval(checkSession);
                 }
             }, 500);
         });
@@ -290,10 +296,8 @@
 
                 statusMsg.innerText = "Verifying credentials...";
                 
-                // Login returns a user object in this SDK version
                 const user = await privy.auth.email.loginWithCode(email, code);
                 
-                // FIX: Check for wallet immediately after login
                 if (user && !user.wallet) {
                     statusMsg.innerText = "Initializing fresh wallet...";
                     await privy.embeddedWallet.create();
@@ -302,10 +306,8 @@
                 statusMsg.innerText = "Logged in. Ready to Tithe.";
                 connectBtn.innerText = "TITHE NOW";
                 
-                // Update button to perform action now
                 connectBtn.onclick = performTithe;
                 
-                // Optional: Auto-trigger tithe if they already filled out amount
                 if (amountInput.value > 0) {
                    await performTithe();
                 }
