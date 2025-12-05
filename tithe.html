@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoCA | Tithe 2</title>
+    <title>CoCA | Tithe 3</title>
     <style>
         :root {
-            --bg-color: #f4f4f4; /* Off-white concrete */
+            --bg-color: #f4f4f4;
             --text-color: #1a1a1a;
-            --accent-color: #0000ff; /* Brutalist Blue */
+            --accent-color: #0000ff;
             --font-main: 'Courier New', Courier, monospace;
         }
 
@@ -109,7 +109,6 @@
             word-wrap: break-word;
         }
 
-        /* Hidden Iframe for Privy */
         #privy-iframe {
             width: 0; height: 0; border: none; position: absolute; visibility: hidden;
         }
@@ -166,7 +165,7 @@
             storage: new LocalStorage()
         });
 
-        // 2. Mount Iframe (Required for embedded wallets)
+        // 2. Mount Iframe
         try {
             const iframe = document.createElement('iframe');
             iframe.src = privy.embeddedWallet.getURL();
@@ -178,24 +177,32 @@
             console.error("Iframe Error:", e);
         }
 
-        // --- HELPER: Ensure Wallet Exists ---
+        // --- HELPER: ROBUST WALLET FINDER ---
         async function ensureWalletExists() {
             const user = privy.user;
             if (!user) throw new Error("User not found");
 
-            if (!user.wallet) {
-                statusMsg.innerText = "Creating secure wallet container...";
-                
-                // === FIX: Pass configuration object ===
-                // 'privy-managed' is automatic. If you need passwords, change to 'user-passcode'
-                const wallet = await privy.embeddedWallet.create({ 
-                    recoveryMethod: 'privy-managed' 
-                });
-                
-                console.log("Wallet created:", wallet);
-                return wallet;
+            // SEARCH METHOD: Look through linkedAccounts for the embedded wallet
+            // This bypasses the issue where user.wallet might be undefined
+            const embeddedWallet = user.linkedAccounts.find(
+                (account) => account.type === 'wallet' && account.walletClientType === 'privy'
+            );
+
+            if (embeddedWallet) {
+                console.log("Found existing embedded wallet:", embeddedWallet);
+                return embeddedWallet;
             }
-            return user.wallet;
+
+            // ONLY create if absolutely no embedded wallet exists
+            statusMsg.innerText = "Creating secure wallet container...";
+            
+            // FIX: Pass explicit config to avoid password error
+            const wallet = await privy.embeddedWallet.create({ 
+                recoveryMethod: 'privy-managed' 
+            });
+            
+            console.log("Wallet created:", wallet);
+            return wallet;
         }
 
         // 3. Tithe Function
@@ -217,7 +224,7 @@
                     return;
                 }
 
-                // Call helper to ensure wallet is created if missing
+                // Call our new robust helper
                 await ensureWalletExists();
 
                 statusMsg.innerText = "Connecting to embedded wallet...";
@@ -247,6 +254,8 @@
                 statusMsg.style.color = "red";
                 if (error.message && error.message.includes('frame')) {
                     statusMsg.innerText = "Error: Domain not allowed in Privy Dashboard.";
+                } else if (error.message && error.message.includes('400')) {
+                    statusMsg.innerText = "Error: Wallet conflict. Please refresh and try again.";
                 } else {
                     statusMsg.innerText = "Error: " + error.message;
                 }
@@ -301,11 +310,11 @@
                 statusMsg.innerText = "Verifying credentials...";
                 await privy.auth.email.loginWithCode(email, code);
                 
-                // Check and create wallet immediately using the unified helper
+                // Check and create wallet immediately
                 try {
                    await ensureWalletExists();
                 } catch (walletErr) {
-                   console.error("Wallet creation failed during login:", walletErr);
+                   console.error("Wallet check failed during login:", walletErr);
                 }
 
                 statusMsg.innerText = "Logged in. Ready to Tithe.";
