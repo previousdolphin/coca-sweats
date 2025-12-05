@@ -29,7 +29,8 @@
             max-width: 300px;
             width: 100%;
             margin-bottom: 40px;
-            mix-blend-mode: multiply;
+            /* Multiply helps SVGs/PNGs blend if they aren't transparent */
+            mix-blend-mode: multiply; 
         }
         
         .coca-header img {
@@ -103,6 +104,7 @@
             font-size: 0.8rem;
             color: #666;
             text-align: center;
+            word-wrap: break-word; /* Prevents long error messages from breaking layout */
         }
         
         /* Hide the Privy iframe visually but keep it in DOM */
@@ -118,7 +120,7 @@
 <body>
 
     <div class="coca-header">
-        <img src="coca.png" alt="Church of Conceptual Art">
+        <img src="coca.svg" alt="Church of Conceptual Art">
     </div>
 
     <div class="tithe-container">
@@ -146,84 +148,77 @@
     </div>
 
     <script type="module">
-        // 1. Fixed Import URL (Using 'latest' instead of broken 1.60.0)
         import Privy, { LocalStorage } from 'https://esm.sh/@privy-io/js-sdk-core@latest';
 
         const statusMsg = document.getElementById('status');
         const connectBtn = document.getElementById('connect-wallet');
-
-        // --- CONFIGURATION REQUIRED ---
-        // You must get these from dashboard.privy.io
+  
         const appId = 'cmitb8a5900p6l40c4tkqqwbq'; 
         const clientId = 'client-WY6TPxCtXyQ7hbZmtXpqQ4hML83kmRDPuKZUoriz1TQVq';
 
-        if (appId === 'INSERT_YOUR_APP_ID') {
-            statusMsg.innerText = "Error: App ID missing in code.";
+        // Simple check to warn you if you forgot the keys
+        if (appId.includes('INSERT')) {
+            statusMsg.innerText = "⚠️ Missing Privy Keys. Please edit the HTML file.";
             statusMsg.style.color = "red";
+            connectBtn.disabled = true;
+            connectBtn.style.backgroundColor = "#999";
         }
 
         try {
-            // 2. Initialize Privy Instance
+            // 1. Initialize Privy
             const privy = new Privy({
                 appId,
                 clientId,
                 storage: new LocalStorage()
             });
 
-            // 3. Connect to Secure Context (Iframe)
-            // As required by the "Connecting to the secure context" section of the docs
+            // 2. Mount the secure iframe
             const iframeUrl = privy.embeddedWallet.getURL();
             const iframe = document.createElement('iframe');
             iframe.src = iframeUrl;
             iframe.id = "privy-iframe";
             document.body.appendChild(iframe);
 
-            // Attach listeners
             privy.setMessagePoster(iframe.contentWindow);
             window.addEventListener('message', (e) => privy.embeddedWallet.onMessage(e.data));
 
             console.log("Privy SDK Initialized");
 
-            // 4. Handle Button Click (Example: Login with Email)
+            // 3. Handle Login
             connectBtn.addEventListener('click', async () => {
-                if (appId === 'INSERT_YOUR_APP_ID') {
-                    alert("Please open tithe.html and add your Privy App ID.");
-                    return;
-                }
-
-                statusMsg.innerText = "Initializing secure wallet...";
-
-                // EXAMPLE: This triggers the Email Login flow. 
-                // Since this is "Vanilla JS", you need to build the UI to ask for the email.
-                // For now, we use a simple prompt.
-                const email = prompt("Enter your email to connect/create wallet:");
+                statusMsg.innerText = "Processing...";
+                
+                const email = prompt("Enter email for receipt/wallet connection:");
                 
                 if (email) {
                     try {
-                        statusMsg.innerText = "Sending code to " + email + "...";
+                        statusMsg.innerText = `Sending code to ${email}...`;
                         await privy.auth.email.sendCode(email);
                         
-                        const code = prompt("Enter the code sent to your email:");
+                        const code = prompt("Enter the verification code:");
                         if (code) {
                             const session = await privy.auth.email.loginWithCode(email, code);
-                            statusMsg.innerText = "Wallet Connected!";
-                            connectBtn.innerText = "Tithe Now";
-                            console.log("Session:", session);
+                            statusMsg.innerText = "Wallet Connected. Processing Tithe...";
+                            statusMsg.style.color = "green";
+                            console.log("User Logged In:", session);
                             
-                            // Here you would call privy.embeddedWallet.getEthereumProvider() to send funds
+                            // NOTE: Actual transaction logic would go here
+                            // e.g. await privy.embeddedWallet.getEthereumProvider()...
                         }
                     } catch (err) {
                         console.error(err);
-                        statusMsg.innerText = "Error: " + err.message;
+                        // Show the actual error message on screen to help debug
+                        statusMsg.innerText = "Error: " + (err.message || err);
+                        statusMsg.style.color = "red";
                     }
                 } else {
-                    statusMsg.innerText = "Cancelled.";
+                    statusMsg.innerText = "Operation cancelled.";
                 }
             });
 
         } catch (error) {
             console.error("Privy Initialization Error:", error);
-            statusMsg.innerText = "Failed to load Wallet SDK.";
+            statusMsg.innerText = "SDK Error: " + error.message;
         }
     </script>
 </body>
