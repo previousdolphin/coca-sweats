@@ -179,10 +179,19 @@
         }
 
         // --- HELPER: Ensure Wallet Exists ---
-        async function ensureWalletExists(user) {
+        async function ensureWalletExists() {
+            const user = privy.user;
+            if (!user) throw new Error("User not found");
+
             if (!user.wallet) {
                 statusMsg.innerText = "Creating secure wallet container...";
-                const wallet = await privy.embeddedWallet.create();
+                
+                // === FIX: Pass configuration object ===
+                // 'privy-managed' is automatic. If you need passwords, change to 'user-passcode'
+                const wallet = await privy.embeddedWallet.create({ 
+                    recoveryMethod: 'privy-managed' 
+                });
+                
                 console.log("Wallet created:", wallet);
                 return wallet;
             }
@@ -203,15 +212,13 @@
                 connectBtn.disabled = true;
                 statusMsg.innerText = "Verifying wallet status...";
 
-                // Get user from property, not function
-                let user = privy.user;
-                if (!user) {
+                if (!privy.user) {
                     await handleLogin();
                     return;
                 }
 
-                // Ensure wallet exists before requesting provider
-                await ensureWalletExists(user);
+                // Call helper to ensure wallet is created if missing
+                await ensureWalletExists();
 
                 statusMsg.innerText = "Connecting to embedded wallet...";
                 
@@ -252,12 +259,10 @@
         window.addEventListener('load', async () => {
             if (!connectBtn) return;
 
-            // Wait loop to check for user session initialization
             let attempts = 0;
             const checkSession = setInterval(async () => {
                 attempts++;
                 try {
-                    // Access property directly: privy.user
                     const user = privy.user;
                     
                     if (user) {
@@ -267,7 +272,6 @@
                         connectBtn.onclick = performTithe;
                         clearInterval(checkSession);
                     } else if (attempts > 5) {
-                        // Stop checking after 5 attempts (approx 2.5s) and default to login
                         console.log("No active session found.");
                         connectBtn.onclick = handleLogin;
                         clearInterval(checkSession);
@@ -295,12 +299,13 @@
                 }
 
                 statusMsg.innerText = "Verifying credentials...";
+                await privy.auth.email.loginWithCode(email, code);
                 
-                const user = await privy.auth.email.loginWithCode(email, code);
-                
-                if (user && !user.wallet) {
-                    statusMsg.innerText = "Initializing fresh wallet...";
-                    await privy.embeddedWallet.create();
+                // Check and create wallet immediately using the unified helper
+                try {
+                   await ensureWalletExists();
+                } catch (walletErr) {
+                   console.error("Wallet creation failed during login:", walletErr);
                 }
 
                 statusMsg.innerText = "Logged in. Ready to Tithe.";
