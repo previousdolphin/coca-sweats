@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TRANSMISSION RECEIVED | CoCA</title>
+    <style>
+        /* --- BRUTALIST RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand-red: #ff3333; 
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Courier New', Courier, monospace;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .uppercase { text-transform: uppercase; }
+
+        /* --- DARK MODE --- */
+        body.dark-mode { background-color: #000000; color: #ffffff; }
+        body.dark-mode a { color: #ffffff; border-bottom: 1px solid #ffffff; }
+        body.dark-mode a:hover { color: var(--brand-red); border-bottom-color: var(--brand-red); }
+
+        /* --- CONTENT STYLING --- */
+        .container {
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        /* Red Logo Logic */
+        .logo {
+            width: 120px;
+            height: auto;
+            margin: 0 auto 30px auto;
+            display: block;
+            /* Same filter as main site to turn black SVG to Brand Red */
+            filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 40px;
+        }
+
+        /* --- BRUTALIST LINK --- */
+        .return-link {
+            text-decoration: none;
+            color: #000000;
+            font-weight: bold;
+            font-size: 1rem;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 2px;
+            transition: color 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .return-link:hover {
+            color: var(--brand-red);
+            border-bottom-color: var(--brand-red);
+        }
+
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.2rem; }
+            .logo { width: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA">
+
+        <h1 class="uppercase">Transmission Received</h1>
+        
+        <p class="uppercase">
+            Your information has been logged in the archive.<br>
+            We will contact you if you are selected.
+        </p>
+
+        <a href="https://cocausa.org" class="return-link uppercase">&lt; RETURN TO COCAUSA.ORG</a>
+    </div>
+
+<script>
+    /**
+     * THEME SYNC
+     * Checks local storage to match the theme of the page they just came from.
+     */
+    (function() {
+        const body = document.body;
+        const savedMode = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedMode === 'dark' || (savedMode === null && prefersDark)) {
+            body.classList.add('dark-mode');
+        }
+    })();
+</script>
+</body>
+</html>
