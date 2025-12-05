@@ -7,194 +7,54 @@
     <style>
         /* --- BRUTALIST RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            /* --- MASTER COLOR CONTROL --- */
-            --brand-red: #ff3333; 
-        }
-
-        body {
-            background-color: #ffffff;
-            color: #000000;
-            font-family: 'Courier New', Courier, monospace;
-            width: 100vw;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
+        :root { --brand-red: #ff3333; }
+        body { background-color: #ffffff; color: #000000; font-family: 'Courier New', Courier, monospace; width: 100vw; min-height: 100vh; overflow-x: hidden; position: relative; transition: background-color 0.3s, color 0.3s; }
         .uppercase { text-transform: uppercase; }
         .hidden { display: none !important; }
 
-        /* --- DARK MODE --- */
+        /* DARK MODE */
         body.dark-mode { background-color: #000000; color: #ffffff; }
         body.dark-mode #gate { background: #000000; color: #ffffff; }
-        
-        /* Dark Mode Inputs/Buttons */
         body.dark-mode .brutalist-input { background: #000000; color: #ffffff; border: 2px solid white; }
         body.dark-mode .brutalist-btn { background: white; color: black; border: 2px solid white; }
         body.dark-mode .brutalist-btn:hover { background: black; color: white; border: 2px solid white; }
-        body.dark-mode .brutalist-btn:disabled { background: #333; color: #555; border-color: #555; }
-
         body.dark-mode .receipt-box { border: 2px solid white; background: black; }
         body.dark-mode .receipt-header { border-bottom: 1px solid white; }
-        
         body.dark-mode .data-terminal { border-color: white; }
-
-        /* --- GATE (LOGIN) --- */
-        #gate {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #ffffff;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s;
-        }
-
-        .gate-logo {
-            width: 180px;
-            height: auto;
-            margin-bottom: 30px; 
-            /* Red Filter for Logo */
-            filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* --- MAIN LAYOUT --- */
-        .shop-container {
-            display: flex; 
-            flex-direction: column;
-            min-height: 100vh;
-            width: 100%;
-        }
-
-        .top-bar {
-            flex: 0 0 auto;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
-            z-index: 10;
-        }
-
-        .header-group { display: flex; align-items: center; gap: 20px; }
-        .header-logo { height: 3.5rem; width: auto; display: block; }
-        
         body.dark-mode .header-logo { filter: invert(100%); }
 
+        /* GATE */
+        #gate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s; }
+        .gate-logo { width: 180px; height: auto; margin-bottom: 30px; filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%); pointer-events: none; user-select: none; }
+
+        /* LAYOUT */
+        .shop-container { display: flex; flex-direction: column; min-height: 100vh; width: 100%; }
+        .top-bar { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); z-index: 10; }
+        .header-group { display: flex; align-items: center; gap: 20px; }
+        .header-logo { height: 3.5rem; width: auto; display: block; }
         .header { font-size: 1.5rem; font-weight: bold; }
         .status-indicator { font-size: 1rem; font-weight: bold; color: var(--brand-red); }
 
-        .dark-mode-toggle-btn {
-            background: none; border: 1px solid currentColor;
-            color: currentColor; padding: 8px 12px;
-            font-family: inherit; cursor: pointer; text-transform: uppercase;
-        }
-
-        .dark-mode-toggle-btn:hover {
-            background-color: currentColor;
-            color: var(--opposite-color, #ffffff);
-        }
+        /* CONTROLS */
+        .dark-mode-toggle-btn { background: none; border: 1px solid currentColor; color: currentColor; padding: 8px 12px; font-family: inherit; cursor: pointer; text-transform: uppercase; }
+        .product-stage { flex: 1; position: relative; width: 100%; display: flex; justify-content: center; align-items: center; padding: 20px; }
         
-        body:not(.dark-mode) .dark-mode-toggle-btn:hover { --opposite-color: #ffffff; }
-        body.dark-mode .dark-mode-toggle-btn:hover { --opposite-color: #000000; }
-
-        /* --- CENTER STAGE (DATA TERMINAL) --- */
-        .product-stage {
-            flex: 1; position: relative; width: 100%;
-            display: flex; justify-content: center; align-items: center;
-            padding: 20px;
-        }
-
-        .data-terminal {
-            width: 100%; max-width: 800px;
-            height: 400px;
-            border: 5px solid black;
-            padding: 20px;
-            font-family: 'Courier New', Courier, monospace;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
+        /* TERMINAL */
+        .data-terminal { width: 100%; max-width: 800px; height: 400px; border: 5px solid black; padding: 20px; font-family: 'Courier New', Courier, monospace; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-start; }
         .terminal-line { margin-bottom: 10px; display: block; word-break: break-all; }
-        .terminal-label { font-weight: bold; margin-right: 10px; }
-        .terminal-value { opacity: 0.8; }
         .blink { animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        /* --- BOTTOM BAR --- */
-        .bottom-bar {
-            flex: 0 0 auto;
-            display: flex; justify-content: space-between; align-items: flex-end;
-            padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom));
-            z-index: 10;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
+        /* FORM */
+        .bottom-bar { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: flex-end; padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom)); z-index: 10; gap: 20px; flex-wrap: wrap; }
         .details { font-size: 0.8rem; line-height: 1.4; max-width: 300px; }
-
-        /* --- RECEIPT BOX (THE FORM) --- */
-        .receipt-box {
-            width: 400px; border: 2px solid black;
-            padding: 15px; background: white;
-            transition: border-color 0.3s, background 0.3s;
-        }
-
-        .receipt-header {
-            border-bottom: 1px solid black;
-            padding-bottom: 10px; margin-bottom: 15px;
-            font-weight: bold; display: flex; justify-content: space-between;
-        }
-
-        .brutalist-input {
-            width: 100%; padding: 15px;
-            font-family: inherit; font-size: 1rem;
-            border: 2px solid black; outline: none;
-            margin-bottom: 10px; text-align: left; border-radius: 0;
-            background: white; color: black;
-            appearance: none;
-        }
-
-        .brutalist-select {
-            width: 100%; padding: 10px; border: 1px solid black;
-            font-family: inherit; font-size: 0.9rem; margin-bottom: 10px;
-            border-radius: 0; outline: none; background: white; appearance: none;
-            cursor: pointer;
-        }
-        body.dark-mode .brutalist-select { background: black; color: white; border-color: white; }
-
-        .brutalist-btn {
-            background: black; color: white; border: none;
-            padding: 15px 30px; font-family: inherit;
-            cursor: pointer; font-weight: bold;
-            width: 100%; margin-top: 10px;
-            text-transform: uppercase;
-        }
-
+        .receipt-box { width: 400px; border: 2px solid black; padding: 15px; background: white; transition: border-color 0.3s, background 0.3s; }
+        .receipt-header { border-bottom: 1px solid black; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; display: flex; justify-content: space-between; }
+        .brutalist-input, .brutalist-select { width: 100%; padding: 15px; font-family: inherit; font-size: 1rem; border: 2px solid black; outline: none; margin-bottom: 10px; text-align: left; border-radius: 0; background: white; color: black; appearance: none; }
+        .brutalist-btn { background: black; color: white; border: none; padding: 15px 30px; font-family: inherit; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; text-transform: uppercase; }
         .brutalist-btn:hover { background: white; color: black; border: 2px solid black; }
-        
-        .brutalist-btn:disabled {
-            opacity: 0.5; cursor: not-allowed;
-            background: #ccc; color: #888; border: none;
-        }
+        .brutalist-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #ccc; color: #888; border: none; }
 
-        /* --- SPINNER --- */
-        .spinner {
-            display: inline-block; width: 12px; height: 12px;
-            border: 2px solid currentColor;
-            border-right-color: transparent; border-radius: 50%;
-            animation: spin 0.75s linear infinite;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* --- MOBILE FIXES --- */
         @media (max-width: 768px) {
             .header-logo { height: 2.5rem; }
             .bottom-bar { display: block; }
@@ -207,26 +67,23 @@
 </head>
 <body>
 
-    <!-- LOGIN GATE -->
     <div id="gate">
-        <!-- Make sure this file exists, or use a text fallback -->
         <img src="CoCA-Vector-redrawn-photoshop.svg" class="gate-logo" alt="LOGO">
         <h1 class="uppercase" style="margin-bottom: 20px;">Restricted Access</h1>
         <div style="width: 300px; text-align: center;">
-            <p style="margin-bottom: 20px; font-size: 0.8rem;">AUTHENTICATION REQUIRED TO ACCESS TITHES</p>
+            <p style="margin-bottom: 20px; font-size: 0.8rem;">AUTHENTICATION REQUIRED</p>
             <button id="btn-login" class="brutalist-btn">CONNECT WALLET</button>
         </div>
-        <p id="login-status" style="margin-top: 15px; color: var(--brand-red); font-size: 0.8rem;"></p>
+        <!-- DEBUGGER: ERROR MESSAGE WILL APPEAR HERE -->
+        <p id="login-status" style="margin-top: 15px; color: var(--brand-red); font-size: 0.7rem; max-width: 300px; word-wrap: break-word;"></p>
     </div>
 
-    <!-- MAIN INTERFACE -->
     <div id="app-interface" class="shop-container hidden"> 
         <div class="top-bar uppercase">
             <div class="header-group">
                 <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="LOGO">
                 <div class="header">NAMEOFMY | TITHES</div>
             </div>
-            
             <div style="display: flex; gap: 10px; align-items: center;">
                 <div class="status-indicator">ONLINE</div>
                 <button class="dark-mode-toggle-btn">🌑 DARK</button> 
@@ -236,12 +93,8 @@
         <div class="product-stage">
             <div class="data-terminal">
                 <span class="terminal-line">> INITIALIZING SECURE CONNECTION...</span>
-                <span class="terminal-line">> USER VERIFIED.</span>
-                <br>
                 <div id="terminal-content">
-                    <span class="terminal-line"><span class="terminal-label">WALLET:</span> <span id="disp-address" class="terminal-value">LOADING...</span></span>
-                    <span class="terminal-line"><span class="terminal-label">NETWORK:</span> <span id="disp-chain" class="terminal-value">DETECTING...</span></span>
-                    <span class="terminal-line"><span class="terminal-label">STATUS:</span> <span class="terminal-value" style="color: #0f0;">ACTIVE</span></span>
+                    <span class="terminal-line"><span style="font-weight:bold;">WALLET:</span> <span id="disp-address" style="opacity:0.8;">LOADING...</span></span>
                     <br>
                     <span class="terminal-line">> WAITING FOR INPUT...<span class="blink">_</span></span>
                 </div>
@@ -251,28 +104,18 @@
         <div class="bottom-bar">
             <div class="details uppercase">
                 <p>PROTOCOL: TITHE_V1</p>
-                <p>CONTRACT: PUBLIC_DONATION</p>
-                <p>TOKEN: ETH / BASE</p>
-                <p style="margin-top: 10px; cursor: pointer; text-decoration: underline;" id="btn-logout">[ DISCONNECT SESSION ]</p>
+                <p id="btn-logout" style="margin-top: 10px; cursor: pointer; text-decoration: underline;">[ DISCONNECT SESSION ]</p>
             </div>
 
             <div class="receipt-box">
-                <div class="receipt-header uppercase">
-                    <span>TRANSACTION SLIP</span>
-                    <span>#0001</span>
-                </div>
+                <div class="receipt-header uppercase"><span>TRANSACTION SLIP</span><span>#0001</span></div>
                 
-                <!-- FUNDING (IF EMPTY) -->
-                <button id="btn-fund" class="brutalist-btn" style="margin-bottom: 15px; background: white; color: black; border: 2px solid black;">
-                    + ADD FUNDS (CARD)
-                </button>
+                <button id="btn-fund" class="brutalist-btn" style="margin-bottom: 15px; background: white; color: black; border: 2px solid black;">+ ADD FUNDS</button>
 
-                <!-- TITHING FORM -->
-                <label class="form-label uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 4px; display: block;">Tithe Amount</label>
+                <label class="uppercase" style="font-size: 0.7rem; font-weight: bold;">Tithe Amount</label>
                 <select id="input-amount" class="brutalist-select">
                     <option value="0.001">0.001 ETH (~$3.00)</option>
                     <option value="0.01">0.010 ETH (~$30.00)</option>
-                    <option value="0.1">0.100 ETH (~$300.00)</option>
                     <option value="CUSTOM">CUSTOM AMOUNT</option>
                 </select>
 
@@ -280,9 +123,9 @@
                      <input type="text" id="input-custom" class="brutalist-input" placeholder="0.00 ETH">
                 </div>
                 
-                <div style="margin-top: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                <div style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="mint-token" checked style="width: 20px; height: 20px; accent-color: black;">
-                    <label for="mint-token" class="uppercase" style="font-size: 0.8rem;">MINT COMMEMORATIVE TOKEN</label>
+                    <label for="mint-token" class="uppercase" style="font-size: 0.8rem;">MINT TOKEN</label>
                 </div>
 
                 <button id="btn-tithe" class="brutalist-btn">CONFIRM TITHE</button>
@@ -291,15 +134,13 @@
         </div>
     </div>
 
-    <!-- PRIVY SDK -->
+    <!-- UPDATE: Importing PrivyClient specifically to avoid CDN ambiguity -->
     <script type="module">
-        import Privy from "https://esm.sh/@privy-io/js-sdk-core@latest";
+        import { PrivyClient } from "https://esm.sh/@privy-io/js-sdk-core@latest";
 
-        // --- CONFIG ---
         const APP_ID = 'cmitb8a5900p6l40c4tkqqwbq'; 
-        const RECIPIENT_WALLET = '0x0828C77922838a06587eBe8463aDBDeD6eb95f74'; // <--- CHANGE THIS TO YOUR WALLET
+        const RECIPIENT_WALLET = '0x0828C77922838a06587eBe8463aDBDeD6eb95f74';
 
-        // --- DOM ELEMENTS ---
         const els = {
             gate: document.getElementById('gate'),
             app: document.getElementById('app-interface'),
@@ -308,7 +149,6 @@
             btnTithe: document.getElementById('btn-tithe'),
             btnFund: document.getElementById('btn-fund'),
             dispAddress: document.getElementById('disp-address'),
-            dispChain: document.getElementById('disp-chain'),
             loginStatus: document.getElementById('login-status'),
             txStatus: document.getElementById('tx-status'),
             selectAmount: document.getElementById('input-amount'),
@@ -318,14 +158,15 @@
             toggleBtn: document.querySelector('.dark-mode-toggle-btn')
         };
 
-        // --- PRIVY INIT ---
-        const privy = new Privy({ appId: APP_ID });
+        let privy;
 
-        // --- LOGIC ---
-
+        // --- INIT ---
         async function init() {
-            // Setup iframe for secure context (Vanilla JS Requirement)
             try {
+                // Initialize Client
+                privy = new PrivyClient({ appId: APP_ID });
+                
+                // Mount Iframe
                 const url = privy.embeddedWallet.getURL();
                 const iframe = document.createElement('iframe');
                 iframe.src = url;
@@ -335,63 +176,53 @@
                 await new Promise(resolve => iframe.onload = resolve);
                 privy.setMessagePoster(iframe.contentWindow);
                 window.addEventListener('message', (e) => privy.embeddedWallet.onMessage(e.data));
-                
-                checkSession();
-            } catch (e) {
-                console.error("Privy Init Error", e);
-                els.loginStatus.innerText = "SYSTEM ERROR: FAILED TO INITIALIZE SECURE CONTEXT";
-            }
-        }
 
-        async function checkSession() {
-            const session = await privy.auth.getSession();
-            if (session) {
-                enterApp();
-            } else {
-                els.gate.style.display = 'flex';
-                els.app.classList.add('hidden');
+                // Check for existing session
+                const session = await privy.auth.getSession();
+                if (session) {
+                    enterApp();
+                }
+            } catch (e) {
+                console.error(e);
+                els.loginStatus.innerText = "INIT ERROR: " + (e.message || JSON.stringify(e));
             }
         }
 
         async function enterApp() {
             els.gate.style.display = 'none';
             els.app.classList.remove('hidden');
-            
             try {
                 const user = await privy.getUser();
                 const wallet = user.linked_accounts.find(a => a.type === 'wallet' && a.wallet_client_type === 'privy');
-                
                 if (wallet) {
                     els.dispAddress.innerText = wallet.address;
-                    els.dispChain.innerText = "ETHEREUM (DEFAULT)"; // Dynamic chain detection requires provider
-                    logToTerminal(`> WALLET CONNECTED: ${wallet.address}`);
-                } else {
-                    els.dispAddress.innerText = "NO WALLET FOUND";
+                    log(`CONNECTED: ${wallet.address}`);
                 }
             } catch (e) {
-                console.error(e);
+                log("ERROR FETCHING USER DATA");
             }
         }
 
-        function logToTerminal(msg) {
+        function log(msg) {
             const span = document.createElement('span');
             span.className = 'terminal-line';
-            span.innerText = msg;
-            els.terminal.insertBefore(span, els.terminal.lastElementChild);
+            span.innerText = `> ${msg}`;
+            els.terminal.appendChild(span);
         }
 
         // --- HANDLERS ---
-
         els.btnLogin.addEventListener('click', async () => {
             els.btnLogin.innerText = "CONNECTING...";
-            els.btnLogin.disabled = true;
+            els.loginStatus.innerText = ""; // Clear previous errors
+            
             try {
                 await privy.login();
                 enterApp();
             } catch (e) {
-                els.loginStatus.innerText = "LOGIN FAILED / CANCELLED";
-                els.btnLogin.innerText = "CONNECT WALLET";
-                els.btnLogin.disabled = false;
+                console.error(e);
+                // PRINT THE ACTUAL ERROR TO THE SCREEN
+                els.loginStatus.innerText = "LOGIN ERROR: " + (e.message || JSON.stringify(e));
+                els.btnLogin.innerText = "TRY AGAIN";
             }
         });
 
@@ -401,41 +232,27 @@
         });
 
         els.selectAmount.addEventListener('change', (e) => {
-            if(e.target.value === 'CUSTOM') {
-                els.customWrapper.classList.remove('hidden');
-            } else {
-                els.customWrapper.classList.add('hidden');
-            }
+            els.customWrapper.classList.toggle('hidden', e.target.value !== 'CUSTOM');
         });
 
         els.btnFund.addEventListener('click', () => {
-             // Basic copy-paste funding for now as Vanilla SDK funding flow varies
              const addr = els.dispAddress.innerText;
              navigator.clipboard.writeText(addr);
-             logToTerminal(`> ADDRESS COPIED TO CLIPBOARD: ${addr}`);
              els.txStatus.innerText = "ADDRESS COPIED. SEND ETH TO FUND.";
+             log("ADDRESS COPIED");
         });
 
         els.btnTithe.addEventListener('click', async () => {
-            if (RECIPIENT_WALLET.includes('000000')) {
-                alert("DEV ERROR: RECIPIENT_WALLET NOT CONFIGURED IN HTML.");
-                return;
-            }
-
-            els.btnTithe.disabled = true;
             els.btnTithe.innerText = "PROCESSING...";
-            els.txStatus.innerText = "INITIATING TRANSACTION...";
+            els.txStatus.innerText = "INITIATING...";
             
-            let amount = els.selectAmount.value;
-            if (amount === 'CUSTOM') amount = els.inputCustom.value;
+            let amount = els.selectAmount.value === 'CUSTOM' ? els.inputCustom.value : els.selectAmount.value;
 
             try {
                 const provider = await privy.embeddedWallet.getEthereumProvider();
-                
-                // Convert ETH to Wei (Hex) - simplistic calculation
                 const wei = BigInt(Math.floor(parseFloat(amount) * 1e18)).toString(16);
                 
-                logToTerminal(`> INITIATING TRANSFER: ${amount} ETH`);
+                log(`SENDING ${amount} ETH...`);
 
                 const tx = await provider.request({
                     method: 'eth_sendTransaction',
@@ -446,46 +263,32 @@
                     }]
                 });
 
-                logToTerminal(`> TX SENT: ${tx}`);
-                els.txStatus.innerText = "SUCCESS. HASH: " + tx.substring(0,10) + "...";
+                log(`SUCCESS: ${tx}`);
+                els.txStatus.innerText = "SENT! HASH: " + tx.substring(0,6) + "...";
                 els.txStatus.style.color = "#0f0";
-                
-                // If Minting was checked, you would trigger that here next
-                const mint = document.getElementById('mint-token').checked;
-                if(mint) {
-                    logToTerminal(`> MINT REQUEST QUEUED (PLACEHOLDER)`);
-                }
-
             } catch (e) {
                 console.error(e);
-                els.txStatus.innerText = "TX FAILED: " + (e.message || "UNKNOWN ERROR");
+                els.txStatus.innerText = "FAILED: " + (e.message || "UNKNOWN");
                 els.txStatus.style.color = "var(--brand-red)";
-                logToTerminal(`> ERROR: ${e.message}`);
+                log(`FAIL: ${e.message}`);
             } finally {
-                els.btnTithe.disabled = false;
                 els.btnTithe.innerText = "CONFIRM TITHE";
             }
         });
 
-        // --- DARK MODE LOGIC ---
-        const body = document.body;
+        // Dark Mode Logic
         const toggleBtn = els.toggleBtn;
-        
-        // Load Saved Pref
         if (localStorage.getItem('theme') === 'dark') {
-            body.classList.add('dark-mode');
+            document.body.classList.add('dark-mode');
             toggleBtn.textContent = '☀️ LIGHT';
         }
-
         toggleBtn.addEventListener('click', () => {
-            const isDark = body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.toggle('dark-mode');
             toggleBtn.textContent = isDark ? '☀️ LIGHT' : '🌑 DARK';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
 
-        // Start
         init();
-
     </script>
 </body>
 </html>
