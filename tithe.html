@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoCA | Tithe 3</title>
+    <title>CoCA | Tithe</title>
     <style>
         :root {
             --bg-color: #f4f4f4;
@@ -158,14 +158,13 @@
         const amountInput = document.getElementById('amount');
         const currencySelect = document.getElementById('currency');
 
-        // 1. Initialize Privy
         const privy = new Privy({
             appId: APP_ID,
             clientId: CLIENT_ID,
             storage: new LocalStorage()
         });
 
-        // 2. Mount Iframe
+        // Mount Iframe
         try {
             const iframe = document.createElement('iframe');
             iframe.src = privy.embeddedWallet.getURL();
@@ -177,14 +176,15 @@
             console.error("Iframe Error:", e);
         }
 
-        // --- HELPER: ROBUST WALLET FINDER ---
+        // --- HELPER: ROBUST WALLET FINDER & CREATOR ---
         async function ensureWalletExists() {
             const user = privy.user;
             if (!user) throw new Error("User not found");
 
-            // SEARCH METHOD: Look through linkedAccounts for the embedded wallet
-            // This bypasses the issue where user.wallet might be undefined
-            const embeddedWallet = user.linkedAccounts.find(
+            // FIX: Safely access linkedAccounts with a fallback to empty array
+            const linkedAccounts = user.linkedAccounts || [];
+            
+            const embeddedWallet = linkedAccounts.find(
                 (account) => account.type === 'wallet' && account.walletClientType === 'privy'
             );
 
@@ -193,16 +193,27 @@
                 return embeddedWallet;
             }
 
-            // ONLY create if absolutely no embedded wallet exists
-            statusMsg.innerText = "Creating secure wallet container...";
+            // If we get here, we didn't find it in the list.
+            statusMsg.innerText = "Initializing secure container...";
             
-            // FIX: Pass explicit config to avoid password error
-            const wallet = await privy.embeddedWallet.create({ 
-                recoveryMethod: 'privy-managed' 
-            });
-            
-            console.log("Wallet created:", wallet);
-            return wallet;
+            try {
+                // Try to create it.
+                // If it already exists (but was invisible in linkedAccounts), this might throw an error.
+                const wallet = await privy.embeddedWallet.create({ 
+                    recoveryMethod: 'privy-managed' 
+                });
+                console.log("Wallet created:", wallet);
+                return wallet;
+            } catch (err) {
+                // If the error suggests it already exists, we are actually fine.
+                // We just proceed to use it.
+                if (err.message && (err.message.includes("400") || err.message.includes("already has"))) {
+                    console.log("Wallet already exists on server, proceeding...");
+                    return; // Returning undefined is fine, getEthereumProvider will still work
+                }
+                // If it's a different error, re-throw it
+                throw err;
+            }
         }
 
         // 3. Tithe Function
@@ -224,11 +235,11 @@
                     return;
                 }
 
-                // Call our new robust helper
                 await ensureWalletExists();
 
                 statusMsg.innerText = "Connecting to embedded wallet...";
                 
+                // This call works as long as the wallet exists on the backend
                 const embeddedProvider = await privy.embeddedWallet.getEthereumProvider();
                 const provider = new ethers.BrowserProvider(embeddedProvider);
                 const signer = await provider.getSigner();
@@ -254,8 +265,6 @@
                 statusMsg.style.color = "red";
                 if (error.message && error.message.includes('frame')) {
                     statusMsg.innerText = "Error: Domain not allowed in Privy Dashboard.";
-                } else if (error.message && error.message.includes('400')) {
-                    statusMsg.innerText = "Error: Wallet conflict. Please refresh and try again.";
                 } else {
                     statusMsg.innerText = "Error: " + error.message;
                 }
@@ -273,7 +282,6 @@
                 attempts++;
                 try {
                     const user = privy.user;
-                    
                     if (user) {
                         console.log("User found:", user);
                         connectBtn.innerText = "TITHE NOW";
@@ -314,7 +322,7 @@
                 try {
                    await ensureWalletExists();
                 } catch (walletErr) {
-                   console.error("Wallet check failed during login:", walletErr);
+                   console.log("Initial wallet check:", walletErr);
                 }
 
                 statusMsg.innerText = "Logged in. Ready to Tithe.";
