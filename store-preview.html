@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NAMEOFMY | STORE</title>
+    <style>
+        /* --- BRUTALIST RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand-red: #ff3333; 
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Courier New', Courier, monospace;
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .uppercase { text-transform: uppercase; }
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+
+        /* --- DARK MODE --- */
+        body.dark-mode { background-color: #000000; color: #ffffff; }
+        
+        body.dark-mode .nav-bar { border-bottom: 1px solid white; }
+        body.dark-mode .nav-item:hover { background: white; color: black; }
+        
+        body.dark-mode .product-card { border: 1px solid white; }
+        body.dark-mode .add-btn { border-top: 1px solid white; }
+        body.dark-mode .add-btn:hover { background: white; color: black; }
+        
+        body.dark-mode .modal-content { border: 2px solid white; background: black; }
+        body.dark-mode .modal-header { border-bottom: 1px solid white; }
+
+        /* --- PREVIEW MASK (NEW) --- */
+        #preview-mask {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: rgba(0, 0, 0, 0.92); /* Dark semi-transparent */
+            z-index: 10000; /* Highest priority */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: blur(4px); /* Blurs the store behind it */
+            transition: opacity 0.5s ease;
+        }
+
+        .mask-content {
+            border: 1px solid white;
+            padding: 40px;
+            max-width: 80%;
+        }
+
+        .blink { animation: blinker 1.5s step-end infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* --- LAYOUT --- */
+        .store-container {
+            display: flex; flex-direction: column;
+            min-height: 100vh; width: 100%;
+        }
+
+        .top-bar {
+            flex: 0 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
+            border-bottom: 1px solid currentColor;
+            z-index: 10;
+        }
+
+        .header-group { display: flex; align-items: center; gap: 20px; }
+        .header-logo { height: 3.5rem; width: auto; display: block; }
+
+        /* Dark Mode Logo Fix */
+        body.dark-mode .header-logo { filter: invert(100%); }
+
+        .header { font-size: 1.5rem; font-weight: bold; }
+
+        /* --- CATEGORY NAV --- */
+        .nav-bar {
+            display: flex;
+            border-bottom: 1px solid black;
+            position: sticky; top: 0;
+            background: inherit; z-index: 9;
+        }
+        
+        .nav-item {
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border-right: 1px solid currentColor;
+            transition: background 0.2s;
+        }
+
+        .nav-item:last-child { border-right: none; }
+        .nav-item:hover { background: black; color: white; }
+        
+        .nav-spacer { flex-grow: 1; border-right: 1px solid currentColor; }
+
+        /* --- PRODUCT GRID --- */
+        .product-grid {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        .product-card {
+            border: 1px solid black;
+            display: flex; flex-direction: column;
+            position: relative;
+        }
+
+        .media-container {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid currentColor;
+        }
+        
+        body.dark-mode .media-container { background: #1a1a1a; }
+
+        .product-video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        
+        .placeholder-img {
+            width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; font-weight: bold; color: #888;
+        }
+
+        .info-row {
+            padding: 15px;
+            display: flex; justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .product-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+        .product-meta { font-size: 0.8rem; color: var(--brand-red); }
+        .product-price { font-weight: bold; font-size: 1.1rem; }
+
+        .add-btn {
+            width: 100%;
+            padding: 15px;
+            background: none;
+            color: currentColor;
+            border: none;
+            border-top: 1px solid black;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover { background: black; color: white; }
+
+        /* --- MODAL (COMING SOON) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none; justify-content: center; align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            width: 90%; max-width: 400px;
+            background: white; border: 2px solid black;
+            padding: 20px; text-align: center;
+            box-shadow: 10px 10px 0px currentColor;
+        }
+
+        .modal-header {
+            font-weight: bold; font-size: 1.2rem;
+            border-bottom: 1px solid black;
+            padding-bottom: 10px; margin-bottom: 20px;
+            color: var(--brand-red);
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            width: 100%; padding: 10px;
+            background: black; color: white;
+            border: none; font-family: inherit; font-weight: bold; cursor: pointer;
+        }
+        
+        .close-btn:hover { background: var(--brand-red); }
+
+        #dark-mode-toggle, .dark-mode-toggle-btn {
+            background: none; border: 1px solid currentColor;
+            color: currentColor; padding: 8px 12px;
+            font-family: inherit; cursor: pointer;
+        }
+
+        #dark-mode-toggle:hover, .dark-mode-toggle-btn:hover {
+            background-color: currentColor;
+            color: var(--opposite-color, #ffffff);
+        }
+        
+        body:not(.dark-mode) .dark-mode-toggle-btn:hover { --opposite-color: #ffffff; }
+        body.dark-mode .dark-mode-toggle-btn:hover { --opposite-color: #000000; }
+
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            .header { font-size: 1rem; }
+            .header-logo { height: 2.5rem; gap: 10px; } 
+            .product-grid { grid-template-columns: 1fr; padding: 10px; }
+            .nav-item { padding: 15px 10px; font-size: 0.8rem; }
+            .mask-content { width: 90%; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="preview-mask">
+        <div class="mask-content">
+            <h1 class="uppercase" style="margin-bottom: 15px;">Warning: Preview Build</h1>
+            <p class="uppercase" style="line-height: 1.6;">
+                This environment is currently in simulation mode.<br>
+                Content and pricing subject to mutation.<br>
+                Commercial functions are offline.
+            </p>
+            <br>
+            <p class="blink" style="color: var(--brand-red); font-weight: bold;">[ CLICK TO ENTER ]</p>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header uppercase">System Notice</div>
+            <p class="uppercase">Store checkout is currently offline.</p>
+            <br>
+            <p>We are preparing the archive for public consumption.</p>
+            <button class="close-btn uppercase" onclick="closeModal()">Acknowledge</button>
+        </div>
+    </div>
+
+    <div class="store-container">
+        <div class="top-bar uppercase">
+            <div class="header-group">
+                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
+                <div class="header">Name of My | STORE</div>
+            </div>
+            <button class="dark-mode-toggle-btn">🌑 DARK</button> 
+        </div>
+
+        <nav class="nav-bar uppercase">
+            <a href="#apparel" class="nav-item">Apparel</a>
+            <a href="#literature" class="nav-item">Literature</a>
+            <a href="#misc" class="nav-item">Misc</a>
+            <div class="nav-spacer"></div>
+            <a href="#" class="nav-item" onclick="openModal()">CART (<span id="cart-count">0</span>)</a>
+        </nav>
+
+        <div class="product-grid">
+
+            <div class="product-card" id="apparel">
+                <div class="media-container">
+                    <video class="product-video" autoplay loop muted playsinline>
+                        <source src="coca3.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="info-row uppercase">
+                    <div>
+                        <div class="product-title">Standard Tracksuit</div>
+                        <div class="product-meta">Heavy Cotton / Non-Custom</div>
+                    </div>
+                    <div class="product-price">$450.00</div>
+                </div>
+                <button class="add-btn uppercase" onclick="openModal()">Add to Cart</button>
+            </div>
+
+            <div class="product-card" id="literature">
+                <div class="media-container">
+                    <div class="placeholder-img">📖</div>
+                </div>
+                <div class="info-row uppercase">
+                    <div>
+                        <div class="product-title">The Manual</div>
+                        <div class="product-meta">First Edition / Print</div>
+                    </div>
+                    <div class="product-price">$45.00</div>
+                </div>
+                <button class="add-btn uppercase" onclick="openModal()">Add to Cart</button>
+            </div>
+
+             <div class="product-card" id="misc">
+                <div class="media-container">
+                    <div class="placeholder-img">⚠️</div>
+                </div>
+                <div class="info-row uppercase">
+                    <div>
+                        <div class="product-title">Archive Sticker Pack</div>
+                        <div class="product-meta">Vinyl / 5-Pack</div>
+                    </div>
+                    <div class="product-price">$15.00</div>
+                </div>
+                <button class="add-btn uppercase" onclick="openModal()">Add to Cart</button>
+            </div>
+            
+            <div class="product-card">
+                <div class="media-container">
+                    <div class="placeholder-img">COMING SOON</div>
+                </div>
+                <div class="info-row uppercase">
+                    <div>
+                        <div class="product-title">???</div>
+                        <div class="product-meta">Drop 2</div>
+                    </div>
+                    <div class="product-price">---</div>
+                </div>
+                <button class="add-btn uppercase" style="cursor: not-allowed; opacity: 0.5;">Locked</button>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    /* --- PREVIEW MASK LOGIC --- */
+    const mask = document.getElementById('preview-mask');
+    mask.addEventListener('click', () => {
+        mask.style.opacity = '0';
+        setTimeout(() => {
+            mask.style.display = 'none';
+        }, 500); // Wait for fade out
+    });
+
+    /* --- DARK MODE LOGIC --- */
+    const toggleButtons = document.querySelectorAll('.dark-mode-toggle-btn');
+    const body = document.body;
+    
+    const updateButtons = (isDark) => {
+        toggleButtons.forEach(btn => {
+            btn.textContent = isDark ? '☀️ LIGHT' : '🌑 DARK';
+        });
+    };
+
+    const savedMode = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedMode === 'dark' || (savedMode === null && prefersDark)) {
+        body.classList.add('dark-mode');
+        updateButtons(true);
+    } else {
+        updateButtons(false);
+    }
+
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const isDarkMode = body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateButtons(isDarkMode);
+        });
+    });
+
+    /* --- CART / MODAL LOGIC --- */
+    const modal = document.getElementById('cart-modal');
+
+    function openModal() {
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+</script>
+</body>
+</html>
