@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>noMSG // SYNTHETIC GALLERY</title>
+    <style>
+        /* noMSG GALLERY AESTHETIC: Clinical, Monospace, High Contrast */
+        :root {
+            --bg-color: #050505;
+            --text-color: #e0e0e0;
+            --accent-color: #00ff41; /* CRT Terminal Green or maybe a Sterile White? Let's go Sterile White/Grey */
+            --highlight: #ffffff;
+        }
+        body {
+            margin: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace; /* Tech/industrial feel */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* The Canvas is the Artwork */
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Gallery Placard / Overlay */
+        .overlay {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-left: 2px solid var(--highlight);
+            backdrop-filter: blur(4px);
+        }
+
+        h1 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 10px 0;
+            color: var(--highlight);
+        }
+
+        p {
+            font-size: 11px;
+            margin: 0;
+            line-height: 1.5;
+            color: #aaa;
+        }
+
+        .meta {
+            margin-top: 10px;
+            font-size: 9px;
+            opacity: 0.7;
+        }
+
+        #error {
+            position: absolute;
+            color: #ff3333;
+            background: #220000;
+            padding: 20px;
+            border: 1px solid #ff3333;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="error">SYSTEM ERROR: WebGPU hardware acceleration unavailable. Update user_agent or drivers.</div>
+    <canvas id="gpuCanvas"></canvas>
+
+    <div class="overlay">
+        <h1>noMSG</h1>
+        <p>EXHIBITION: NULL_STATE<br>MEDIUM: WGSL / PROCEDURAL SHADER<br>ARTIST: SYNTHETIC_USER</p>
+        <div class="meta">RENDER_TARGET: GPU<br>STATUS: ACTIVE</div>
+    </div>
+
+    <script type="module">
+        // ---------------------------------------------------------
+        // WGSL SOURCE: THE "ARTWORK"
+        // ---------------------------------------------------------
+        const shaderCode = `
+        struct Uniforms {
+            time : f32,
+            width : f32,
+            height : f32,
+            padding : f32, // 16-byte alignment padding
+        };
+
+        @group(0) @binding(0) var<uniform> env : Uniforms;
+
+        struct VertexOutput {
+            @builtin(position) position : vec4f,
+            @location(0) uv : vec2f,
+        };
+
+        // VERTEX SHADER: Full-Screen Quad Generation
+        // We generate 2 triangles (6 vertices) strictly from the vertex_index.
+        // No vertex buffers required.
+        @vertex
+        fn vs_main(@builtin(vertex_index) vertexIndex : u32) -> VertexOutput {
+            var pos = array<vec2f, 6>(
+                vec2f(-1.0, -1.0), vec2f(1.0, -1.0), vec2f(-1.0, 1.0),
+                vec2f(-1.0, 1.0), vec2f(1.0, -1.0), vec2f(1.0, 1.0)
+            );
+
+            var output : VertexOutput;
+            output.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+            
+            // Map [-1, 1] clip space to [0, 1] UV space
+            output.uv = pos[vertexIndex] * 0.5 + 0.5;
+            
+            // Correct UV Y-axis for WebGPU (top-left origin usually desired in texture logic)
+            output.uv.y = 1.0 - output.uv.y; 
+            
+            return output;
+        }
+
+        // FRAGMENT SHADER: The "Synthetic" Look
+        // A shifting, sterile liquid metal effect.
+        @fragment
+        fn fs_main(in : VertexOutput) -> @location(0) vec4f {
+            let t = env.time * 0.4;
+            let uv = in.uv;
+            
+            // Aspect ratio correction
+            let aspect = env.width / env.height;
+            let p = vec2f(uv.x * aspect, uv.y);
+
+            // 1. Create a coordinate distortion (Liquid effect)
+            // We layer sine waves to create 'turbulence'
+            var val = p;
+            val.x += sin(p.y * 10.0 + t) * 0.1;
+            val.y += cos(p.x * 10.0 - t) * 0.1;
+            
+            // 2. Iterative interference pattern
+            var color_val = 0.0;
+            color_val += sin(val.x * 20.0 + t);
+            color_val += sin(val.y * 15.0 + t * 1.5);
+            color_val += sin((val.x + val.y) * 10.0 - t);
+            
+            // 3. Remap to 0-1 range and sharpen
+            color_val = (color_val + 3.0) / 6.0;
+            
+            // 4. Color Palette: "noMSG Sterile"
+            // Cold greys, whites, and deep void blacks.
+            // Using 'pow' to sharpen the peaks (high contrast)
+            let sharp = pow(color_val, 3.0);
+            
+            // Base color: Metallic Blue-Grey
+            let col1 = vec3f(0.1, 0.12, 0.15); 
+            // Highlight: Pure White
+            let col2 = vec3f(0.95, 0.98, 1.0);
+            
+            let final_color = mix(col1, col2, sharp);
+            
+            // 5. Scanline / Grain Overlay (The "Gallery Monitor" feel)
+            let scanline = sin(in.uv.y * 800.0) * 0.02;
+            let grain = fract(sin(dot(in.uv, vec2f(12.9898, 78.233)) + t) * 43758.5453) * 0.05;
+
+            return vec4f(final_color + scanline + grain, 1.0);
+        }
+        `;
+
+        // ---------------------------------------------------------
+        // WEBGPU BOILERPLATE
+        // ---------------------------------------------------------
+        async function init() {
+            if (!navigator.gpu) {
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
+
+            const canvas = document.getElementById('gpuCanvas');
+            // Ensure canvas matches window size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const adapter = await navigator.gpu.requestAdapter();
+            const device = await adapter.requestDevice();
+            const context = canvas.getContext('webgpu');
+            const format = navigator.gpu.getPreferredCanvasFormat();
+
+            context.configure({ device, format, alphaMode: 'premultiplied' });
+
+            const shaderModule = device.createShaderModule({ code: shaderCode });
+
+            const pipeline = device.createRenderPipeline({
+                layout: 'auto',
+                vertex: { module: shaderModule, entryPoint: 'vs_main' },
+                fragment: { module: shaderModule, entryPoint: 'fs_main', targets: [{ format }] },
+                primitive: { topology: 'triangle-list' },
+            });
+
+            // Uniform Buffer: Time (f32), Width (f32), Height (f32), Padding (f32)
+            const uniformBufferSize = 16; 
+            const uniformBuffer = device.createBuffer({
+                size: uniformBufferSize,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+            });
+
+            const bindGroup = device.createBindGroup({
+                layout: pipeline.getBindGroupLayout(0),
+                entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+            });
+
+            const uniformData = new Float32Array(4);
+
+            function frame(time) {
+                // Resize handling (rudimentary)
+                if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    context.configure({ device, format, alphaMode: 'premultiplied' });
+                }
+
+                // Update Uniforms
+                uniformData[0] = time * 0.001; // Time in seconds
+                uniformData[1] = canvas.width;
+                uniformData[2] = canvas.height;
+                uniformData[3] = 0.0; // padding
+                device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+
+                // Encode Render Commands
+                const commandEncoder = device.createCommandEncoder();
+                const passEncoder = commandEncoder.beginRenderPass({
+                    colorAttachments: [{
+                        view: context.getCurrentTexture().createView(),
+                        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                        loadOp: 'clear',
+                        storeOp: 'store',
+                    }],
+                });
+
+                passEncoder.setPipeline(pipeline);
+                passEncoder.setBindGroup(0, bindGroup);
+                passEncoder.draw(6); // Draw 6 vertices (2 triangles = full screen quad)
+                passEncoder.end();
+
+                device.queue.submit([commandEncoder.finish()]);
+                requestAnimationFrame(frame);
+            }
+
+            requestAnimationFrame(frame);
+        }
+
+        init();
+    </script>
+</body>
+</html>
