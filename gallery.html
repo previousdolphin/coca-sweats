@@ -2,97 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>noMSG // SYNTHETIC GALLERY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>noMSG // INTERACTIVE</title>
     <style>
-        /* noMSG GALLERY AESTHETIC: Clinical, Monospace, High Contrast */
         :root {
             --bg-color: #050505;
             --text-color: #e0e0e0;
-            --accent-color: #00ff41; /* CRT Terminal Green or maybe a Sterile White? Let's go Sterile White/Grey */
             --highlight: #ffffff;
+            --alert: #ff3333;
         }
         body {
-            margin: 0;
-            background: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace; /* Tech/industrial feel */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            margin: 0; background: var(--bg-color); color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh; overflow: hidden;
+            /* Prevent elastic scrolling on Mac/iOS */
+            overscroll-behavior: none; 
+        }
+        canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+
+        .overlay {
+            position: absolute; bottom: 40px; left: 40px; pointer-events: none;
+            background: rgba(0, 0, 0, 0.7); padding: 20px;
+            border-left: 2px solid var(--highlight); backdrop-filter: blur(4px);
+            transition: border-color 0.3s ease;
         }
         
-        /* The Canvas is the Artwork */
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+        /* State changes based on JS classes */
+        body.glitch-active .overlay { border-left-color: var(--alert); }
+        body.glitch-active h1 { color: var(--alert); }
 
-        /* Gallery Placard / Overlay */
-        .overlay {
-            position: absolute;
-            bottom: 40px;
-            left: 40px;
-            pointer-events: none;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-left: 2px solid var(--highlight);
-            backdrop-filter: blur(4px);
-        }
-
-        h1 {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 0 0 10px 0;
-            color: var(--highlight);
-        }
-
-        p {
-            font-size: 11px;
-            margin: 0;
-            line-height: 1.5;
-            color: #aaa;
-        }
-
-        .meta {
-            margin-top: 10px;
-            font-size: 9px;
-            opacity: 0.7;
-        }
-
-        #error {
-            position: absolute;
-            color: #ff3333;
-            background: #220000;
-            padding: 20px;
-            border: 1px solid #ff3333;
-            display: none;
-        }
+        h1 { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 10px 0; color: var(--highlight); }
+        p { font-size: 11px; margin: 0; line-height: 1.5; color: #aaa; }
+        .meta { margin-top: 10px; font-size: 9px; opacity: 0.7; }
+        #input-debug { color: var(--highlight); }
     </style>
 </head>
 <body>
-    <div id="error">SYSTEM ERROR: WebGPU hardware acceleration unavailable. Update user_agent or drivers.</div>
     <canvas id="gpuCanvas"></canvas>
 
     <div class="overlay">
-        <h1>noMSG</h1>
-        <p>EXHIBITION: NULL_STATE<br>MEDIUM: WGSL / PROCEDURAL SHADER<br>ARTIST: SYNTHETIC_USER</p>
-        <div class="meta">RENDER_TARGET: GPU<br>STATUS: ACTIVE</div>
+        <h1>noMSG // REACTIVE</h1>
+        <p>INPUTS DETECTED:<br> <span id="input-debug">idle...</span></p>
+        <div class="meta">INTERACTION: MOUSE / MULTI-TOUCH / [REDACTED] KEY</div>
     </div>
 
     <script type="module">
         // ---------------------------------------------------------
-        // WGSL SOURCE: THE "ARTWORK"
+        // WGSL SOURCE
         // ---------------------------------------------------------
         const shaderCode = `
+        // Expanded Uniform structure to handle interactions
+        // Aligned to 16-byte boundaries (vec4 chunks) for easier JS management
         struct Uniforms {
+            // Chunk 1
             time : f32,
-            width : f32,
-            height : f32,
-            padding : f32, // 16-byte alignment padding
+            turbulence : f32,    // Controlled by multi-touch pinch distance
+            resolution : vec2f,
+            // Chunk 2
+            mouse_pos : vec2f,   // Normalized 0.0 - 1.0
+            glitch_state : f32,  // 0.0 or 1.0 (Keyboard hold)
+            padding : f32,
         };
 
         @group(0) @binding(0) var<uniform> env : Uniforms;
@@ -102,97 +71,172 @@
             @location(0) uv : vec2f,
         };
 
-        // VERTEX SHADER: Full-Screen Quad Generation
-        // We generate 2 triangles (6 vertices) strictly from the vertex_index.
-        // No vertex buffers required.
         @vertex
         fn vs_main(@builtin(vertex_index) vertexIndex : u32) -> VertexOutput {
+            // Standard full-screen quad generator
             var pos = array<vec2f, 6>(
                 vec2f(-1.0, -1.0), vec2f(1.0, -1.0), vec2f(-1.0, 1.0),
                 vec2f(-1.0, 1.0), vec2f(1.0, -1.0), vec2f(1.0, 1.0)
             );
-
             var output : VertexOutput;
             output.position = vec4f(pos[vertexIndex], 0.0, 1.0);
-            
-            // Map [-1, 1] clip space to [0, 1] UV space
             output.uv = pos[vertexIndex] * 0.5 + 0.5;
-            
-            // Correct UV Y-axis for WebGPU (top-left origin usually desired in texture logic)
             output.uv.y = 1.0 - output.uv.y; 
-            
             return output;
         }
 
-        // FRAGMENT SHADER: The "Synthetic" Look
-        // A shifting, sterile liquid metal effect.
         @fragment
         fn fs_main(in : VertexOutput) -> @location(0) vec4f {
-            let t = env.time * 0.4;
+            let t = env.time * 0.3;
             let uv = in.uv;
-            
-            // Aspect ratio correction
-            let aspect = env.width / env.height;
-            let p = vec2f(uv.x * aspect, uv.y);
+            let aspect = env.resolution.x / env.resolution.y;
+            var p = vec2f(uv.x * aspect, uv.y);
 
-            // 1. Create a coordinate distortion (Liquid effect)
-            // We layer sine waves to create 'turbulence'
+            // INTERACTION 1: Mouse/Touch Attractor
+            // Calculate distance from current pixel to mouse position (corrected for aspect)
+            let mouse_aspect = vec2f(env.mouse_pos.x * aspect, env.mouse_pos.y);
+            let dist_to_mouse = distance(p, mouse_aspect);
+            
+            // Create a warping field that gets stronger near the mouse pointer
+            let warp_strength = smoothstep(0.5, 0.0, dist_to_mouse) * 0.5;
+            p += (env.mouse_pos - uv) * warp_strength;
+
+            // INTERACTION 2: Multi-touch Turbulence multiplier
+            // Base frequencies multiplied by the pinch factor
+            let freqBase = 10.0;
+            let turb = env.turbulence; // ranges from 1.0 (idle) to ~3.0 (wide pinch)
+
+            // The core liquid displacement logic
             var val = p;
-            val.x += sin(p.y * 10.0 + t) * 0.1;
-            val.y += cos(p.x * 10.0 - t) * 0.1;
+            val.x += sin(p.y * freqBase * turb + t) * 0.15;
+            val.y += cos(p.x * freqBase * turb - t) * 0.15;
             
-            // 2. Iterative interference pattern
+            // Iterative interference pattern
             var color_val = 0.0;
-            color_val += sin(val.x * 20.0 + t);
-            color_val += sin(val.y * 15.0 + t * 1.5);
-            color_val += sin((val.x + val.y) * 10.0 - t);
+            color_val += sin(val.x * 20.0 * turb + t);
+            color_val += sin(val.y * 15.0 * turb + t * 1.3);
+            color_val += sin((val.x + val.y) * 12.0 * turb - t);
             
-            // 3. Remap to 0-1 range and sharpen
+            // Remap to 0-1
             color_val = (color_val + 3.0) / 6.0;
             
-            // 4. Color Palette: "noMSG Sterile"
-            // Cold greys, whites, and deep void blacks.
-            // Using 'pow' to sharpen the peaks (high contrast)
-            let sharp = pow(color_val, 3.0);
+            // Contrast shaping
+            var sharp = pow(color_val, 3.5);
             
-            // Base color: Metallic Blue-Grey
-            let col1 = vec3f(0.1, 0.12, 0.15); 
-            // Highlight: Pure White
-            let col2 = vec3f(0.95, 0.98, 1.0);
+            // INTERACTION 3: Keyboard Glitch (Color Inversion)
+            // Standard Palette
+            var col1 = vec3f(0.05, 0.08, 0.12); // Deep dark blue/grey
+            var col2 = vec3f(0.9, 0.95, 1.0);   // Sterile white
+
+            // If glitch state is active (closer to 1.0), swap palettes and increase contrast
+            if (env.glitch_state > 0.5) {
+                sharp = pow(color_val, 8.0); // Extreme contrast
+                // Inverted "Alert" palette
+                col1 = vec3f(1.0, 0.1, 0.1); 
+                col2 = vec3f(0.0, 0.0, 0.0); 
+            }
             
             let final_color = mix(col1, col2, sharp);
             
-            // 5. Scanline / Grain Overlay (The "Gallery Monitor" feel)
-            let scanline = sin(in.uv.y * 800.0) * 0.02;
-            let grain = fract(sin(dot(in.uv, vec2f(12.9898, 78.233)) + t) * 43758.5453) * 0.05;
+            // Aesthetics: Grain
+            let grain = fract(sin(dot(in.uv, vec2f(12.9898, 78.233)) + t) * 43758.5453) * 0.07;
 
-            return vec4f(final_color + scanline + grain, 1.0);
+            return vec4f(final_color + grain, 1.0);
         }
         `;
 
         // ---------------------------------------------------------
-        // WEBGPU BOILERPLATE
+        // JS STATE & INTERACTION HANDLING
         // ---------------------------------------------------------
-        async function init() {
-            if (!navigator.gpu) {
-                document.getElementById('error').style.display = 'block';
-                return;
+        const state = {
+            mouseX: 0.5, mouseY: 0.5, // Normalized 0-1
+            isInteracting: false,
+            touchInitialDistance: 0,
+            turbulenceFactor: 1.0,    // 1.0 = normal, >1.0 = chaotic
+            glitchActive: 0.0,        // Float for easy buffer transfer
+        };
+        const debugUi = document.getElementById('input-debug');
+
+        function updateDebug() {
+            let status = [];
+            if (state.isInteracting) status.push("TOUCH/POINTER");
+            if (state.turbulenceFactor > 1.1) status.push("MULTI-TOUCH SPREAD");
+            if (state.glitchActive > 0.5) status.push("KEY_OVERRIDE");
+            debugUi.textContent = status.length > 0 ? status.join(" + ") : "idle...";
+            document.body.classList.toggle('glitch-active', state.glitchActive > 0.5);
+        }
+
+        function setupInteractions(canvas) {
+            // Mouse & Single Touch (Movement)
+            const updatePointer = (x, y) => {
+                state.mouseX = x / canvas.width;
+                state.mouseY = y / canvas.height;
+            };
+
+            canvas.addEventListener('mousedown', e => { state.isInteracting = true; updatePointer(e.clientX, e.clientY); updateDebug(); });
+            canvas.addEventListener('mousemove', e => { if(state.isInteracting) updatePointer(e.clientX, e.clientY); });
+            canvas.addEventListener('mouseup', () => { state.isInteracting = false; updateDebug(); });
+            canvas.addEventListener('mouseleave', () => { state.isInteracting = false; updateDebug(); });
+
+            // Multi-Touch (Pinch for Turbulence)
+            const getTouchDist = (touches) => {
+                const dx = touches[0].clientX - touches[1].clientX;
+                const dy = touches[0].clientY - touches[1].clientY;
+                return Math.sqrt(dx*dx + dy*dy);
             }
 
+            canvas.addEventListener('touchstart', e => {
+                e.preventDefault();
+                state.isInteracting = true;
+                if (e.touches.length === 1) updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+                if (e.touches.length === 2) state.touchInitialDistance = getTouchDist(e.touches);
+                updateDebug();
+            }, {passive: false});
+
+            canvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+                if (e.touches.length === 1) {
+                    updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+                } else if (e.touches.length === 2) {
+                    // Calculate pinch spread ratio
+                    const newDist = getTouchDist(e.touches);
+                    const ratio = newDist / (state.touchInitialDistance + 0.1);
+                    // Map ratio to turbulence (1.0 to 4.0 range)
+                    state.turbulenceFactor = Math.max(1.0, Math.min(4.0, ratio * ratio));
+                }
+                updateDebug();
+            }, {passive: false});
+
+            canvas.addEventListener('touchend', e => {
+                if(e.touches.length < 2) state.turbulenceFactor = 1.0;
+                if(e.touches.length === 0) state.isInteracting = false;
+                updateDebug();
+            });
+
+            // Keyboard (Hidden Interact)
+            window.addEventListener('keydown', e => {
+                if (e.code === 'Space') { state.glitchActive = 1.0; updateDebug(); }
+            });
+            window.addEventListener('keyup', e => {
+                if (e.code === 'Space') { state.glitchActive = 0.0; updateDebug(); }
+            });
+        }
+
+        // ---------------------------------------------------------
+        // WEBGPU SETUP & RENDER LOOP
+        // ---------------------------------------------------------
+        async function init() {
+            if (!navigator.gpu) return alert("WebGPU not supported.");
+
             const canvas = document.getElementById('gpuCanvas');
-            // Ensure canvas matches window size
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            setupInteractions(canvas);
 
             const adapter = await navigator.gpu.requestAdapter();
             const device = await adapter.requestDevice();
             const context = canvas.getContext('webgpu');
             const format = navigator.gpu.getPreferredCanvasFormat();
 
-            context.configure({ device, format, alphaMode: 'premultiplied' });
-
             const shaderModule = device.createShaderModule({ code: shaderCode });
-
             const pipeline = device.createRenderPipeline({
                 layout: 'auto',
                 vertex: { module: shaderModule, entryPoint: 'vs_main' },
@@ -200,8 +244,8 @@
                 primitive: { topology: 'triangle-list' },
             });
 
-            // Uniform Buffer: Time (f32), Width (f32), Height (f32), Padding (f32)
-            const uniformBufferSize = 16; 
+            // Uniform Buffer Size: 2 chunks of vec4 (8 floats total) = 32 bytes
+            const uniformBufferSize = 32; 
             const uniformBuffer = device.createBuffer({
                 size: uniformBufferSize,
                 usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -212,46 +256,47 @@
                 entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
             });
 
-            const uniformData = new Float32Array(4);
+            const uniformData = new Float32Array(8); 
+
+            function resize() {
+                 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+                 context.configure({ device, format, alphaMode: 'premultiplied' });
+            }
+            window.addEventListener('resize', resize);
+            resize();
 
             function frame(time) {
-                // Resize handling (rudimentary)
-                if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    context.configure({ device, format, alphaMode: 'premultiplied' });
-                }
+                // Fill JS buffer with state data
+                // Chunk 1
+                uniformData[0] = time * 0.001;     // time
+                uniformData[1] = state.turbulenceFactor; // turbulence
+                uniformData[2] = canvas.width;     // res x
+                uniformData[3] = canvas.height;    // res y
+                // Chunk 2
+                uniformData[4] = state.mouseX;     // mouse x
+                uniformData[5] = state.mouseY;     // mouse y
+                uniformData[6] = state.glitchActive; // glitch state
+                uniformData[7] = 0.0;              // padding
 
-                // Update Uniforms
-                uniformData[0] = time * 0.001; // Time in seconds
-                uniformData[1] = canvas.width;
-                uniformData[2] = canvas.height;
-                uniformData[3] = 0.0; // padding
+                // Upload to GPU
                 device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
-                // Encode Render Commands
                 const commandEncoder = device.createCommandEncoder();
                 const passEncoder = commandEncoder.beginRenderPass({
                     colorAttachments: [{
                         view: context.getCurrentTexture().createView(),
-                        clearValue: { r: 0, g: 0, b: 0, a: 1 },
-                        loadOp: 'clear',
-                        storeOp: 'store',
+                        clearValue: { r:0, g:0, b:0, a:1 }, loadOp:'clear', storeOp:'store',
                     }],
                 });
-
                 passEncoder.setPipeline(pipeline);
                 passEncoder.setBindGroup(0, bindGroup);
-                passEncoder.draw(6); // Draw 6 vertices (2 triangles = full screen quad)
+                passEncoder.draw(6); 
                 passEncoder.end();
-
                 device.queue.submit([commandEncoder.finish()]);
                 requestAnimationFrame(frame);
             }
-
             requestAnimationFrame(frame);
         }
-
         init();
     </script>
 </body>
