@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>noMSG // SYNTHETIC GALLERY</title>
     <style>
-        /* noMSG GALLERY AESTHETIC: Clinical, Monospace, High Contrast */
+        /* noMSG GALLERY AESTHETIC */
         :root {
             --bg-color: #050505;
             --text-color: #e0e0e0;
             --highlight: #ffffff;
-            --alert: #ff3333; /* For Glitch State */
+            --alert: #ff3333; 
         }
         body {
             margin: 0;
@@ -22,7 +22,7 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            overscroll-behavior: none; /* Critical for touch */
+            overscroll-behavior: none; 
         }
         
         canvas {
@@ -32,7 +32,6 @@
             touch-action: none;
         }
 
-        /* Gallery Placard */
         .overlay {
             position: absolute;
             bottom: 40px;
@@ -45,7 +44,6 @@
             transition: border-color 0.2s ease;
         }
 
-        /* Glitch State Overrides */
         body.glitch-active .overlay { border-left-color: var(--alert); }
         body.glitch-active h1 { color: var(--alert); }
         body.glitch-active .meta { color: var(--alert); }
@@ -98,12 +96,12 @@
 
     <script type="module">
         // ---------------------------------------------------------
-        // WGSL SOURCE (Infinite Logic)
+        // WGSL SOURCE (UPDATED LOGIC)
         // ---------------------------------------------------------
         const shaderCode = `
         struct Uniforms {
             time : f32,
-            turbulence : f32,    // Persistent Zoom
+            turbulence : f32,    
             resolution : vec2f,
             mouse_pos : vec2f,
             glitch_state : f32,
@@ -135,33 +133,66 @@
             let t = env.time * 0.3;
             let uv = in.uv;
             let aspect = env.resolution.x / env.resolution.y;
+            
+            // Standardize coordinates
             var p = vec2f(uv.x * aspect, uv.y);
+            let mouse_p = vec2f(env.mouse_pos.x * aspect, env.mouse_pos.y);
+            
+            // Calculate distance to pointer
+            let dist_to_mouse = distance(p, mouse_p);
 
-            // 1. Mouse Attractor
-            let mouse_aspect = vec2f(env.mouse_pos.x * aspect, env.mouse_pos.y);
-            let dist_to_mouse = distance(p, mouse_aspect);
-            let warp_strength = smoothstep(0.5, 0.0, dist_to_mouse) * 0.5;
+            // ----------------------------------------------------------------
+            // NEW INTERACTION LOGIC
+            // ----------------------------------------------------------------
+            
+            // 1. SCALED WARP (The Fix)
+            // As we zoom out (turbulence increases), the spatial frequency increases.
+            // If we don't scale down the displacement, the phase shift becomes 
+            // chaotic (noise). We dampen it by the inverse of the zoom.
+            let warp_damping = 1.0 / max(1.0, env.turbulence * 0.15);
+            
+            // Create the warping field
+            let warp_strength = smoothstep(0.5, 0.0, dist_to_mouse) * 0.5 * warp_damping;
+            
+            // Apply warp to coordinates
             p += (env.mouse_pos - uv) * warp_strength;
 
-            // 2. Infinite Zoom
+            // 2. LENS BUBBLE (The Feature)
+            // When zoomed out, the mouse creates a "clarity bubble" by locally
+            // reducing the zoom level. This keeps the center interesting/readable
+            // even at 2,000,000x zoom.
+            let lens_radius = 0.4;
+            let lens_falloff = smoothstep(lens_radius, 0.0, dist_to_mouse);
+            
+            // We mix the global zoom with a locally reduced zoom
+            // "mix(global, global * 0.1, lens_falloff)" means the center is 10x "zoomed in" relative to surroundings
+            let local_zoom_factor = mix(1.0, 0.05, lens_falloff); 
+            
+            // Calculate final frequency
             let freqBase = 8.0; 
-            let zoom = env.turbulence; 
+            let effective_zoom = env.turbulence * local_zoom_factor;
+
+            // ----------------------------------------------------------------
+            // FLUID LOGIC
+            // ----------------------------------------------------------------
 
             var val = p;
-            val.x += sin(p.y * freqBase * zoom + t) * 0.15;
-            val.y += cos(p.x * freqBase * zoom - t) * 0.15;
+            val.x += sin(p.y * freqBase * effective_zoom + t) * 0.15;
+            val.y += cos(p.x * freqBase * effective_zoom - t) * 0.15;
             
             var color_val = 0.0;
-            color_val += sin(val.x * 20.0 * zoom + t);
-            color_val += sin(val.y * 15.0 * zoom + t * 1.3);
-            color_val += sin((val.x + val.y) * 12.0 * zoom - t);
+            color_val += sin(val.x * 20.0 * effective_zoom + t);
+            color_val += sin(val.y * 15.0 * effective_zoom + t * 1.3);
+            color_val += sin((val.x + val.y) * 12.0 * effective_zoom - t);
             
             color_val = (color_val + 3.0) / 6.0;
+            
+            // Contrast
             var sharp = pow(color_val, 3.5);
             
-            // 3. Glitch
+            // Glitch / Palette
             var col1 = vec3f(0.05, 0.08, 0.12);
-            var col2 = vec3f(0.95, 0.98, 1.0); // Original gallery white/grey
+            var col2 = vec3f(0.95, 0.98, 1.0); 
 
             if (env.glitch_state > 0.5) {
                 sharp = pow(color_val, 8.0); 
@@ -170,7 +201,10 @@
             }
             
             let final_color = mix(col1, col2, sharp);
-            let grain = fract(sin(dot(in.uv, vec2f(12.9898, 78.233)) + t) * 43758.5453) * 0.07;
+            
+            // Grain (dampened slightly at high zoom to reduce sparkle)
+            let grain_scale = 1.0 / max(1.0, env.turbulence * 0.01);
+            let grain = fract(sin(dot(in.uv, vec2f(12.9898, 78.233)) + t) * 43758.5453) * 0.07 * grain_scale;
 
             return vec4f(final_color + grain, 1.0);
         }
@@ -188,12 +222,10 @@
             glitchActive: 0.0,
         };
 
-        // DOM Elements
         const elMeta = document.getElementById('meta-status');
         const elExhibit = document.getElementById('exhibit-state');
 
         function updateUI() {
-            // Logic to keep the text looking "Official" but containing live data
             let statusText = "STATUS: ACTIVE";
             
             if (state.glitchActive > 0.5) {
@@ -206,8 +238,7 @@
                 elExhibit.innerText = "NULL_STATE";
             }
 
-            // Append Zoom data cleanly
-            const zoomStr = state.currentZoom.toFixed(3);
+            const zoomStr = state.currentZoom.toFixed(2);
             elMeta.innerHTML = `RENDER_TARGET: GPU<br>${statusText} // MAG: ${zoomStr}x`;
             
             document.body.classList.toggle('glitch-active', state.glitchActive > 0.5);
@@ -294,7 +325,7 @@
             });
 
             const uniformBuffer = device.createBuffer({
-                size: 32, // 32 bytes for the struct
+                size: 32, 
                 usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
             });
 
@@ -313,7 +344,6 @@
             resize();
 
             function frame(time) {
-                // Buffer Updates
                 uniformData[0] = time * 0.001;     
                 uniformData[1] = state.currentZoom; 
                 uniformData[2] = canvas.width;     
