@@ -247,7 +247,7 @@
             We deny copyright. We assume total responsibility.<br>
             You are ensuring the inevitable court case has the funding to exist.<br><br>
             <strong>Don't just watch the lawsuit. Make it real.</strong><br>
-            <span class="text-red">ONLY 10 UNITS EXIST GLOBALLY.</span>
+            <span class="text-red">STRICTLY LIMITED ARTIFACTS.</span>
         </p>
     </section>
 
@@ -258,7 +258,7 @@
         <div class="door" onclick="selectRelic('bible')">
             <div class="door-number">01</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">EDITION OF 10</span>
+                <span class="scarcity-tag uppercase">STRICTLY LIMITED</span>
                 <span class="door-title uppercase">The Doctrine</span>
                 <span class="door-price">$1200.00</span>
             </div>
@@ -277,7 +277,7 @@
         <div class="door" onclick="selectRelic('tracksuit')">
             <div class="door-number">02</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">EDITION OF 10</span>
+                <!-- SCARCITY TAG REMOVED FOR TRACKSUIT -->
                 <span class="door-title uppercase">The Uniform</span>
                 <span class="door-price">$450.00</span>
             </div>
@@ -311,7 +311,7 @@
                 </div>
             </div>
             <div class="door-desc uppercase text-red">
-                <strong>Founder Tier.</strong> Secures 1 of the 10 Bibles and 1 of the 10 Suits. You will be cited in the footnotes.
+                <strong>Founder Tier.</strong> Secures 1 of the limited Bibles and 1 Uniform. You will be cited in the footnotes.
             </div>
             <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);">Manifest The Suit</button>
         </div>
@@ -337,7 +337,7 @@
                     </div>
                     
                     <div style="margin-bottom: 20px; font-size: 0.8rem; line-height: 1.4; opacity: 0.7;" class="uppercase">
-                        <strong>Availability:</strong> <span class="text-red">LOW STOCK (1 of 10)</span><br>
+                        <strong>Availability:</strong> <span class="text-red" id="availability-status">--</span><br>
                         <strong>Item:</strong> <span id="item-name">--</span>
                     </div>
 
@@ -381,6 +381,7 @@
                 price: "$1200.00",
                 item: "CoCA Leather Bible",
                 orderType: "RELIC_BIBLE_1200_LTD",
+                availability: "VERY LOW STOCK",
                 hasSize: false,
                 videoSrc: "coca4.mp4",
                 theme: "standard",
@@ -390,7 +391,8 @@
                 title: "THE UNIFORM",
                 price: "$450.00",
                 item: "Deprecation Tracksuit",
-                orderType: "RELIC_SUIT_450_LTD",
+                orderType: "RELIC_SUIT_450",
+                availability: "IN STOCK",
                 hasSize: true,
                 videoSrc: "coca3.mp4",
                 theme: "standard",
@@ -399,8 +401,9 @@
             founder: {
                 title: "THE COMMITMENT",
                 price: "$1500.00",
-                item: "Founder Package (1/10 Set)",
+                item: "Founder Package",
                 orderType: "RELIC_FOUNDER_1500_LTD",
+                availability: "ALLOCATION ONLY",
                 hasSize: true,
                 videoSrc: "coca3.mp4", 
                 theme: "founder",
@@ -420,6 +423,7 @@
             document.getElementById('receipt-title').innerText = data.title;
             document.getElementById('receipt-price').innerText = data.price;
             document.getElementById('item-name').innerText = data.item;
+            document.getElementById('availability-status').innerText = data.availability;
             document.getElementById('form-order-type').value = data.orderType;
             
             // Handle Size Selector visibility
