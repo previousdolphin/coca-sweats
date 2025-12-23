@@ -5,498 +5,486 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NAMEOFMY | ARCHIVE</title>
     <style>
-        /* --- BRUTALIST RESET --- */
+        /* --- BRUTALIST CORE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            /* --- MASTER COLOR CONTROL --- */
             --brand-red: #ff3333; 
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #000000;
+            --spacing-unit: 20px;
         }
 
         body {
-            background-color: #ffffff;
-            color: #000000;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: 'Courier New', Courier, monospace;
             width: 100vw;
             min-height: 100vh;
             overflow-x: hidden;
-            position: relative;
             transition: background-color 0.3s, color 0.3s;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* DARK MODE VARS */
+        body.dark-mode {
+            --bg-color: #050505;
+            --text-color: #e0e0e0;
+            --border-color: #333333;
         }
 
         .uppercase { text-transform: uppercase; }
-
-        /* --- DARK MODE --- */
-        body.dark-mode { background-color: #000000; color: #ffffff; }
-        body.dark-mode #gate { background: #000000; color: #ffffff; }
-        body.dark-mode #password-input { background: #000000; color: #ffffff; border: 2px solid white; }
-        body.dark-mode #enter-btn { background: white; color: black; border: none; }
-        body.dark-mode #enter-btn:hover { background: black; color: white; border: 2px solid white; }
+        .font-bold { font-weight: bold; }
+        .text-red { color: var(--brand-red); }
         
-        body.dark-mode .receipt-box { border: 2px solid white; background: black; }
-        body.dark-mode .receipt-header { border-bottom: 1px solid white; }
-        body.dark-mode .form-field { border: 1px solid white; background: black; color: white; }
-        body.dark-mode .submit-btn { background: white; color: black; }
-        body.dark-mode .submit-btn:hover { background: black; color: white; border: 2px solid white; }
-
-        /* Dark Mode overrides for Founder Theme (Red stays Red) */
-        body.dark-mode .receipt-box.founder-theme { border-color: var(--brand-red); }
-        body.dark-mode .receipt-header.founder-theme { border-bottom-color: var(--brand-red); }
-        body.dark-mode .submit-btn.founder-theme { background-color: var(--brand-red); color: white; }
-        body.dark-mode .submit-btn.founder-theme:hover { background-color: white; color: var(--brand-red); border-color: var(--brand-red); }
-
-        /* Dynamic Border for Media Wrappers */
-        .video-wrapper {
-            border: 5px solid currentColor;
-            line-height: 0;
-            position: relative;
-            display: inline-block; 
-        }
-
-        body.dark-mode .video-wrapper { border-color: #ffffff; }
-
-        /* --- PASSWORD GATE --- */
-        #gate {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #ffffff;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* GATE LOGO - Non-Interactive, RED */
-        .gate-logo {
-            width: 180px;
-            height: auto;
-            margin-bottom: 30px; 
-            display: block;
-            filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
-            pointer-events: none;       /* Clicks pass through */
-            user-select: none;          /* Cannot select */
-            -webkit-user-drag: none;    /* Cannot drag */
-        }
-
-        #password-input {
-            width: 300px; padding: 15px;
-            font-family: inherit; font-size: 1rem;
-            border: 2px solid black; outline: none;
-            margin-bottom: 10px; text-align: center; border-radius: 0;
-        }
-
-        #enter-btn {
-            background: black; color: white; border: none;
-            padding: 10px 30px; font-family: inherit;
-            cursor: pointer; font-weight: bold;
-        }
-
-        #enter-btn:hover { background: white; color: black; border: 2px solid black; }
-
-        /* --- SHOP LAYOUT --- */
-        .shop-container {
-            display: none; 
-            flex-direction: column;
-            min-height: 100vh;
-            width: 100%;
-        }
-
-        .top-bar {
-            flex: 0 0 auto;
+        /* --- HEADER --- */
+        nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
-            z-index: 10;
+            padding: 15px var(--spacing-unit); 
+            border-bottom: 2px solid var(--border-color);
+            position: sticky; top: 0; z-index: 100; 
+            background-color: var(--bg-color);
+            height: 90px;
         }
 
-        /* --- HEADER GROUP (LOGO + TEXT) --- */
-        .header-group {
-            display: flex;
-            align-items: center;
-            gap: 20px; /* Space between logo and text */
+        .logo { height: 60px; width: auto; }
+        body.dark-mode .logo { filter: invert(1); }
+
+        .btn-toggle {
+            background: none; border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 8px 16px; cursor: pointer;
+            font-family: inherit; font-size: 0.8rem; font-weight: bold;
         }
 
-        .header-logo {
-            height: 3.5rem; /* BIGGER than text */
-            width: auto;
-            display: block;
-            /* THE MAGIC MASKING */
-            pointer-events: none;       /* Clicks pass through */
-            user-select: none;          /* Cannot select */
-            -webkit-user-drag: none;    /* Cannot drag */
+        /* --- MISSION MANIFESTO --- */
+        .manifesto {
+            padding: 80px 20px; text-align: center;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .manifesto h1 { font-size: 2.2rem; margin-bottom: 25px; letter-spacing: -0.05em; line-height: 0.95; max-width: 900px; margin-left: auto; margin-right: auto;}
+        .manifesto p { max-width: 650px; margin: 0 auto; line-height: 1.5; font-size: 0.95rem; font-weight: bold;}
+        .warning-badge {
+            display: inline-block; background: var(--brand-red); color: white;
+            padding: 6px 10px; font-weight: bold; font-size: 0.8rem; margin-bottom: 20px;
+        }
+
+        /* --- THE THREE DOORS (GRID) --- */
+        .relic-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            min-height: calc(100vh - 90px); /* Subtract nav height */
+        }
+
+        .door {
+            border-right: 2px solid var(--border-color);
+            padding: 30px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            transition: background-color 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        .door:last-child { border-right: none; }
+
+        .door:hover { background-color: rgba(128,128,128,0.05); }
+        
+        .door-header { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .door-number { font-size: 3rem; opacity: 0.15; position: absolute; top: 15px; right: 20px; font-weight: bold; pointer-events: none;}
+        .door-title { font-size: 1.4rem; font-weight: bold; letter-spacing: -1px; line-height: 0.9; }
+        .door-price { font-size: 1.1rem; color: var(--brand-red); font-weight: bold; margin-top: 5px;}
+        
+        .scarcity-tag {
+            font-size: 0.7rem; color: var(--brand-red); 
+            border: 1px solid var(--brand-red); 
+            display: inline-block; width: fit-content;
+            padding: 2px 6px; margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .door-visual {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            margin: 20px 0; border: 1px dashed var(--border-color);
+            aspect-ratio: 1/1; /* Square by default */
+            padding: 10px;
+            background: rgba(128,128,128,0.02);
+        }
+        .door-visual video { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+        body.dark-mode .door-visual video { mix-blend-mode: normal; }
+
+        .door-desc { font-size: 0.85rem; line-height: 1.3; margin-bottom: 25px; min-height: 3em; font-weight: bold; }
+
+        .btn-enter {
+            width: 100%; padding: 15px;
+            border: 2px solid var(--border-color);
+            background: transparent; color: var(--text-color);
+            font-family: inherit; font-weight: bold; text-transform: uppercase;
+            cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+        }
+        .btn-enter:hover {
+            background: var(--brand-red); color: white; border-color: var(--brand-red);
+        }
+
+        /* --- CHECKOUT OVERLAY --- */
+        #checkout-screen {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 200;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll iOS */
         }
         
-        /* DARK MODE LOGO FIX:
-           Invert the Standard Black Logo to White when Dark Mode is ON.
-           Exclude the Founder logo (which handles its own Red filter).
-        */
-        body.dark-mode .header-logo:not(.founder-red-filter) {
-            filter: invert(100%);
+        .checkout-layout {
+            display: grid; grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
         }
 
-        /* Founder Red Filter (Applied manually in HTML for founder page) */
-        .founder-red-filter {
-            filter: invert(28%) sepia(99%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(106%);
+        .checkout-visual {
+            border-right: 2px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+            padding: 40px; background: rgba(128,128,128,0.05);
+            position: sticky; top: 0; height: 100vh;
+        }
+        .checkout-visual video { max-width: 80%; max-height: 80vh; box-shadow: 10px 10px 0px var(--border-color); border: 2px solid var(--border-color); }
+
+        .checkout-form-container {
+            padding: 60px 40px; 
+            display: flex; flex-direction: column; justify-content: center;
+            min-height: 100vh;
         }
 
-        .header { font-size: 1.5rem; font-weight: bold; }
-        .price { font-size: 1.5rem; font-weight: bold; }
-        .founder-text-red { color: var(--brand-red); }
-
-        #dark-mode-toggle, .dark-mode-toggle-btn {
-            background: none; border: 1px solid currentColor;
-            color: currentColor; padding: 8px 12px;
-            font-family: inherit; cursor: pointer;
+        .back-btn {
+            position: fixed; top: 20px; left: 20px;
+            background: var(--bg-color); border: 2px solid var(--border-color);
+            padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold;
+            z-index: 210; font-size: 0.9rem;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
         }
+        .back-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
-        #dark-mode-toggle:hover, .dark-mode-toggle-btn:hover {
-            background-color: currentColor;
-            color: var(--opposite-color, #ffffff);
+        /* FORM STYLES */
+        .receipt-box { 
+            width: 100%; max-width: 450px; margin: 0 auto; 
+            border: 2px solid var(--border-color); padding: 25px; 
+            background: var(--bg-color);
         }
+        .receipt-header { border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; }
         
-        body:not(.dark-mode) .dark-mode-toggle-btn:hover { --opposite-color: #ffffff; }
-        body.dark-mode .dark-mode-toggle-btn:hover { --opposite-color: #000000; }
+        .form-field { 
+            width: 100%; padding: 15px; margin-bottom: 15px; 
+            border: 1px solid var(--border-color); background: var(--bg-color); 
+            color: var(--text-color); font-family: inherit; border-radius: 0; 
+            appearance: none; font-size: 16px; /* iOS No Zoom */
+        }
+        .form-field:focus { outline: none; border-color: var(--brand-red); }
 
-        /* --- PRODUCT STAGE --- */
-        .product-stage {
-            flex: 1; position: relative; width: 100%;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
+        .submit-btn { 
+            width: 100%; padding: 18px; 
+            background: var(--text-color); color: var(--bg-color); 
+            border: none; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; font-family: inherit; font-size: 1rem; margin-top: 10px;
         }
 
-        /* --- DUAL VIDEO STAGE (CoCA2) --- */
-        .split-layout {
-            display: flex; flex-direction: row;
-            align-items: center; justify-content: center;
-            width: 100%; height: 100%; padding: 0 10px;
-        }
+        /* --- MOBILE OPTIMIZATIONS --- */
+        @media (max-width: 900px) {
+            :root { --spacing-unit: 15px; }
 
-        .split-video-container {
-            flex: 1; height: auto;
-            max-height: 65vh; aspect-ratio: 9/16; 
-            border: 5px solid currentColor;
-            position: relative; display: flex;
-        }
-        
-        body.dark-mode .split-video-container { border-color: white; }
+            /* Header Mobile */
+            nav { padding: 10px 15px; height: 70px; }
+            .logo { height: 40px; }
 
-        .split-video { width: 100%; height: 100%; object-fit: cover; }
+            /* Manifesto Mobile */
+            .manifesto { padding: 40px 20px; }
+            .manifesto h1 { font-size: 1.6rem; }
 
-        .plus-sign {
-            font-size: 4rem; font-weight: bold;
-            padding: 0 20px; flex: 0 0 auto;
-        }
-
-        /* Standard Single Video */
-        .tracksuit-video {
-            width: 100%; height: 100%;
-            max-height: 70vh; object-fit: contain;
-            pointer-events: none;
-        }
-
-        /* --- BOTTOM BAR --- */
-        .bottom-bar {
-            flex: 0 0 auto;
-            display: flex; justify-content: space-between; align-items: flex-end;
-            padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom));
-            z-index: 10;
-        }
-
-        .details { font-size: 0.8rem; line-height: 1.4; }
-
-        /* --- FORM --- */
-        .receipt-box {
-            width: 340px; border: 2px solid black;
-            padding: 15px; background: white;
-            transition: border-color 0.3s, background 0.3s;
-        }
-
-        .receipt-header {
-            border-bottom: 1px solid black;
-            padding-bottom: 10px; margin-bottom: 15px;
-            font-weight: bold; display: flex; justify-content: space-between;
-        }
-        
-        .receipt-box.founder-theme { border-color: var(--brand-red); }
-        .receipt-header.founder-theme { border-bottom-color: var(--brand-red); }
-        .founder-accent { color: var(--brand-red); }
-
-        .form-field {
-            width: 100%; padding: 10px; border: 1px solid black;
-            font-family: inherit; font-size: 0.9rem; margin-bottom: 10px;
-            border-radius: 0; outline: none; background: white; appearance: none;
-        }
-
-        .form-label {
-            font-size: 0.7rem; font-weight: bold;
-            margin-bottom: 4px; display: block;
-        }
-
-        .submit-btn {
-            width: 100%; padding: 12px; background: black;
-            color: white; border: none; font-family: inherit;
-            cursor: pointer; text-transform: uppercase;
-            font-weight: bold; margin-top: 5px;
-        }
-
-        .submit-btn:hover { background: white; color: black; border: 2px solid black; }
-        
-        .submit-btn.founder-theme { background-color: var(--brand-red); border: none; }
-        .submit-btn.founder-theme:hover { background-color: white; color: var(--brand-red); border: 2px solid var(--brand-red); }
-
-        /* --- MOBILE FIXES --- */
-        @media (max-width: 768px) {
-            .header, .price { font-size: 1rem; }
-            /* On mobile, we keep the logo group but scale it down slightly */
-            .header-logo { height: 2.5rem; gap: 10px; } 
+            /* Grid Stacking */
+            .relic-grid { grid-template-columns: 1fr; display: block; }
             
-            .shop-container { display: none; padding-bottom: 100px; } 
-            
-            .product-stage { height: 50vh; display: flex; }
-            .video-wrapper { margin: auto; }
-            .tracksuit-video { position: static; max-height: 100%; }
+            .door { 
+                border-right: none; 
+                border-bottom: 2px solid var(--border-color); 
+                padding: 30px 20px;
+                min-height: auto;
+            }
+            .door:last-child { border-bottom: none; padding-bottom: 60px; /* Space for scroll */ }
 
-            .split-layout { padding: 0 5px; }
-            .split-video-container { max-height: 50vh; border-width: 2px; }
-            .plus-sign { font-size: 1.5rem; padding: 0 8px; }
+            .door-visual { margin: 15px 0; aspect-ratio: 16/9; max-height: 250px; }
+            .door-number { font-size: 2.5rem; top: 20px; right: 20px; }
             
-            .bottom-bar { display: block; }
-            .details { margin-bottom: 30px; }
-            .receipt-box { width: 100%; }
+            /* Checkout Mobile */
+            .checkout-layout { grid-template-columns: 1fr; display: block; }
             
-            .gate-logo { width: 140px; margin-bottom: 20px; }
+            .checkout-visual { 
+                position: relative; height: auto; 
+                padding: 30px 20px; 
+                border-right: none; border-bottom: 2px solid var(--border-color); 
+                background: var(--bg-color);
+            }
+            .checkout-visual video { max-width: 100%; max-height: 40vh; box-shadow: 6px 6px 0px var(--border-color); }
+
+            .checkout-form-container { padding: 30px 20px; min-height: auto; padding-bottom: 100px;}
+            
+            .back-btn { top: 10px; left: 10px; padding: 8px 12px; font-size: 0.75rem; }
+            
+            .receipt-box { padding: 20px; border-width: 2px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="gate">
-        <img src="CoCA-Vector-redrawn-photoshop.svg" class="gate-logo" alt="CoCA Logo">
-        <h1 class="uppercase" style="margin-bottom: 20px;">Restricted Access</h1>
-        <input type="password" id="password-input" placeholder="ENTER PASSWORD">
-        <button id="enter-btn" class="uppercase">Enter</button>
-        <p id="error-msg" style="color: red; margin-top: 10px; display: none;">ACCESS DENIED</p>
-    </div>
+    <!-- NAV -->
+    <nav>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo">
+        </div>
+        <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
+    </nav>
 
-    <div id="shop-standard" class="shop-container"> 
-        <div class="top-bar uppercase">
-            <div class="header-group">
-                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo" alt="CoCA">
-                <div class="header">Name of My | DROP 1</div>
+    <!-- MISSION STATEMENT -->
+    <section class="manifesto">
+        <div class="warning-badge uppercase">Legal Accelerant</div>
+        <h1 class="uppercase">These are not products.<br>These are accelerants.</h1>
+        <p class="uppercase">
+            WE REJECT COPYRIGHT. WE ASSUME THE RISK.<br>
+            You are ensuring the inevitable court case has the funding to exist.<br><br>
+            <strong>DON'T WITNESS THE LAWSUIT. FINANCE IT.</strong><br>
+            <span class="text-red">LIMITED EDITION.</span>
+        </p>
+    </section>
+
+    <!-- SELECTION STAGE (3 DOORS) -->
+    <main class="relic-grid" id="relic-grid">
+        
+        <!-- DOOR 1: THE DOCTRINE (BIBLE) -->
+        <div class="door" onclick="selectRelic('bible')">
+            <div class="door-number">01</div>
+            <div class="door-header">
+                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                <span class="door-title uppercase">The Doctrine</span>
+                <span class="door-price">$1200.00</span>
             </div>
-            
-            <button class="dark-mode-toggle-btn">🌑 DARK</button> 
-            <div class="price">$450.00</div>
+            <div class="door-visual">
+                 <video autoplay loop muted playsinline>
+                    <source src="coca4.mp4" type="video/mp4">
+                 </video>
+            </div>
+            <div class="door-desc uppercase">
+                <strong>Leather Bound.</strong> Red Letter Edition. 6.5" x 9.5". You fund the precedent. We bear the burden of law.
+            </div>
+            <button class="btn-enter">Fund the Precedent</button>
         </div>
 
-        <div class="product-stage">
-            <div class="video-wrapper"> 
-                <video class="tracksuit-video" autoplay loop muted playsinline>
+        <!-- DOOR 2: THE UNIFORM (TRACKSUIT) -->
+        <div class="door" onclick="selectRelic('tracksuit')">
+            <div class="door-number">02</div>
+            <div class="door-header">
+                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                <span class="door-title uppercase">CoCA Tracksuit</span>
+                <span class="door-price">$450.00</span>
+            </div>
+            <div class="door-visual">
+                <video autoplay loop muted playsinline>
                     <source src="coca3.mp4" type="video/mp4">
                 </video>
             </div>
+            <div class="door-desc uppercase">
+                Heavyweight Cotton. Oversized Fit. To wear this is to force the issue.
+            </div>
+            <button class="btn-enter">Force The Issue</button>
         </div>
 
-        <div class="bottom-bar">
-            <div class="details uppercase">
-                <p>Item: 001</p>
-                <p>Material: Heavy Cotton</p>
-                <p>Fit: Oversized</p>
-                <p>Status: Pre-Order Spot</p>
+        <!-- DOOR 3: THE FOUNDER (BOTH) -->
+        <div class="door" onclick="selectRelic('founder')" style="background-color: rgba(255, 51, 51, 0.03);">
+            <div class="door-number text-red">03</div>
+            <div class="door-header">
+                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                <span class="door-title uppercase text-red">The Commitment</span>
+                <span class="door-price text-red">$1500.00</span>
             </div>
-
-            <div class="receipt-box">
-                <div class="receipt-header uppercase">
-                    <span>WAITLIST RECEIPT</span>
-                    <span>Item #001</span>
-                </div>
-                <form action="https://formspree.io/f/mgvgynrj" method="POST">
-                    <input type="hidden" name="order_type" value="STANDARD_DROP_1">
-                    <label class="form-label uppercase">Name (For Embroidery)</label>
-                    <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
-                    <label class="form-label uppercase">Size</label>
-                    <select name="size" class="form-field" required>
-                        <option value="" disabled selected>SELECT SIZE</option>
-                        <option value="S">SMALL</option>
-                        <option value="M">MEDIUM</option>
-                        <option value="L">LARGE</option>
-                        <option value="XL">X-LARGE</option>
-                    </select>
-                    <label class="form-label uppercase">Contact</label>
-                    <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
-                    <button type="submit" class="submit-btn">Secure Spot</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="shop-founder" class="shop-container"> 
-        <div class="top-bar uppercase">
-            <div class="header-group">
-                <img src="CoCA-Vector-redrawn-photoshop.svg" class="header-logo founder-red-filter" alt="CoCA">
-                <div class="header founder-text-red">Name of My | FOUNDER</div>
-            </div>
-
-            <button class="dark-mode-toggle-btn">🌑 DARK</button> 
-            <div class="price">$1500.00</div>
-        </div>
-
-        <div class="product-stage">
-            <div class="split-layout">
-                <div class="split-video-container">
-                    <video class="split-video" autoplay loop muted playsinline>
+            <div class="door-visual">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; width:100%; height:100%;">
+                    <video autoplay loop muted playsinline style="width:100%; height:100%; object-fit: cover;">
                         <source src="coca3.mp4" type="video/mp4">
                     </video>
-                </div>
-                <div class="plus-sign">+</div>
-                <div class="split-video-container">
-                    <video class="split-video" autoplay loop muted playsinline>
+                    <video autoplay loop muted playsinline style="width:100%; height:100%; object-fit: cover;">
                         <source src="coca4.mp4" type="video/mp4">
                     </video>
                 </div>
             </div>
+            <div class="door-desc uppercase text-red">
+                <strong>Founder Tier.</strong> Secures 1 Bible and 1 Suit. Total immersion in the mission.
+            </div>
+            <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);">Manifest The Suit</button>
         </div>
 
-        <div class="bottom-bar">
-            <div class="details uppercase">
-                <p>Item: 000 (FOUNDER)</p>
-                <p>Includes: Bible + Tracksuit</p>
-                <p>Edition: 1 of 5</p>
-                <p>Status: EXCLUSIVE</p>
+    </main>
+
+    <!-- CHECKOUT SCREEN (DYNAMIC) -->
+    <section id="checkout-screen">
+        <button class="back-btn uppercase" onclick="closeCheckout()">← Back</button>
+        
+        <div class="checkout-layout">
+            <!-- Left Side: Visual (Top on Mobile) -->
+            <div class="checkout-visual" id="checkout-visual-container">
+                <!-- Injected via JS -->
             </div>
 
-            <div class="receipt-box founder-theme">
-                <div class="receipt-header uppercase founder-theme">
-                    <span>FOUNDER RECEIPT</span>
-                    <span class="founder-accent">1 of 5</span>
+            <!-- Right Side: Form (Bottom on Mobile) -->
+            <div class="checkout-form-container">
+                <div class="receipt-box" id="receipt-box">
+                    <div class="receipt-header uppercase">
+                        <span id="receipt-title">RECEIPT</span>
+                        <span id="receipt-price">$0.00</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; font-size: 0.8rem; line-height: 1.4; opacity: 0.7;" class="uppercase">
+                        <strong>Availability:</strong> <span class="text-red">LIMITED SUPPLY</span><br>
+                        <strong>Item:</strong> <span id="item-name">--</span>
+                    </div>
+
+                    <form action="https://formspree.io/f/mgvgynrj" method="POST">
+                        <input type="hidden" name="order_type" id="form-order-type" value="">
+                        
+                        <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Full Name</label>
+                        <input type="text" name="name" class="form-field" placeholder="REQUIRED" required>
+
+                        <!-- Size Selector -->
+                        <div id="size-selector-group">
+                            <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Tracksuit Size</label>
+                            <select name="size" class="form-field">
+                                <option value="" disabled selected>SELECT SIZE</option>
+                                <option value="S">SMALL</option>
+                                <option value="M">MEDIUM</option>
+                                <option value="L">LARGE</option>
+                                <option value="XL">X-LARGE</option>
+                            </select>
+                        </div>
+
+                        <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Contact Email</label>
+                        <input type="email" name="email" class="form-field" placeholder="EMAIL" required>
+
+                        <button type="submit" class="submit-btn" id="submit-btn-text">Confirm</button>
+                        
+                        <p style="margin-top: 15px; font-size: 0.65rem; text-align: center; opacity: 0.5; line-height: 1.3;" class="uppercase">
+                            Funds are non-refundable donations to the legal defense fund. Artifacts are limited edition gifts acknowledging support.
+                        </p>
+                    </form>
                 </div>
-                <form action="https://formspree.io/f/mgvgynrj" method="POST">
-                    <input type="hidden" name="order_type" value="FOUNDER_PACKAGE_1500">
-                    <label class="form-label uppercase">Name (For Bible + Suit)</label>
-                    <input type="text" name="embroidery_name" class="form-field" placeholder="FULL NAME" required>
-                    <label class="form-label uppercase">Tracksuit Size</label>
-                    <select name="size" class="form-field" required>
-                        <option value="" disabled selected>SELECT SIZE</option>
-                        <option value="S">SMALL</option>
-                        <option value="M">MEDIUM</option>
-                        <option value="L">LARGE</option>
-                        <option value="XL">X-LARGE</option>
-                    </select>
-                    <label class="form-label uppercase">Direct Contact</label>
-                    <input type="email" name="email" class="form-field" placeholder="EMAIL ADDRESS" required>
-                    <button type="submit" class="submit-btn founder-theme">CLAIM PACKAGE</button>
-                </form>
             </div>
         </div>
-    </div>
+    </section>
 
-<script>
-    /**
-     * SECURE GATEWAY v6.8 (FULL OBFUSCATION + DARK MODE FIX)
-     * Nameofmy / Unsubscribe.llc colab with CHURCH OF CONCEPTUAL ART 
-     */
-    (function() {
-        const _gate = document.getElementById('gate');
-        const _input = document.getElementById('password-input');
-        const _trigger = document.getElementById('enter-btn');
-        const _console = document.getElementById('error-msg');   
-        const _standardShop = document.getElementById('shop-standard');
-        const _founderShop = document.getElementById('shop-founder');    
-        const _KERNEL_SEED = 0x2A; 
-        const _LEGACY_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDc="; 
-        const _FOUNDER_CACHE_DUMP = "MTA1LTY5LTEwNS0xMDctMjQ=";
-
-        const _SysAdmin = {
-            _mount: function() {
-                _standardShop.style.display = 'none'; 
-                _founderShop.style.display = 'none';
-                _gate.style.display = 'flex';
-                _console.style.display = 'none';
+    <script>
+        // --- DATA ---
+        const RELICS = {
+            bible: {
+                title: "THE DOCTRINE",
+                price: "$1200.00",
+                item: "CoCA Leather Bible",
+                orderType: "RELIC_BIBLE_1200_LTD",
+                hasSize: false,
+                videoSrc: "coca4.mp4",
+                theme: "standard",
+                btnText: "FUND THE PRECEDENT"
             },
-
-            _cipher: function(stream) {
-                let _buffer = [];
-                for (let i = 0; i < stream.length; i++) { 
-                    let _byte = stream.charCodeAt(i) ^ _KERNEL_SEED; 
-                    _buffer.push(_byte);
-                }
-                return btoa(_buffer.join("-"));
+            tracksuit: {
+                title: "CoCA TRACKSUIT",
+                price: "$450.00",
+                item: "CoCA Tracksuit",
+                orderType: "RELIC_SUIT_450_LTD",
+                hasSize: true,
+                videoSrc: "coca3.mp4",
+                theme: "standard",
+                btnText: "FORCE THE ISSUE"
             },
-
-            _verify: function(token, targetHash) {
-                let cleanToken = token.trim(); 
-                if (cleanToken === "") return false;
-                return this._cipher(cleanToken) === targetHash;
+            founder: {
+                title: "THE COMMITMENT",
+                price: "$1500.00",
+                item: "Founder Package",
+                orderType: "RELIC_FOUNDER_1500_LTD",
+                hasSize: true,
+                videoSrc: "coca3.mp4", 
+                theme: "founder",
+                btnText: "MANIFEST THE SUIT"
             }
         };
+
+        const checkoutScreen = document.getElementById('checkout-screen');
+        const visualContainer = document.getElementById('checkout-visual-container');
         
-        _SysAdmin._mount();
+        // --- FUNCTIONS ---
 
-        function _unlock(viewElement) {
-            _gate.style.display = 'none';
-            const isMobile = window.matchMedia("(max-width: 768px)").matches;
-            viewElement.style.display = isMobile ? 'block' : 'flex'; 
+        function selectRelic(key) {
+            const data = RELICS[key];
             
-            const videos = viewElement.querySelectorAll('video');
-            videos.forEach(v => {
-                v.play().catch(e => console.log("Autoplay blocked:", e));
-            });
-        }
-
-        function _executeSequence() {
-            const val = _input.value.trim();
-            try {
-                if (_SysAdmin._verify(val, _FOUNDER_CACHE_DUMP)) {
-                    _unlock(_founderShop);
-                } 
-                else if (_SysAdmin._verify(val, _LEGACY_CACHE_DUMP)) {
-                    _unlock(_standardShop);
-                } 
-                else {
-                    throw new Error("ACCESS DENIED");
-                }
-            } catch (e) {
-                _console.style.display = 'block';
-                _console.innerText = e.message;
-                _input.value = ''; 
-                _input.focus();
+            // Populate Form
+            document.getElementById('receipt-title').innerText = data.title;
+            document.getElementById('receipt-price').innerText = data.price;
+            document.getElementById('item-name').innerText = data.item;
+            document.getElementById('form-order-type').value = data.orderType;
+            
+            // Handle Size Selector visibility
+            const sizeDiv = document.getElementById('size-selector-group');
+            const sizeInput = sizeDiv.querySelector('select');
+            if(data.hasSize) {
+                sizeDiv.style.display = 'block';
+                sizeInput.required = true;
+            } else {
+                sizeDiv.style.display = 'none';
+                sizeInput.required = false;
             }
+
+            // Populate Visual
+            let visualHTML = '';
+            if(key === 'founder') {
+                visualHTML = `
+                    <div style="display:flex; gap:10px; width: 100%; height: 100%; align-items:center; justify-content:center;">
+                        <video autoplay loop muted playsinline style="max-height:100%; width: 48%; border:2px solid currentColor; object-fit:cover;"><source src="coca3.mp4"></video>
+                        <video autoplay loop muted playsinline style="max-height:100%; width: 48%; border:2px solid currentColor; object-fit:cover;"><source src="coca4.mp4"></video>
+                    </div>`;
+                
+                document.getElementById('receipt-box').style.borderColor = 'var(--brand-red)';
+                document.getElementById('submit-btn-text').style.backgroundColor = 'var(--brand-red)';
+            } else {
+                visualHTML = `<video autoplay loop muted playsinline><source src="${data.videoSrc}" type="video/mp4"></video>`;
+                
+                document.getElementById('receipt-box').style.borderColor = 'var(--border-color)';
+                document.getElementById('submit-btn-text').style.backgroundColor = 'var(--text-color)';
+            }
+            
+            // Set dynamic button text based on data
+            document.getElementById('submit-btn-text').innerText = data.btnText;
+            
+            visualContainer.innerHTML = visualHTML;
+
+            // Show Screen
+            checkoutScreen.style.display = 'block';
+            document.body.style.overflow = 'hidden'; 
         }
 
-        _trigger.addEventListener('click', _executeSequence);
-        _input.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') _executeSequence();
-        });
+        function closeCheckout() {
+            checkoutScreen.style.display = 'none';
+            document.body.style.overflow = 'auto'; 
+            visualContainer.innerHTML = ''; // Clear video to save memory
+        }
 
-        const toggleButtons = document.querySelectorAll('.dark-mode-toggle-btn');
+        // --- DARK MODE LOGIC ---
+        const themeBtn = document.getElementById('theme-toggle');
         const body = document.body;
         
-        const updateButtons = (isDark) => {
-            toggleButtons.forEach(btn => {
-                btn.textContent = isDark ? '☀️ LIGHT' : '🌑 DARK';
-            });
-        };
-
-        const savedMode = localStorage.getItem('theme');
+        const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        if (savedMode === 'dark' || (savedMode === null && prefersDark)) {
+        
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
             body.classList.add('dark-mode');
-            updateButtons(true);
-        } else {
-            updateButtons(false);
+            themeBtn.innerText = '☀️ LIGHT';
         }
 
-        toggleButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const isDarkMode = body.classList.toggle('dark-mode');
-                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-                updateButtons(isDarkMode);
-            });
+        themeBtn.addEventListener('click', () => {
+            const isDark = body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeBtn.innerText = isDark ? '☀️ LIGHT' : '🌑 DARK';
         });
 
-    })();
-</script>
+    </script>
 </body>
 </html>
