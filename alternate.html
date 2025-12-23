@@ -62,8 +62,8 @@
             padding: 60px 20px; text-align: center;
             border-bottom: 2px solid var(--border-color);
         }
-        .manifesto h1 { font-size: 1.8rem; margin-bottom: 20px; letter-spacing: -0.05em; line-height: 1; }
-        .manifesto p { max-width: 500px; margin: 0 auto; line-height: 1.6; font-size: 0.85rem; }
+        .manifesto h1 { font-size: 1.8rem; margin-bottom: 20px; letter-spacing: -0.05em; line-height: 1; max-width: 800px; margin-left: auto; margin-right: auto;}
+        .manifesto p { max-width: 600px; margin: 0 auto; line-height: 1.6; font-size: 0.85rem; }
         .warning-badge {
             display: inline-block; background: var(--brand-red); color: white;
             padding: 4px 6px; font-weight: bold; font-size: 0.7rem; margin-bottom: 15px;
@@ -241,12 +241,13 @@
 
     <!-- MISSION STATEMENT -->
     <section class="manifesto">
-        <div class="warning-badge uppercase">Strict Quantity Limit</div>
-        <h1 class="uppercase">These are not products.</h1>
+        <div class="warning-badge uppercase">Legal Accelerant</div>
+        <h1 class="uppercase">These are not products.<br>These are accelerants.</h1>
         <p class="uppercase">
-            You are choosing your level of complicity.<br><br>
-            To wear the uniform is to join the lawsuit.<br>
-            <strong>Only 10 units exist globally.</strong>
+            We deny copyright. We assume total responsibility.<br>
+            You are ensuring the inevitable court case has the funding to exist.<br><br>
+            <strong>Don't just watch the lawsuit. Make it real.</strong><br>
+            <span class="text-red">ONLY 10 UNITS EXIST GLOBALLY.</span>
         </p>
     </section>
 
@@ -267,9 +268,9 @@
                  </video>
             </div>
             <div class="door-desc uppercase">
-                <strong>Leather Bound.</strong> Red Letter Edition. 6.5" x 9.5". Only 10 copies exist outside the legal evidence file.
+                <strong>Leather Bound.</strong> Red Letter Edition. 6.5" x 9.5". You fund the precedent. We bear the burden of law.
             </div>
-            <button class="btn-enter">Study the Law</button>
+            <button class="btn-enter">Fund the Precedent</button>
         </div>
 
         <!-- DOOR 2: THE UNIFORM (TRACKSUIT) -->
@@ -286,9 +287,9 @@
                 </video>
             </div>
             <div class="door-desc uppercase">
-                Heavyweight Cotton. Oversized Fit. Strictly limited run of 10 suits. The official uniform of the litigation class.
+                Heavyweight Cotton. Oversized Fit. To wear this is to force the issue.
             </div>
-            <button class="btn-enter">Wear the Risk</button>
+            <button class="btn-enter">Force The Issue</button>
         </div>
 
         <!-- DOOR 3: THE FOUNDER (BOTH) -->
@@ -310,9 +311,9 @@
                 </div>
             </div>
             <div class="door-desc uppercase text-red">
-                <strong>Founder Tier.</strong> Secures 1 of the 10 Bibles and 1 of the 10 Suits immediately. Credit in legal filings.
+                <strong>Founder Tier.</strong> Secures 1 of the 10 Bibles and 1 of the 10 Suits. You will be cited in the footnotes.
             </div>
-            <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);">Join the Founders</button>
+            <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);">Manifest The Suit</button>
         </div>
 
     </main>
@@ -382,7 +383,8 @@
                 orderType: "RELIC_BIBLE_1200_LTD",
                 hasSize: false,
                 videoSrc: "coca4.mp4",
-                theme: "standard"
+                theme: "standard",
+                btnText: "FUND THE PRECEDENT"
             },
             tracksuit: {
                 title: "THE UNIFORM",
@@ -391,7 +393,8 @@
                 orderType: "RELIC_SUIT_450_LTD",
                 hasSize: true,
                 videoSrc: "coca3.mp4",
-                theme: "standard"
+                theme: "standard",
+                btnText: "FORCE THE ISSUE"
             },
             founder: {
                 title: "THE COMMITMENT",
@@ -400,7 +403,8 @@
                 orderType: "RELIC_FOUNDER_1500_LTD",
                 hasSize: true,
                 videoSrc: "coca3.mp4", 
-                theme: "founder"
+                theme: "founder",
+                btnText: "MANIFEST THE SUIT"
             }
         };
 
@@ -440,14 +444,16 @@
                 
                 document.getElementById('receipt-box').style.borderColor = 'var(--brand-red)';
                 document.getElementById('submit-btn-text').style.backgroundColor = 'var(--brand-red)';
-                document.getElementById('submit-btn-text').innerText = "INITIATE FOUNDER PROTOCOL";
             } else {
                 visualHTML = `<video autoplay loop muted playsinline><source src="${data.videoSrc}" type="video/mp4"></video>`;
                 
                 document.getElementById('receipt-box').style.borderColor = 'var(--border-color)';
                 document.getElementById('submit-btn-text').style.backgroundColor = 'var(--text-color)';
-                document.getElementById('submit-btn-text').innerText = "ACQUIRE RELIC";
             }
+            
+            // Set dynamic button text based on data
+            document.getElementById('submit-btn-text').innerText = data.btnText;
+            
             visualContainer.innerHTML = visualHTML;
 
             // Show Screen
