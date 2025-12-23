@@ -45,10 +45,10 @@
             border-bottom: 2px solid var(--border-color);
             position: sticky; top: 0; z-index: 100; 
             background-color: var(--bg-color);
-            height: 90px; /* Increased for logo */
+            height: 90px;
         }
 
-        .logo { height: 60px; width: auto; } /* Bigger Logo */
+        .logo { height: 60px; width: auto; }
         body.dark-mode .logo { filter: invert(1); }
 
         .btn-toggle {
@@ -258,7 +258,7 @@
         <div class="door" onclick="selectRelic('bible')">
             <div class="door-number">01</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">EDITION OF 10</span>
+                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
                 <span class="door-title uppercase">The Doctrine</span>
                 <span class="door-price">$1200.00</span>
             </div>
@@ -277,7 +277,7 @@
         <div class="door" onclick="selectRelic('tracksuit')">
             <div class="door-number">02</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">EDITION OF 10</span>
+                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
                 <span class="door-title uppercase">CoCA Tracksuit</span>
                 <span class="door-price">$450.00</span>
             </div>
@@ -296,7 +296,7 @@
         <div class="door" onclick="selectRelic('founder')" style="background-color: rgba(255, 51, 51, 0.03);">
             <div class="door-number text-red">03</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">ALLOCATION ACCESS</span>
+                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
                 <span class="door-title uppercase text-red">The Commitment</span>
                 <span class="door-price text-red">$1500.00</span>
             </div>
@@ -311,7 +311,7 @@
                 </div>
             </div>
             <div class="door-desc uppercase text-red">
-                <strong>Founder Tier.</strong> Secures 1 of the 10 Bibles and 1 of the 10 Suits. Total immersion in the mission.
+                <strong>Founder Tier.</strong> Secures 1 Bible and 1 Suit. Total immersion in the mission.
             </div>
             <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);">Manifest The Suit</button>
         </div>
@@ -337,7 +337,7 @@
                     </div>
                     
                     <div style="margin-bottom: 20px; font-size: 0.8rem; line-height: 1.4; opacity: 0.7;" class="uppercase">
-                        <strong>Availability:</strong> <span class="text-red">LOW STOCK (1 of 10)</span><br>
+                        <strong>Availability:</strong> <span class="text-red">LIMITED SUPPLY</span><br>
                         <strong>Item:</strong> <span id="item-name">--</span>
                     </div>
 
@@ -399,7 +399,7 @@
             founder: {
                 title: "THE COMMITMENT",
                 price: "$1500.00",
-                item: "Founder Package (1/10 Set)",
+                item: "Founder Package",
                 orderType: "RELIC_FOUNDER_1500_LTD",
                 hasSize: true,
                 videoSrc: "coca3.mp4", 
