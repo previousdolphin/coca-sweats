@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NAMEOFMY | RELIC ARCHIVE</title>
+    <title>NAMEOFMY | ARCHIVE</title>
     <style>
         /* --- BRUTALIST CORE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,10 +45,10 @@
             border-bottom: 2px solid var(--border-color);
             position: sticky; top: 0; z-index: 100; 
             background-color: var(--bg-color);
-            height: 80px; /* Increased height for bigger logo */
+            height: 90px; /* Increased for logo */
         }
 
-        .logo { height: 50px; width: auto; } /* Bigger Logo */
+        .logo { height: 60px; width: auto; } /* Bigger Logo */
         body.dark-mode .logo { filter: invert(1); }
 
         .btn-toggle {
@@ -73,7 +73,7 @@
         .relic-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            min-height: calc(100vh - 80px); /* Subtract nav height */
+            min-height: calc(100vh - 90px); /* Subtract nav height */
         }
 
         .door {
@@ -189,8 +189,8 @@
             :root { --spacing-unit: 15px; }
 
             /* Header Mobile */
-            nav { padding: 10px 15px; height: 60px; }
-            .logo { height: 35px; }
+            nav { padding: 10px 15px; height: 70px; }
+            .logo { height: 40px; }
 
             /* Manifesto Mobile */
             .manifesto { padding: 40px 20px; }
@@ -268,7 +268,7 @@
                  </video>
             </div>
             <div class="door-desc uppercase">
-                <strong>Leather Bound.</strong> Red Letter Edition. 6.5" x 9.5". Contains the theological arguments our lawyers will defend.
+                <strong>Leather Bound.</strong> Red Letter Edition. 6.5" x 9.5". You fund the precedent. We bear the burden of law.
             </div>
             <button class="btn-enter">Fund the Precedent</button>
         </div>
@@ -278,7 +278,7 @@
             <div class="door-number">02</div>
             <div class="door-header">
                 <span class="scarcity-tag uppercase">EDITION OF 10</span>
-                <span class="door-title uppercase">The Uniform</span>
+                <span class="door-title uppercase">CoCA Tracksuit</span>
                 <span class="door-price">$450.00</span>
             </div>
             <div class="door-visual">
@@ -344,12 +344,12 @@
                     <form action="https://formspree.io/f/mgvgynrj" method="POST">
                         <input type="hidden" name="order_type" id="form-order-type" value="">
                         
-                        <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Legal Name</label>
-                        <input type="text" name="name" class="form-field" placeholder="FULL NAME" required>
+                        <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Full Name</label>
+                        <input type="text" name="name" class="form-field" placeholder="REQUIRED" required>
 
                         <!-- Size Selector -->
                         <div id="size-selector-group">
-                            <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Uniform Size</label>
+                            <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Tracksuit Size</label>
                             <select name="size" class="form-field">
                                 <option value="" disabled selected>SELECT SIZE</option>
                                 <option value="S">SMALL</option>
@@ -387,9 +387,9 @@
                 btnText: "FUND THE PRECEDENT"
             },
             tracksuit: {
-                title: "THE UNIFORM",
+                title: "CoCA TRACKSUIT",
                 price: "$450.00",
-                item: "Deprecation Tracksuit",
+                item: "CoCA Tracksuit",
                 orderType: "RELIC_SUIT_450_LTD",
                 hasSize: true,
                 videoSrc: "coca3.mp4",
@@ -487,4 +487,4 @@
 
     </script>
 </body>
-</html
+</html>
