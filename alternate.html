@@ -69,11 +69,10 @@
             padding: 6px 10px; font-weight: bold; font-size: 0.8rem; margin-bottom: 20px;
         }
 
-        /* --- THE FOUR DOORS (GRID) --- */
+        /* --- THE ARCHIVE GRID (2x2) --- */
         .relic-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2x2 Layout */
-            /* min-height calculation removed to allow content to flow naturally */
+            grid-template-columns: 1fr 1fr;
         }
 
         .door {
@@ -82,7 +81,7 @@
             transition: background-color 0.2s ease;
             position: relative;
             cursor: pointer;
-            min-height: 500px; /* Ensure uniform height */
+            min-height: 550px;
         }
 
         /* 2x2 BORDER LOGIC */
@@ -106,7 +105,7 @@
             font-weight: bold;
         }
 
-        .mto-tag {
+        .preorder-tag {
             font-size: 0.7rem; color: var(--text-color); 
             border: 1px solid var(--text-color); 
             background: rgba(128,128,128,0.1);
@@ -122,16 +121,18 @@
             padding: 10px;
             background: rgba(128,128,128,0.02);
             overflow: hidden;
+            position: relative;
         }
         
-        /* Media Handling (Video & Img) */
+        /* Media Handling */
         .door-visual video, .door-visual img { 
             width: 100%; height: 100%; object-fit: contain; 
+            transition: transform 0.3s ease;
         }
         
-        /* Blend modes for visual integration */
+        /* Stylized Image Processing to look "Annexed" */
         .door-visual video { mix-blend-mode: multiply; }
-        .door-visual img { mix-blend-mode: multiply; filter: grayscale(100%) contrast(1.2); }
+        .door-visual img { mix-blend-mode: multiply; filter: grayscale(100%) contrast(1.1); }
         
         body.dark-mode .door-visual video { mix-blend-mode: normal; }
         body.dark-mode .door-visual img { mix-blend-mode: normal; filter: grayscale(100%); }
@@ -262,6 +263,7 @@
 </head>
 <body>
 
+    <!-- NAV -->
     <nav>
         <div style="display: flex; align-items: center; gap: 10px;">
             <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo">
@@ -269,6 +271,7 @@
         <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
     </nav>
 
+    <!-- MISSION STATEMENT -->
     <section class="manifesto">
         <div class="warning-badge uppercase">Legal Accelerant</div>
         <h1 class="uppercase">These are not products.<br>These are accelerants.</h1>
@@ -280,24 +283,28 @@
         </p>
     </section>
 
+    <!-- SELECTION STAGE (GRID) -->
     <main class="relic-grid" id="relic-grid">
         
+        <!-- DOOR 1: LITURGICAL OBJECT 003 (NEW) -->
         <div class="door" onclick="selectRelic('candle')">
             <div class="door-number">01</div>
             <div class="door-header">
-                <span class="mto-tag uppercase">MADE TO ORDER</span>
-                <span class="door-title uppercase">THE VIGIL</span>
-                <span class="door-price">$65.00</span>
+                <span class="preorder-tag uppercase">PRE-ORDER</span>
+                <span class="door-title uppercase">LO-003: FEMALE SEXUAL FRUSTRATION</span>
+                <span class="door-price">$88.00</span>
             </div>
             <div class="door-visual">
-                <img src="candle_placeholder.jpg" alt="CoCA Candle" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'opacity:0.5\'>[IMG MISSING]</div>'">
+                <!-- Expecting Image Name: liturgical_003.jpg -->
+                <img src="liturgical_003.jpg" alt="Liturgical Object 003" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'opacity:0.5\'>[VISUAL RENDER MISSING]</div>'">
             </div>
             <div class="door-desc uppercase">
-                <strong>Wax. Wick. Fire.</strong> Hand-poured. Even the light is temporary. Burn to reveal nothing.
+                <strong>Compounded in the Simulation.</strong> Scented with pure CBD resin from female hemp plants denied pollination. Smells like unfulfilled potential.
             </div>
-            <button class="btn-enter">Ignite The Process</button>
+            <button class="btn-enter">Burn The Injunction</button>
         </div>
 
+        <!-- DOOR 2: THE DOCTRINE (WAS 01) -->
         <div class="door" onclick="selectRelic('bible')">
             <div class="door-number">02</div>
             <div class="door-header">
@@ -316,6 +323,7 @@
             <button class="btn-enter">Fund the Precedent</button>
         </div>
 
+        <!-- DOOR 3: THE UNIFORM (WAS 02) -->
         <div class="door" onclick="selectRelic('tracksuit')">
             <div class="door-number">03</div>
             <div class="door-header">
@@ -334,6 +342,7 @@
             <button class="btn-enter">Force The Issue</button>
         </div>
 
+        <!-- DOOR 4: THE FOUNDER (WAS 03) -->
         <div class="door" onclick="selectRelic('founder')" style="background-color: rgba(255, 51, 51, 0.03);">
             <div class="door-number text-red">04</div>
             <div class="door-header">
@@ -359,13 +368,17 @@
 
     </main>
 
+    <!-- CHECKOUT SCREEN (DYNAMIC) -->
     <section id="checkout-screen">
         <button class="back-btn uppercase" onclick="closeCheckout()">← Back</button>
         
         <div class="checkout-layout">
+            <!-- Left Side: Visual -->
             <div class="checkout-visual" id="checkout-visual-container">
-                </div>
+                <!-- Injected via JS -->
+            </div>
 
+            <!-- Right Side: Form -->
             <div class="checkout-form-container">
                 <div class="receipt-box" id="receipt-box">
                     <div class="receipt-header uppercase">
@@ -373,9 +386,11 @@
                         <span id="receipt-price">$0.00</span>
                     </div>
                     
-                    <div style="margin-bottom: 20px; font-size: 0.8rem; line-height: 1.4; opacity: 0.7;" class="uppercase">
+                    <div style="margin-bottom: 20px; font-size: 0.8rem; line-height: 1.4; opacity: 0.8;" class="uppercase">
                         <strong>Availability:</strong> <span id="availability-tag" class="text-red">LIMITED SUPPLY</span><br>
-                        <strong>Item:</strong> <span id="item-name">--</span>
+                        <strong>Item:</strong> <span id="item-name">--</span><br>
+                        <!-- Space for extra details -->
+                        <span id="item-details" style="display:block; margin-top:10px; font-size: 0.75rem; opacity: 0.7;"></span>
                     </div>
 
                     <form action="https://formspree.io/f/mgvgynrj" method="POST">
@@ -384,6 +399,7 @@
                         <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Full Name</label>
                         <input type="text" name="name" class="form-field" placeholder="REQUIRED" required>
 
+                        <!-- Size Selector -->
                         <div id="size-selector-group">
                             <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Tracksuit Size</label>
                             <select name="size" class="form-field">
@@ -413,21 +429,23 @@
         // --- DATA ---
         const RELICS = {
             candle: {
-                title: "THE VIGIL",
-                price: "$65.00",
-                item: "CoCA Scented Candle",
-                orderType: "RELIC_CANDLE_MTO",
-                availability: "MADE TO ORDER",
+                title: "LO-003: FEMALE SEXUAL FRUSTRATION",
+                price: "$88.00",
+                item: "Liturgical Object 003 (Candle)",
+                details: "Scented with pure CBD resin. Packaged in a familiar trade dress that we definitely do not own, but have spiritually annexed for the Church. Notes: Sandalwood, Cedar, and Cease & Desist Letters.",
+                orderType: "RELIC_CANDLE_FSF_88_MTO",
+                availability: "MADE TO ORDER / PRE-ORDER",
                 hasSize: false,
-                mediaType: "image", // New property
-                src: "candle_placeholder.jpg", // REPLACE THIS FILENAME
+                mediaType: "image", 
+                src: "liturgical_003.jpg", // FILE NAME IS HERE
                 theme: "standard",
-                btnText: "IGNITE THE PROCESS"
+                btnText: "SECURE PRE-ORDER"
             },
             bible: {
                 title: "THE DOCTRINE",
                 price: "$1200.00",
                 item: "CoCA Leather Bible",
+                details: "Leather Bound. Red Letter Edition. 6.5\" x 9.5\".",
                 orderType: "RELIC_BIBLE_1200_LTD",
                 availability: "LIMITED EDITION",
                 hasSize: false,
@@ -440,6 +458,7 @@
                 title: "CoCA TRACKSUIT",
                 price: "$450.00",
                 item: "CoCA Tracksuit",
+                details: "Heavyweight Cotton. Oversized Fit. To wear this is to force the issue.",
                 orderType: "RELIC_SUIT_450_LTD",
                 availability: "LIMITED EDITION",
                 hasSize: true,
@@ -452,6 +471,7 @@
                 title: "THE COMMITMENT",
                 price: "$1500.00",
                 item: "Founder Package",
+                details: "Secures 1 Bible and 1 Suit. Total immersion in the mission.",
                 orderType: "RELIC_FOUNDER_1500_LTD",
                 availability: "LIMITED EDITION",
                 hasSize: true,
@@ -474,13 +494,14 @@
             document.getElementById('receipt-title').innerText = data.title;
             document.getElementById('receipt-price').innerText = data.price;
             document.getElementById('item-name').innerText = data.item;
+            document.getElementById('item-details').innerText = data.details || "";
             document.getElementById('form-order-type').value = data.orderType;
             
             // Handle Availability Tag Styling
             const availTag = document.getElementById('availability-tag');
             availTag.innerText = data.availability;
-            if(data.availability === "MADE TO ORDER") {
-                availTag.className = ""; // Remove red for MTO if desired, or keep generic
+            if(data.availability.includes("MADE TO ORDER")) {
+                availTag.className = ""; // Generic style
             } else {
                 availTag.className = "text-red";
             }
