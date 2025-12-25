@@ -69,22 +69,27 @@
             padding: 6px 10px; font-weight: bold; font-size: 0.8rem; margin-bottom: 20px;
         }
 
-        /* --- THE THREE DOORS (GRID) --- */
+        /* --- THE FOUR DOORS (GRID) --- */
         .relic-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            min-height: calc(100vh - 90px); /* Subtract nav height */
+            grid-template-columns: 1fr 1fr; /* 2x2 Layout */
+            /* min-height calculation removed to allow content to flow naturally */
         }
 
         .door {
-            border-right: 2px solid var(--border-color);
             padding: 30px;
             display: flex; flex-direction: column; justify-content: space-between;
             transition: background-color 0.2s ease;
             position: relative;
             cursor: pointer;
+            min-height: 500px; /* Ensure uniform height */
         }
-        .door:last-child { border-right: none; }
+
+        /* 2x2 BORDER LOGIC */
+        /* Odd items (Left column) get right border */
+        .door:nth-child(odd) { border-right: 2px solid var(--border-color); }
+        /* Top row (1 and 2) get bottom border */
+        .door:nth-child(-n+2) { border-bottom: 2px solid var(--border-color); }
 
         .door:hover { background-color: rgba(128,128,128,0.05); }
         
@@ -101,15 +106,35 @@
             font-weight: bold;
         }
 
+        .mto-tag {
+            font-size: 0.7rem; color: var(--text-color); 
+            border: 1px solid var(--text-color); 
+            background: rgba(128,128,128,0.1);
+            display: inline-block; width: fit-content;
+            padding: 2px 6px; margin-bottom: 5px;
+            font-weight: bold;
+        }
+
         .door-visual {
             flex: 1; display: flex; align-items: center; justify-content: center;
             margin: 20px 0; border: 1px dashed var(--border-color);
-            aspect-ratio: 1/1; /* Square by default */
+            aspect-ratio: 1/1; 
             padding: 10px;
             background: rgba(128,128,128,0.02);
+            overflow: hidden;
         }
-        .door-visual video { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+        
+        /* Media Handling (Video & Img) */
+        .door-visual video, .door-visual img { 
+            width: 100%; height: 100%; object-fit: contain; 
+        }
+        
+        /* Blend modes for visual integration */
+        .door-visual video { mix-blend-mode: multiply; }
+        .door-visual img { mix-blend-mode: multiply; filter: grayscale(100%) contrast(1.2); }
+        
         body.dark-mode .door-visual video { mix-blend-mode: normal; }
+        body.dark-mode .door-visual img { mix-blend-mode: normal; filter: grayscale(100%); }
 
         .door-desc { font-size: 0.85rem; line-height: 1.3; margin-bottom: 25px; min-height: 3em; font-weight: bold; }
 
@@ -130,7 +155,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-color); z-index: 200;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll iOS */
+            -webkit-overflow-scrolling: touch; 
         }
         
         .checkout-layout {
@@ -144,7 +169,13 @@
             padding: 40px; background: rgba(128,128,128,0.05);
             position: sticky; top: 0; height: 100vh;
         }
-        .checkout-visual video { max-width: 80%; max-height: 80vh; box-shadow: 10px 10px 0px var(--border-color); border: 2px solid var(--border-color); }
+        
+        .checkout-visual video, .checkout-visual img { 
+            max-width: 80%; max-height: 80vh; 
+            box-shadow: 10px 10px 0px var(--border-color); 
+            border: 2px solid var(--border-color); 
+            object-fit: contain;
+        }
 
         .checkout-form-container {
             padding: 60px 40px; 
@@ -173,7 +204,7 @@
             width: 100%; padding: 15px; margin-bottom: 15px; 
             border: 1px solid var(--border-color); background: var(--bg-color); 
             color: var(--text-color); font-family: inherit; border-radius: 0; 
-            appearance: none; font-size: 16px; /* iOS No Zoom */
+            appearance: none; font-size: 16px; 
         }
         .form-field:focus { outline: none; border-color: var(--brand-red); }
 
@@ -196,16 +227,16 @@
             .manifesto { padding: 40px 20px; }
             .manifesto h1 { font-size: 1.6rem; }
 
-            /* Grid Stacking */
+            /* Grid Stacking - Reset 2x2 logic to 1x1 */
             .relic-grid { grid-template-columns: 1fr; display: block; }
             
             .door { 
-                border-right: none; 
-                border-bottom: 2px solid var(--border-color); 
+                border-right: none !important; 
+                border-bottom: 2px solid var(--border-color) !important; 
                 padding: 30px 20px;
                 min-height: auto;
             }
-            .door:last-child { border-bottom: none; padding-bottom: 60px; /* Space for scroll */ }
+            .door:last-child { border-bottom: none !important; padding-bottom: 60px; }
 
             .door-visual { margin: 15px 0; aspect-ratio: 16/9; max-height: 250px; }
             .door-number { font-size: 2.5rem; top: 20px; right: 20px; }
@@ -219,7 +250,7 @@
                 border-right: none; border-bottom: 2px solid var(--border-color); 
                 background: var(--bg-color);
             }
-            .checkout-visual video { max-width: 100%; max-height: 40vh; box-shadow: 6px 6px 0px var(--border-color); }
+            .checkout-visual video, .checkout-visual img { max-width: 100%; max-height: 40vh; box-shadow: 6px 6px 0px var(--border-color); }
 
             .checkout-form-container { padding: 30px 20px; min-height: auto; padding-bottom: 100px;}
             
@@ -231,7 +262,6 @@
 </head>
 <body>
 
-    <!-- NAV -->
     <nav>
         <div style="display: flex; align-items: center; gap: 10px;">
             <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo">
@@ -239,7 +269,6 @@
         <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
     </nav>
 
-    <!-- MISSION STATEMENT -->
     <section class="manifesto">
         <div class="warning-badge uppercase">Legal Accelerant</div>
         <h1 class="uppercase">These are not products.<br>These are accelerants.</h1>
@@ -251,12 +280,26 @@
         </p>
     </section>
 
-    <!-- SELECTION STAGE (3 DOORS) -->
     <main class="relic-grid" id="relic-grid">
         
-        <!-- DOOR 1: THE DOCTRINE (BIBLE) -->
-        <div class="door" onclick="selectRelic('bible')">
+        <div class="door" onclick="selectRelic('candle')">
             <div class="door-number">01</div>
+            <div class="door-header">
+                <span class="mto-tag uppercase">MADE TO ORDER</span>
+                <span class="door-title uppercase">THE VIGIL</span>
+                <span class="door-price">$65.00</span>
+            </div>
+            <div class="door-visual">
+                <img src="candle_placeholder.jpg" alt="CoCA Candle" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'opacity:0.5\'>[IMG MISSING]</div>'">
+            </div>
+            <div class="door-desc uppercase">
+                <strong>Wax. Wick. Fire.</strong> Hand-poured. Even the light is temporary. Burn to reveal nothing.
+            </div>
+            <button class="btn-enter">Ignite The Process</button>
+        </div>
+
+        <div class="door" onclick="selectRelic('bible')">
+            <div class="door-number">02</div>
             <div class="door-header">
                 <span class="scarcity-tag uppercase">LIMITED EDITION</span>
                 <span class="door-title uppercase">The Doctrine</span>
@@ -273,9 +316,8 @@
             <button class="btn-enter">Fund the Precedent</button>
         </div>
 
-        <!-- DOOR 2: THE UNIFORM (TRACKSUIT) -->
         <div class="door" onclick="selectRelic('tracksuit')">
-            <div class="door-number">02</div>
+            <div class="door-number">03</div>
             <div class="door-header">
                 <span class="scarcity-tag uppercase">LIMITED EDITION</span>
                 <span class="door-title uppercase">CoCA Tracksuit</span>
@@ -292,9 +334,8 @@
             <button class="btn-enter">Force The Issue</button>
         </div>
 
-        <!-- DOOR 3: THE FOUNDER (BOTH) -->
         <div class="door" onclick="selectRelic('founder')" style="background-color: rgba(255, 51, 51, 0.03);">
-            <div class="door-number text-red">03</div>
+            <div class="door-number text-red">04</div>
             <div class="door-header">
                 <span class="scarcity-tag uppercase">LIMITED EDITION</span>
                 <span class="door-title uppercase text-red">The Commitment</span>
@@ -318,17 +359,13 @@
 
     </main>
 
-    <!-- CHECKOUT SCREEN (DYNAMIC) -->
     <section id="checkout-screen">
         <button class="back-btn uppercase" onclick="closeCheckout()">← Back</button>
         
         <div class="checkout-layout">
-            <!-- Left Side: Visual (Top on Mobile) -->
             <div class="checkout-visual" id="checkout-visual-container">
-                <!-- Injected via JS -->
-            </div>
+                </div>
 
-            <!-- Right Side: Form (Bottom on Mobile) -->
             <div class="checkout-form-container">
                 <div class="receipt-box" id="receipt-box">
                     <div class="receipt-header uppercase">
@@ -337,7 +374,7 @@
                     </div>
                     
                     <div style="margin-bottom: 20px; font-size: 0.8rem; line-height: 1.4; opacity: 0.7;" class="uppercase">
-                        <strong>Availability:</strong> <span class="text-red">LIMITED SUPPLY</span><br>
+                        <strong>Availability:</strong> <span id="availability-tag" class="text-red">LIMITED SUPPLY</span><br>
                         <strong>Item:</strong> <span id="item-name">--</span>
                     </div>
 
@@ -347,7 +384,6 @@
                         <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Full Name</label>
                         <input type="text" name="name" class="form-field" placeholder="REQUIRED" required>
 
-                        <!-- Size Selector -->
                         <div id="size-selector-group">
                             <label class="uppercase" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display:block;">Tracksuit Size</label>
                             <select name="size" class="form-field">
@@ -376,13 +412,27 @@
     <script>
         // --- DATA ---
         const RELICS = {
+            candle: {
+                title: "THE VIGIL",
+                price: "$65.00",
+                item: "CoCA Scented Candle",
+                orderType: "RELIC_CANDLE_MTO",
+                availability: "MADE TO ORDER",
+                hasSize: false,
+                mediaType: "image", // New property
+                src: "candle_placeholder.jpg", // REPLACE THIS FILENAME
+                theme: "standard",
+                btnText: "IGNITE THE PROCESS"
+            },
             bible: {
                 title: "THE DOCTRINE",
                 price: "$1200.00",
                 item: "CoCA Leather Bible",
                 orderType: "RELIC_BIBLE_1200_LTD",
+                availability: "LIMITED EDITION",
                 hasSize: false,
-                videoSrc: "coca4.mp4",
+                mediaType: "video",
+                src: "coca4.mp4",
                 theme: "standard",
                 btnText: "FUND THE PRECEDENT"
             },
@@ -391,8 +441,10 @@
                 price: "$450.00",
                 item: "CoCA Tracksuit",
                 orderType: "RELIC_SUIT_450_LTD",
+                availability: "LIMITED EDITION",
                 hasSize: true,
-                videoSrc: "coca3.mp4",
+                mediaType: "video",
+                src: "coca3.mp4",
                 theme: "standard",
                 btnText: "FORCE THE ISSUE"
             },
@@ -401,8 +453,10 @@
                 price: "$1500.00",
                 item: "Founder Package",
                 orderType: "RELIC_FOUNDER_1500_LTD",
+                availability: "LIMITED EDITION",
                 hasSize: true,
-                videoSrc: "coca3.mp4", 
+                mediaType: "mixed", 
+                src: "mixed",
                 theme: "founder",
                 btnText: "MANIFEST THE SUIT"
             }
@@ -416,11 +470,20 @@
         function selectRelic(key) {
             const data = RELICS[key];
             
-            // Populate Form
+            // Populate Form Text
             document.getElementById('receipt-title').innerText = data.title;
             document.getElementById('receipt-price').innerText = data.price;
             document.getElementById('item-name').innerText = data.item;
             document.getElementById('form-order-type').value = data.orderType;
+            
+            // Handle Availability Tag Styling
+            const availTag = document.getElementById('availability-tag');
+            availTag.innerText = data.availability;
+            if(data.availability === "MADE TO ORDER") {
+                availTag.className = ""; // Remove red for MTO if desired, or keep generic
+            } else {
+                availTag.className = "text-red";
+            }
             
             // Handle Size Selector visibility
             const sizeDiv = document.getElementById('size-selector-group');
@@ -433,19 +496,24 @@
                 sizeInput.required = false;
             }
 
-            // Populate Visual
+            // Populate Visual (Handle Image vs Video)
             let visualHTML = '';
+            
             if(key === 'founder') {
                 visualHTML = `
                     <div style="display:flex; gap:10px; width: 100%; height: 100%; align-items:center; justify-content:center;">
                         <video autoplay loop muted playsinline style="max-height:100%; width: 48%; border:2px solid currentColor; object-fit:cover;"><source src="coca3.mp4"></video>
                         <video autoplay loop muted playsinline style="max-height:100%; width: 48%; border:2px solid currentColor; object-fit:cover;"><source src="coca4.mp4"></video>
                     </div>`;
-                
                 document.getElementById('receipt-box').style.borderColor = 'var(--brand-red)';
                 document.getElementById('submit-btn-text').style.backgroundColor = 'var(--brand-red)';
             } else {
-                visualHTML = `<video autoplay loop muted playsinline><source src="${data.videoSrc}" type="video/mp4"></video>`;
+                // Standard Logic for Image or Video
+                if (data.mediaType === 'image') {
+                    visualHTML = `<img src="${data.src}" alt="${data.title}">`;
+                } else {
+                    visualHTML = `<video autoplay loop muted playsinline><source src="${data.src}" type="video/mp4"></video>`;
+                }
                 
                 document.getElementById('receipt-box').style.borderColor = 'var(--border-color)';
                 document.getElementById('submit-btn-text').style.backgroundColor = 'var(--text-color)';
@@ -464,7 +532,7 @@
         function closeCheckout() {
             checkoutScreen.style.display = 'none';
             document.body.style.overflow = 'auto'; 
-            visualContainer.innerHTML = ''; // Clear video to save memory
+            visualContainer.innerHTML = ''; // Clear media to save memory
         }
 
         // --- DARK MODE LOGIC ---
