@@ -12,11 +12,17 @@
     
     <style>
         :root {
-            --bg-color: #FDFBF7; /* Cream/Off-white */
+            --brand-red: #ff3333; 
+            --bg-color: #FDFBF7; 
             --text-main: #1A1A1A;
-            --accent: #A63D40; /* Deep red for subtle accents */
+            --accent: #A63D40; 
             --grain: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E');
         }
+
+        /* --- LOGO BRANDING --- */
+        .logo { height: 60px; width: auto; transition: filter 0.3s; }
+        /* Inverts logo for dark backgrounds/modes */
+        .dark-mode-logo { filter: invert(1); }
 
         body {
             background-color: var(--bg-color);
@@ -25,38 +31,14 @@
             overflow-x: hidden;
         }
 
-        .serif {
-            font-family: 'Cormorant Garamond', serif;
-        }
+        .serif { font-family: 'Cormorant Garamond', serif; }
 
         .grain-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-            background-image: var(--grain);
-            opacity: 0.6;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50; background-image: var(--grain); opacity: 0.6;
         }
 
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #D1D1D1;
-            border-radius: 3px;
-        }
+        html { scroll-behavior: smooth; }
 
         .fade-in-up {
             animation: fadeInUp 1s ease-out forwards;
@@ -65,25 +47,14 @@
         }
 
         @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-
-        .script-text {
-            font-family: 'Courier New', Courier, monospace;
-            line-height: 1.4;
-        }
+        .script-text { font-family: 'Courier New', Courier, monospace; line-height: 1.4; }
         
         .image-placeholder {
             background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=2574&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+            background-size: cover; background-position: center;
         }
 
     </style>
@@ -92,21 +63,23 @@
 
     <div class="grain-overlay"></div>
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-40 top-0 left-0 px-6 py-6 flex justify-between items-center mix-blend-difference text-stone-800">
-        <div class="text-xl tracking-widest font-bold uppercase">Coca</div>
-        <div class="text-xs uppercase tracking-widest hidden sm:block">Botanical Explainers vol. 1</div>
-        <button class="text-sm uppercase tracking-widest hover:italic transition-all">Menu</button>
+    <nav class="fixed w-full z-40 top-0 left-0 px-6 py-4 flex justify-between items-center bg-[#FDFBF7]/80 backdrop-blur-md border-bottom border-stone-200">
+        <div class="flex items-center gap-4">
+            <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo">
+        </div>
+        <div class="text-[10px] uppercase tracking-[0.4em] hidden sm:block font-bold text-stone-400">Botanical Explainers vol. 1</div>
+        <a href="index.html" class="text-xs font-bold uppercase tracking-widest border border-stone-800 px-4 py-2 hover:bg-stone-800 hover:text-white transition-all">
+            Back to Archive
+        </a>
     </nav>
 
-    <!-- Hero Section -->
     <header class="min-h-screen flex flex-col justify-center items-center px-4 relative">
         <div class="max-w-4xl text-center z-10">
             <h2 class="text-xs uppercase tracking-[0.3em] mb-6 text-stone-500 fade-in-up">The Product Philosophy</h2>
-            <h1 class="serif text-6xl md:text-8xl lg:text-9xl leading-none mb-8 fade-in-up delay-100">
+            <h1 class="serif text-6xl md:text-8xl lg:text-9xl leading-none mb-8 fade-in-up">
                 Female Sexual<br><span class="italic text-stone-600">Frustration</span>
             </h1>
-            <p class="max-w-md mx-auto text-stone-600 leading-relaxed fade-in-up delay-200 text-sm md:text-base">
+            <p class="max-w-md mx-auto text-stone-600 leading-relaxed fade-in-up text-sm md:text-base">
                 Why have some of the most potent things in nature been the ones that have been denied their purpose.
             </p>
         </div>
@@ -116,10 +89,8 @@
         </div>
     </header>
 
-    <!-- Main Content Grid -->
     <main class="max-w-7xl mx-auto px-6 py-24 border-t border-stone-200">
         
-        <!-- Section 1: The Context (Screenplay Style) -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-32 items-start">
             <div class="lg:col-span-4 sticky top-32">
                 <h3 class="text-xs font-bold uppercase tracking-widest mb-4 text-stone-400">01. The Mood</h3>
@@ -131,44 +102,18 @@
             </div>
 
             <div class="lg:col-span-8 bg-stone-100 p-8 md:p-12 rounded-sm shadow-sm border border-stone-200 relative overflow-hidden">
-                <!-- Decorative film strip vibe -->
-                <div class="absolute top-0 left-0 w-full h-2 bg-stone-800 opacity-10"></div>
-                <div class="absolute bottom-0 left-0 w-full h-2 bg-stone-800 opacity-10"></div>
-                
                 <div class="script-text text-sm md:text-base text-stone-700">
-                    <p class="mb-6"><span class="font-bold">SCENE START</span></p>
                     <p class="mb-4 uppercase font-bold tracking-wider">INT. NYC APARTMENT HALLWAY - NIGHT</p>
-                    <p class="mb-6">
-                        Grainy. 35mm. Warm sodium-vapor light bleeds through blinds.
-                    </p>
-                    <p class="mb-6">
-                        A COUPLE (30s) stumbles through the heavy door. They are dressed in unbuttoned evening wear. Disheveled elegance.
-                    </p>
-                    <p class="mb-6">
-                        They are laughing, but it's a tired, heavy laugh. They lean on each other. Gravity seems stronger here.
-                    </p>
-                    <p class="mb-6">
-                        <span class="font-bold">MAN:</span> (Loosens tie)<br>
-                        *Heavy exhale.*
-                    </p>
-                    <p class="mb-6">
-                        <span class="font-bold">WOMAN:</span> (Leaning back against the closed door)<br>
-                        *She rests a hand on her stomach. Closes her eyes. The silence is loud.*
-                    </p>
-                    <p class="mb-4 italic text-stone-500">
-                        [The air smells like sweat, expensive perfume, and the tension of things unsaid.]
-                    </p>
-                    <p class="mt-8 border-t border-stone-300 pt-4 text-xs tracking-widest uppercase text-stone-400">
-                        End Scene
-                    </p>
+                    <p class="mb-6">Grainy. 35mm. Warm sodium-vapor light bleeds through blinds.</p>
+                    <p class="mb-6">A COUPLE (30s) stumbles through the heavy door. They are dressed in unbuttoned evening wear. Disheveled elegance.</p>
+                    <p class="mb-6"><span class="font-bold">WOMAN:</span> (Leaning back against the closed door)<br>*She rests a hand on her stomach. Closes her eyes. The silence is loud.*</p>
+                    <p class="mb-4 italic text-stone-500">[The air smells like sweat, expensive perfume, and the tension of things unsaid.]</p>
                 </div>
             </div>
         </section>
 
-        <!-- Section 2: The Science (The Female Plant) -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-32 items-center">
-            <div class="order-2 lg:order-1 relative aspect-[4/5] image-placeholder grayscale hover:grayscale-0 transition-all duration-700">
-                 <!-- Placeholder for the failed image generation - stylized -->
+            <div class="relative aspect-[4/5] image-placeholder grayscale hover:grayscale-0 transition-all duration-700">
                  <div class="absolute inset-0 flex items-center justify-center">
                     <div class="bg-white/90 backdrop-blur-sm p-6 text-center border border-stone-200 max-w-xs">
                         <p class="serif italic text-xl mb-2">Cannabis sativa</p>
@@ -177,82 +122,53 @@
                  </div>
             </div>
             
-            <div class="order-1 lg:order-2">
+            <div>
                 <h3 class="text-xs font-bold uppercase tracking-widest mb-4 text-stone-400">02. The Biology</h3>
                 <h2 class="serif text-5xl mb-6">The "Sinsemilla" Effect</h2>
                 <div class="prose prose-stone text-stone-600 leading-relaxed">
                     <p class="mb-4">
-                        In the cultivation of high-grade hemp, the female plant is the star. But she is a tragic star. To produce the highest quality resin, she must be denied her biological imperative.
-                    </p>
-                    <p class="mb-4">
-                        When a female plant senses that no pollen is present, she does not give up. Instead, she enters a state of biological desperation or <strong>sexual frustration</strong>. She pours her remaining energy into the production of trichomes—sticky, resinous glands designed to trap pollen from the wind.
+                        In the cultivation of high-grade hemp, the female plant is the star. When a female plant senses that no pollen is present, she pours her remaining energy into the production of trichomes—sticky glands designed to trap pollen from the wind.
                     </p>
                     <p>
-                        The longer she waits, the more potent she becomes. The aroma intensifies. The buds swell. This state is known as <em>Sinsemilla</em> (without seed). It is a bloom fueled by frustration.
+                        The longer she waits, the more potent she becomes. The aroma intensifies. This state is known as <em>Sinsemilla</em> (without seed). It is a bloom fueled by frustration.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- Section 3: The Product (The Smart Angle) -->
-        <section class="bg-stone-900 text-stone-100 -mx-6 px-6 py-24 rounded-sm relative overflow-hidden">
-            <div class="max-w-3xl mx-auto text-center relative z-10">
-                <div class="inline-block border border-stone-700 px-4 py-1 rounded-full text-xs uppercase tracking-widest mb-8 text-stone-400">
-                    Product Insight
-                </div>
-                <h2 class="serif text-4xl md:text-6xl mb-8 leading-tight">
-                    Why we bottled<br>"Sexual Frustration"
-                </h2>
-                <p class="text-lg text-stone-400 mb-12 leading-relaxed">
-                    Most candles try to sell you "Peace" or "Relaxation." We are selling <strong>Potential</strong>.
+        <section class="bg-stone-900 text-stone-100 -mx-6 px-6 py-24 rounded-sm relative overflow-hidden text-center">
+                <h2 class="serif text-4xl md:text-6xl mb-8 leading-tight">Why we bottled<br>"Sexual Frustration"</h2>
+                <p class="text-lg text-stone-400 mb-12 leading-relaxed max-w-2xl mx-auto">
+                    Most candles try to sell you "Peace." We are selling <strong>Potential</strong>.
                 </p>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto">
-                    <div class="border-l border-stone-700 pl-6">
-                        <h4 class="font-bold text-stone-200 mb-2">The Metaphor</h4>
-                        <p class="text-sm text-stone-500">
-                            We framed the scent not as a botanical fact, but as a human feeling. The scent of "waiting" is sweeter and heavier than the scent of "having."
-                        </p>
-                    </div>
-                    <div class="border-l border-stone-700 pl-6">
-                        <h4 class="font-bold text-stone-200 mb-2">The Chemistry</h4>
-                        <p class="text-sm text-stone-500">
-                            Contains high concentrations of Caryophyllene and Myrcene—terpenes produced by the plant specifically to signal its presence to the wind.
-                        </p>
-                    </div>
-                </div>
-
-              <a href=index.html>  <button class="mt-16 border border-stone-600 px-8 py-4 text-xs uppercase tracking-widest hover:bg-stone-100 hover:text-black transition-colors duration-300">
-                    >View The Candle<
-                                      </button></a>
-            </div>
-            
-            <!-- Abstract background element -->
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-900 rounded-full blur-[120px] opacity-10 pointer-events-none"></div>
+              <a href="index.html">  
+                <button class="border border-stone-600 px-8 py-4 text-xs uppercase tracking-widest hover:bg-stone-100 hover:text-black transition-colors duration-300">
+                    > Secure the Artifact <
+                </button>
+              </a>
         </section>
 
     </main>
 
     <footer class="text-center py-12 border-t border-stone-200">
-        <p class="serif italic text-2xl text-stone-400 mb-4">Coca</p>
-        <p class="text-[10px] uppercase tracking-widest text-stone-400">© 2024 Botanical Narratives</p>
+        <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo mx-auto mb-4 opacity-30 grayscale" alt="CoCA Logo">
+        <p class="text-[10px] uppercase tracking-widest text-stone-400">© 2026 UNSUBSCRIBE LLC | NYC</p>
     </footer>
 
     <script>
-        // Simple scroll reveal
+        // Reveal elements on scroll
         window.addEventListener('scroll', () => {
             const reveals = document.querySelectorAll('.fade-in-up');
             reveals.forEach(reveal => {
                 const windowHeight = window.innerHeight;
                 const elementTop = reveal.getBoundingClientRect().top;
-                const elementVisible = 150;
-                
-                if (elementTop < windowHeight - elementVisible) {
-                    reveal.classList.add('active');
+                if (elementTop < windowHeight - 100) {
+                    reveal.style.opacity = "1";
+                    reveal.style.transform = "translateY(0)";
                 }
             });
         });
     </script>
 </body>
 </html>
-
