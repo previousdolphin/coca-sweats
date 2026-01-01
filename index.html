@@ -158,6 +158,19 @@
             text-transform: uppercase; font-family: inherit; font-size: 1rem; margin-top: 10px;
         }
 
+        /* --- HIDDEN EXPLAINER LINK --- */
+        .hidden-explainer {
+            display: none; /* Controlled by JS */
+            margin-top: 15px;
+            font-size: 0.6rem;
+            text-decoration: none;
+            color: inherit;
+            opacity: 0.2;
+            transition: opacity 0.3s;
+            letter-spacing: 0.1em;
+        }
+        .hidden-explainer:hover { opacity: 1; text-decoration: underline; }
+
         /* --- MOBILE --- */
         @media (max-width: 900px) {
             .relic-grid { grid-template-columns: 1fr; }
@@ -252,6 +265,8 @@
                         <strong>Status:</strong> <span id="availability-tag">VERIFIED</span><br>
                         <strong>Item:</strong> <span id="item-name">--</span><br>
                         <span id="item-details" style="display:block; margin-top:10px; font-size: 0.75rem; opacity: 0.7;"></span>
+                        
+                        <a id="candle-explainer" href="biological-frustration.html" class="hidden-explainer uppercase">VIEW_BOTANICAL_NARRATIVE_003.HTM</a>
                     </div>
 
                     <button class="submit-btn" id="submit-btn-text" onclick="triggerStripe()">Confirm & Pay</button>
@@ -320,6 +335,14 @@
             document.getElementById('item-details').innerText = data.details;
             document.getElementById('availability-tag').innerText = data.availability;
             document.getElementById('submit-btn-text').innerText = data.btnText;
+
+            // Logic to toggle the hidden explainer link
+            const explainer = document.getElementById('candle-explainer');
+            if (key === 'candle') {
+                explainer.style.display = 'block';
+            } else {
+                explainer.style.display = 'none';
+            }
 
             let visualHTML = '';
             if(key === 'founder') {
