@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM_OS // SPHERE</title>
+    
+    <!-- Tailwind CSS (Styling) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js (3D Engine) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; color: #00ff41; font-family: 'Courier New', Courier, monospace; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #001100; }
+        ::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ccffcc; }
+
+        /* Glitch Animation */
+        .glitch-text {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+        @keyframes glitch {
+            0% { text-shadow: 2px 2px 0px #003300; }
+            90% { text-shadow: 2px 2px 0px #003300; transform: translate(0); }
+            92% { text-shadow: -2px 2px 0px #003300; transform: translate(1px, 1px); }
+            94% { text-shadow: 2px -2px 0px #003300; transform: translate(-1px, -1px); }
+            96% { text-shadow: -2px -2px 0px #003300; transform: translate(0); }
+            100% { text-shadow: 2px 2px 0px #003300; }
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+        
+        .crt-flicker {
+            animation: flicker 0.15s infinite;
+            pointer-events: none;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+
+    <!-- CRT Overlay Effects -->
+    <div class="absolute inset-0 z-50 pointer-events-none scanlines crt-flicker mix-blend-overlay opacity-30"></div>
+    <div class="absolute inset-0 z-50 pointer-events-none" style="background: radial-gradient(circle, transparent 60%, black 100%);"></div>
+
+    <!-- HUD / UI Layer -->
+    <div id="ui-layer" class="absolute inset-0 z-10 pointer-events-none p-6 flex flex-col justify-between">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-start">
+            <div class="border border-[#00ff41] bg-black/80 px-4 py-2 backdrop-blur">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="globe" class="w-4 h-4 animate-pulse"></i>
+                    <span class="text-sm font-bold tracking-[0.2em]">MAINFRAME_V.3.1</span>
+                </div>
+                <div class="text-[10px] opacity-70 mt-1">LAT: <span id="hud-lat">00.00</span> // LON: <span id="hud-lon">00.00</span></div>
+            </div>
+            <div class="flex gap-2 text-xs">
+                <div class="px-2 py-1 border border-[#00ff41]/50">MEM: 64TB</div>
+                <div class="px-2 py-1 border border-[#00ff41]/50">NET: SECURE</div>
+            </div>
+        </div>
+
+        <!-- Center Prompt (Hidden when active) -->
+        <div id="center-prompt" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center transition-opacity duration-500">
+            <div class="text-4xl mb-4 opacity-50"><i data-lucide="move" class="mx-auto w-12 h-12"></i></div>
+            <div class="text-sm tracking-[0.3em] bg-black/50 px-4 py-1">DRAG TO ROTATE // CLICK TO JACK IN</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-between items-end text-xs opacity-60">
+            <div>SYS_UPTIME: <span id="uptime">00:00:00</span></div>
+            <div>RENDER_ENGINE: WEBGL_2.0</div>
+        </div>
+    </div>
+
+    <!-- Content Modal (Hidden by default) -->
+    <div id="content-modal" class="absolute inset-0 z-40 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all duration-300 opacity-0">
+        
+        <!-- Close Button -->
+        <button id="close-btn" class="absolute top-8 right-8 pointer-events-auto p-2 border border-[#00ff41] hover:bg-[#00ff41] hover:text-black transition-colors group">
+            <i data-lucide="x" class="w-8 h-8"></i>
+            <span class="absolute right-full mr-4 top-1/2 -translate-y-1/2 text-xs font-bold tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">CLOSE CONNECTION</span>
+        </button>
+
+        <div class="relative w-full max-w-5xl h-[70vh] flex border border-[#00ff41]/30 bg-black/90 shadow-[0_0_50px_rgba(0,255,65,0.1)] pointer-events-auto overflow-hidden">
+            
+            <!-- Left Sidebar -->
+            <div class="w-20 border-r border-[#00ff41]/30 flex flex-col items-center py-8 gap-8 bg-[#001100]">
+                <i data-lucide="database" class="w-6 h-6 opacity-80"></i>
+                <div class="h-px w-8 bg-[#00ff41]/30"></div>
+                <i data-lucide="lock" class="w-6 h-6 opacity-80"></i>
+                <div class="flex-1 w-px bg-[#00ff41]/20 my-2"></div>
+                <div class="text-[10px] rotate-180" style="writing-mode: vertical-rl;">SYSTEM_DATA_BUS</div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 p-12 overflow-y-auto relative">
+                <!-- Background decoration -->
+                <div class="absolute top-0 right-0 p-4 opacity-20">
+                    <i data-lucide="cpu" class="w-32 h-32"></i>
+                </div>
+
+                <div class="border-b border-[#00ff41] pb-6 mb-8">
+                    <h2 id="modal-title" class="text-6xl font-black tracking-tighter glitch-text mb-2">TITLE_Here</h2>
+                    <div class="flex gap-4 text-xs font-bold tracking-widest opacity-80">
+                        <span class="bg-[#00ff41] text-black px-2 py-0.5">ACTIVE_NODE</span>
+                        <span class="border border-[#00ff41] px-2 py-0.5">ID: <span id="modal-id">000</span></span>
+                    </div>
+                </div>
+
+                <div class="prose prose-invert max-w-none text-[#ccffcc]">
+                    <p class="text-xl leading-relaxed mb-6">
+                        <span class="text-[#00ff41] font-bold">>>> CONNECTION ESTABLISHED.</span><br>
+                        Accessing secure data sector. This node contains encrypted project files and system schematics tailored for spherical visualization.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div class="border border-[#00ff41]/30 p-4 hover:bg-[#00ff41]/10 transition-colors">
+                            <h3 class="font-bold text-[#00ff41] mb-2 flex items-center gap-2">
+                                <i data-lucide="activity" class="w-4 h-4"></i> STATUS
+                            </h3>
+                            <p class="text-sm opacity-80">System operating at 98% efficiency. Zero packet loss detected in local grid.</p>
+                        </div>
+                        <div class="border border-[#00ff41]/30 p-4 hover:bg-[#00ff41]/10 transition-colors">
+                            <h3 class="font-bold text-[#00ff41] mb-2 flex items-center gap-2">
+                                <i data-lucide="shield" class="w-4 h-4"></i> SECURITY
+                            </h3>
+                            <p class="text-sm opacity-80">Firewall active. Biometric handshake verified. Node isolation disabled.</p>
+                        </div>
+                    </div>
+
+                    <p class="text-sm font-mono opacity-60 border-t border-[#00ff41]/20 pt-4">
+                        DEBUG_LOG: <br>
+                        > Mount sphere... OK <br>
+                        > Shader compilation... OK <br>
+                        > Flattening curvature... OK <br>
+                        > Rendering UI... COMPLETE
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Shader Code ---
+        
+        const vertexShader = `
+            varying vec2 vUv;
+            varying float vDistortion;
+            uniform float uCurvature; 
+            uniform float uRadius;
+
+            void main() {
+                vUv = uv;
+                vec3 pos = position;
+                
+                // Spherical Warping Logic
+                // We sink the Z coordinate based on distance from center to simulate looking at inner sphere wall
+                float dist = length(pos.xy);
+                
+                // Parabolic approximation of spherical cap
+                // Bend towards -Z (away from camera)
+                float bend = (dist * dist) / (2.0 * uRadius) * 4.0;
+                
+                pos.z -= bend * uCurvature; 
+
+                vDistortion = bend * uCurvature;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform float uTime;
+            uniform vec3 uColor;
+            uniform float uOpacity;
+            uniform float uHover;
+            uniform float uActive;
+            uniform float uIsContent;
+            
+            varying vec2 vUv;
+            varying float vDistortion;
+
+            float random(vec2 st) {
+                return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+            }
+
+            void main() {
+                // Border
+                float border = 0.0;
+                float bw = 0.03;
+                if (vUv.x < bw || vUv.x > 1.0 - bw || vUv.y < bw || vUv.y > 1.0 - bw) {
+                    border = 1.0;
+                }
+
+                // Grid lines
+                float grid = 0.0;
+                if (mod(vUv.x * 10.0, 1.0) < 0.05 || mod(vUv.y * 10.0, 1.0) < 0.05) grid = 0.2;
+
+                // Scanline
+                float scanline = sin(vUv.y * 100.0 + uTime * 3.0) * 0.1;
+
+                // Noise for empty panels
+                float noise = 0.0;
+                if (uIsContent < 0.5 && uActive < 0.5) {
+                    float r = random(floor(vec2(vUv.x * 20.0, vUv.y * 50.0 + uTime)));
+                    if (r > 0.95) noise = 0.5;
+                }
+
+                vec3 color = uColor;
+                
+                // Brightness calc
+                float brightness = border * (0.5 + uHover + uActive);
+                brightness += grid * 0.5;
+                brightness += scanline;
+                brightness += noise * 0.3;
+                
+                // Fill
+                float fill = 0.05 + (uHover * 0.1) + (uActive * 0.8);
+                
+                float alpha = (border + fill) * uOpacity;
+                
+                // Fade edges based on curvature for depth
+                alpha *= (1.0 - vDistortion * 2.0);
+
+                if (uActive > 0.5) color += vec3(0.3); // Whiten active
+
+                gl_FragColor = vec4(color * brightness, alpha);
+            }
+        `;
+
+        // --- 2. Setup & Configuration ---
+
+        const SPHERE_RADIUS = 14;
+        const NEON_GREEN = new THREE.Color('#00ff41');
+        const DATA_ROWS = 10;
+        const DATA_COLS = 16;
+        
+        let scene, camera, renderer, raycaster, mouse;
+        let meshes = [];
+        let originalTransforms = [];
+        let gridLines;
+        
+        // State
+        const state = {
+            activeId: null,
+            hoverId: null,
+            startTime: Date.now(),
+            cameraLat: 0,
+            cameraLon: 90,
+            isDragging: false
+        };
+
+        // DOM Elements
+        const uiLat = document.getElementById('hud-lat');
+        const uiLon = document.getElementById('hud-lon');
+        const uiUptime = document.getElementById('uptime');
+        const contentModal = document.getElementById('content-modal');
+        const centerPrompt = document.getElementById('center-prompt');
+        const modalTitle = document.getElementById('modal-title');
+        const modalId = document.getElementById('modal-id');
+
+        // Initialize Icons
+        lucide.createIcons();
+
+        function init() {
+            // Container
+            const container = document.getElementById('canvas-container');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000500);
+            scene.fog = new THREE.FogExp2(0x000500, 0.03);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Raycaster
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Background Wireframe Sphere
+            const wireGeo = new THREE.WireframeGeometry(new THREE.SphereGeometry(SPHERE_RADIUS * 1.1, 24, 24));
+            const wireMat = new THREE.LineBasicMaterial({ color: 0x003300, transparent: true, opacity: 0.15 });
+            gridLines = new THREE.LineSegments(wireGeo, wireMat);
+            scene.add(gridLines);
+
+            // Generate Panels
+            const geometry = new THREE.PlaneGeometry(4, 2.5, 30, 30);
+            
+            let idCounter = 0;
+            const titles = ["KERNEL_CORE", "NET_PROTOCOL", "SECURE_VAULT", "RENDER_NODE", "AI_MATRIX", "DATA_LAKE"];
+
+            for(let r=1; r<DATA_ROWS-1; r++) {
+                for(let c=0; c<DATA_COLS; c++) {
+                    const isContent = (r >= 4 && r <= 6) && (c % 2 === 0);
+                    
+                    // Spherical Coords
+                    const phi = (r / (DATA_ROWS - 1)) * Math.PI; 
+                    const theta = (c / DATA_COLS) * Math.PI * 2;
+
+                    // Cartesian
+                    const x = SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta);
+                    const y = SPHERE_RADIUS * Math.cos(phi);
+                    const z = SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta);
+
+                    const material = new THREE.ShaderMaterial({
+                        vertexShader: vertexShader,
+                        fragmentShader: fragmentShader,
+                        uniforms: {
+                            uTime: { value: 0 },
+                            uColor: { value: NEON_GREEN },
+                            uOpacity: { value: isContent ? 0.8 : 0.2 },
+                            uHover: { value: 0 },
+                            uActive: { value: 0 },
+                            uCurvature: { value: 1.0 },
+                            uRadius: { value: SPHERE_RADIUS },
+                            uIsContent: { value: isContent ? 1.0 : 0.0 }
+                        },
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        depthTest: false,
+                        blending: THREE.AdditiveBlending
+                    });
+
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.set(x,y,z);
+                    mesh.lookAt(0,0,0);
+                    
+                    mesh.userData = { 
+                        id: idCounter++, 
+                        isContent: isContent,
+                        title: isContent ? titles[idCounter % titles.length] : "NULL_SECTOR"
+                    };
+
+                    scene.add(mesh);
+                    meshes.push(mesh);
+                    originalTransforms.push({ 
+                        pos: mesh.position.clone(), 
+                        quat: mesh.quaternion.clone() 
+                    });
+                }
+            }
+
+            // Events
+            window.addEventListener('resize', onWindowResize, false);
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('mousedown', onMouseDown, false);
+            window.addEventListener('mouseup', onMouseUp, false);
+            window.addEventListener('click', onClick, false);
+
+            animate();
+        }
+
+        // --- 3. Animation Loop ---
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = (Date.now() - state.startTime) * 0.001;
+            
+            // HUD Updates
+            uiUptime.innerText = new Date(time * 1000).toISOString().substr(11, 8);
+            if(!state.isDragging && state.activeId === null) {
+                // Slow rotation when idle
+                state.cameraLon += 0.02;
+            }
+            uiLat.innerText = state.cameraLat.toFixed(2);
+            uiLon.innerText = (state.cameraLon % 360).toFixed(2);
+
+            // Camera Logic
+            if(state.activeId === null) {
+                const lat = Math.max(-85, Math.min(85, state.cameraLat));
+                const phi = THREE.MathUtils.degToRad(90 - lat);
+                const theta = THREE.MathUtils.degToRad(state.cameraLon);
+                
+                // Orbit slightly inside center to see walls
+                const targetX = 0.1 * Math.sin(phi) * Math.cos(theta);
+                const targetY = 0.1 * Math.cos(phi);
+                const targetZ = 0.1 * Math.sin(phi) * Math.sin(theta);
+                
+                camera.position.set(0,0,0); 
+                camera.lookAt(
+                    SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta),
+                    SPHERE_RADIUS * Math.cos(phi),
+                    SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta)
+                );
+                
+                gridLines.rotation.y = time * 0.05;
+                centerPrompt.style.opacity = '1';
+            } else {
+                centerPrompt.style.opacity = '0';
+            }
+
+            // Raycasting
+            if(state.activeId === null) {
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(meshes);
+                if(intersects.length > 0) {
+                    state.hoverId = intersects[0].object.userData.id;
+                    document.body.style.cursor = 'pointer';
+                } else {
+                    state.hoverId = null;
+                    document.body.style.cursor = 'default';
+                }
+            }
+
+            // Mesh Animation
+            meshes.forEach((mesh, i) => {
+                const mat = mesh.material;
+                const orig = originalTransforms[i];
+                
+                mat.uniforms.uTime.value = time;
+
+                // Hover State
+                const isHovered = (state.hoverId === mesh.userData.id);
+                mat.uniforms.uHover.value += ((isHovered ? 1.0 : 0.0) - mat.uniforms.uHover.value) * 0.1;
+
+                if(state.activeId !== null) {
+                    if(mesh.userData.id === state.activeId) {
+                        // ACTIVE: Move to front of camera & flatten
+                        const dist = 4.0;
+                        const dir = new THREE.Vector3();
+                        camera.getWorldDirection(dir);
+                        const targetPos = camera.position.clone().add(dir.multiplyScalar(dist));
+                        const targetQuat = camera.quaternion.clone();
+
+                        mesh.position.lerp(targetPos, 0.08);
+                        mesh.quaternion.slerp(targetQuat, 0.08);
+                        
+                        // Curvature -> 0 (Flat)
+                        mat.uniforms.uCurvature.value += (0.0 - mat.uniforms.uCurvature.value) * 0.05;
+                        mat.uniforms.uActive.value = 1.0;
+                        mat.uniforms.uOpacity.value = 1.0;
+                    } else {
+                        // INACTIVE: Fade out
+                        mesh.position.lerp(orig.pos, 0.1);
+                        mesh.quaternion.slerp(orig.quat, 0.1);
+                        mat.uniforms.uCurvature.value += (1.0 - mat.uniforms.uCurvature.value) * 0.1;
+                        mat.uniforms.uActive.value = 0.0;
+                        mat.uniforms.uOpacity.value += (0.05 - mat.uniforms.uOpacity.value) * 0.1;
+                    }
+                } else {
+                    // RESET
+                    mesh.position.lerp(orig.pos, 0.05);
+                    mesh.quaternion.slerp(orig.quat, 0.05);
+                    mat.uniforms.uCurvature.value += (1.0 - mat.uniforms.uCurvature.value) * 0.05;
+                    mat.uniforms.uActive.value = 0.0;
+                    const baseOp = mesh.userData.isContent ? 0.8 : 0.2;
+                    mat.uniforms.uOpacity.value += (baseOp - mat.uniforms.uOpacity.value) * 0.05;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // --- 4. Event Handlers ---
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            if(state.isDragging) {
+                state.cameraLon = (onPointerDownPointerX - event.clientX) * 0.1 + onPointerDownLon;
+                state.cameraLat = (event.clientY - onPointerDownPointerY) * 0.1 + onPointerDownLat;
+            }
+        }
+
+        let onPointerDownPointerX, onPointerDownPointerY, onPointerDownLon, onPointerDownLat;
+
+        function onMouseDown(event) {
+            if(state.activeId !== null) return;
+            state.isDragging = true;
+            onPointerDownPointerX = event.clientX;
+            onPointerDownPointerY = event.clientY;
+            onPointerDownLon = state.cameraLon;
+            onPointerDownLat = state.cameraLat;
+        }
+
+        function onMouseUp() {
+            state.isDragging = false;
+        }
+
+        function onClick(event) {
+            if(state.activeId !== null) return; 
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(meshes);
+
+            if(intersects.length > 0) {
+                const mesh = intersects[0].object;
+                activateNode(mesh.userData);
+            }
+        }
+
+        function activateNode(data) {
+            state.activeId = data.id;
+            
+            // Update UI
+            modalTitle.innerText = data.title;
+            modalId.innerText = data.id.toString().padStart(3, '0');
+            
+            // Show Modal after small delay for 3d animation start
+            contentModal.classList.remove('hidden');
+            setTimeout(() => {
+                contentModal.classList.remove('opacity-0');
+            }, 500);
+        }
+
+        // Close Button Logic
+        document.getElementById('close-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            contentModal.classList.add('opacity-0');
+            setTimeout(() => {
+                contentModal.classList.add('hidden');
+                state.activeId = null;
+            }, 300);
+        });
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
+
