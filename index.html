@@ -44,28 +44,43 @@
             border-bottom: 2px solid var(--border-color);
             position: sticky; top: 0; z-index: 100; 
             background-color: var(--bg-color);
-            height: 90px;
+            min-height: 70px;
         }
 
-        .logo { height: 60px; width: auto; }
+        .logo { height: 50px; width: auto; cursor: pointer; }
         body.dark-mode .logo { filter: invert(1); }
+        
+        .nav-links {
+            display: flex; align-items: center; gap: 20px;
+        }
+        
+        .nav-link {
+            text-decoration: none; color: var(--text-color);
+            font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 0.05em; transition: color 0.2s;
+            border-bottom: 1px solid transparent; padding-bottom: 2px;
+        }
+        .nav-link:hover { color: var(--brand-red); border-bottom-color: var(--brand-red); }
 
         .btn-toggle {
             background: none; border: 1px solid var(--border-color);
             color: var(--text-color); padding: 8px 16px; cursor: pointer;
-            font-family: inherit; font-size: 0.8rem; font-weight: bold;
+            font-family: inherit; font-size: 0.75rem; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 0.05em;
         }
+        .btn-toggle:hover { background: var(--border-color); color: var(--bg-color); }
 
         /* --- MISSION MANIFESTO --- */
         .manifesto {
-            padding: 80px 20px; text-align: center;
+            padding: 60px 20px; text-align: center;
             border-bottom: 2px solid var(--border-color);
         }
-        .manifesto h1 { font-size: 2.2rem; margin-bottom: 25px; letter-spacing: -0.05em; line-height: 0.95; max-width: 900px; margin-left: auto; margin-right: auto;}
-        .manifesto p { max-width: 650px; margin: 0 auto; line-height: 1.5; font-size: 0.95rem; font-weight: bold;}
+        .manifesto h1 { font-size: 2rem; margin-bottom: 20px; letter-spacing: -0.05em; line-height: 0.95; max-width: 900px; margin-left: auto; margin-right: auto;}
+        .manifesto p { max-width: 650px; margin: 0 auto; line-height: 1.5; font-size: 0.9rem; font-weight: bold;}
         .warning-badge {
             display: inline-block; background: var(--brand-red); color: white;
-            padding: 6px 10px; font-weight: bold; font-size: 0.8rem; margin-bottom: 20px;
+            padding: 6px 12px; font-weight: bold; font-size: 0.75rem; margin-bottom: 20px;
+            letter-spacing: 0.05em;
         }
 
         /* --- THE ARCHIVE GRID --- */
@@ -75,7 +90,7 @@
             padding: 30px;
             display: flex; flex-direction: column; justify-content: space-between;
             transition: background-color 0.2s ease;
-            position: relative; cursor: pointer; min-height: 550px;
+            position: relative; min-height: 550px;
         }
 
         .door:nth-child(odd) { border-right: 2px solid var(--border-color); }
@@ -114,6 +129,27 @@
             cursor: pointer; transition: 0.2s; font-size: 0.9rem;
         }
         .btn-enter:hover { background: var(--brand-red); color: white; border-color: var(--brand-red); }
+        
+        .btn-buy-now {
+            width: 100%; padding: 15px; border: 2px solid var(--brand-red);
+            background: var(--brand-red); color: white;
+            font-family: inherit; font-weight: bold; text-transform: uppercase;
+            cursor: pointer; transition: 0.2s; font-size: 0.9rem; margin-top: 10px;
+        }
+        .btn-buy-now:hover { background: transparent; color: var(--brand-red); border-color: var(--brand-red); }
+        
+        .door-actions {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        
+        .candle-explainer-link {
+            display: inline-block; margin-top: 10px; margin-bottom: 10px;
+            font-size: 0.75rem; text-decoration: none; color: var(--brand-red);
+            font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--brand-red); padding-bottom: 2px;
+            transition: opacity 0.3s;
+        }
+        .candle-explainer-link:hover { opacity: 0.7; border-bottom-width: 2px; }
 
         /* --- CHECKOUT OVERLAY --- */
         #checkout-screen {
@@ -160,16 +196,53 @@
 
         /* --- HIDDEN EXPLAINER LINK --- */
         .hidden-explainer {
-            display: none; /* Controlled by JS */
+            display: block;
             margin-top: 15px;
-            font-size: 0.6rem;
+            font-size: 0.75rem;
             text-decoration: none;
-            color: inherit;
-            opacity: 0.2;
+            color: var(--brand-red);
+            font-weight: bold;
             transition: opacity 0.3s;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--brand-red);
+            padding-bottom: 2px;
+            width: fit-content;
         }
-        .hidden-explainer:hover { opacity: 1; text-decoration: underline; }
+        .hidden-explainer:hover { opacity: 0.7; border-bottom-width: 2px; }
+        
+        /* --- FOOTER --- */
+        footer {
+            border-top: 2px solid var(--border-color);
+            padding: 40px var(--spacing-unit);
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover {
+            color: var(--brand-red);
+        }
+        .footer-text {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
 
         /* --- MOBILE --- */
         @media (max-width: 900px) {
@@ -177,14 +250,24 @@
             .door { border-right: none !important; border-bottom: 2px solid var(--border-color) !important; min-height: auto; }
             .checkout-layout { grid-template-columns: 1fr; }
             .checkout-visual { position: relative; height: auto; border-right: none; border-bottom: 2px solid var(--border-color); }
+            .door-actions { gap: 8px; }
+            footer { flex-direction: column; text-align: center; }
+            .footer-links { justify-content: center; }
+            .nav-links { gap: 15px; }
+            .nav-link { font-size: 0.7rem; }
+            nav { padding: 12px 15px; min-height: 60px; }
+            .logo { height: 40px; }
         }
     </style>
 </head>
 <body>
 
     <nav>
-        <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo">
-        <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
+        <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo" onclick="window.location.href='index.html'">
+        <div class="nav-links">
+            <a href="biological-frustration.html" class="nav-link">Botanical Narrative</a>
+            <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
+        </div>
     </nav>
 
     <section class="manifesto">
@@ -197,7 +280,7 @@
     </section>
 
     <main class="relic-grid">
-        <div class="door" onclick="selectRelic('candle')">
+        <div class="door">
             <div class="door-number">01</div>
             <div class="door-header">
                 <span class="preorder-tag uppercase">PRE-ORDER</span>
@@ -206,10 +289,14 @@
             </div>
             <div class="door-visual"><img src="IMG_2844.jpeg"></div>
             <div class="door-desc uppercase">Scented with unfulfilled potential.</div>
-            <button class="btn-enter">Burn The Injunction</button>
+            <a href="biological-frustration.html" class="candle-explainer-link uppercase">View Botanical Narrative →</a>
+            <div class="door-actions">
+                <button class="btn-buy-now" onclick="window.location.href='https://buy.stripe.com/9B63co5EJfnF6OX5lYdwc02'">Buy Now</button>
+                <button class="btn-enter" onclick="selectRelic('candle')">View Details</button>
+            </div>
         </div>
 
-        <div class="door" onclick="selectRelic('bible')">
+        <div class="door">
             <div class="door-number">02</div>
             <div class="door-header">
                 <span class="scarcity-tag uppercase">LIMITED EDITION</span>
@@ -218,10 +305,13 @@
             </div>
             <div class="door-visual"><video autoplay loop muted playsinline><source src="coca4.mp4"></video></div>
             <div class="door-desc uppercase">Leather Bound. Red Letter Edition.</div>
-            <button class="btn-enter">Fund the Precedent</button>
+            <div class="door-actions">
+                <button class="btn-buy-now" onclick="window.location.href='https://buy.stripe.com/28E00cgjndfx8X5dSudwc01'">Buy Now</button>
+                <button class="btn-enter" onclick="selectRelic('bible')">View Details</button>
+            </div>
         </div>
 
-        <div class="door" onclick="selectRelic('tracksuit')">
+        <div class="door">
             <div class="door-number">03</div>
             <div class="door-header">
                 <span class="scarcity-tag uppercase">LIMITED EDITION</span>
@@ -230,10 +320,13 @@
             </div>
             <div class="door-visual"><video autoplay loop muted playsinline><source src="coca3.mp4"></video></div>
             <div class="door-desc uppercase">Heavyweight Cotton. Oversized Fit.</div>
-            <button class="btn-enter">Force The Issue</button>
+            <div class="door-actions">
+                <button class="btn-buy-now" onclick="window.location.href='https://buy.stripe.com/5kQ00c0kpejBflteWydwc00'">Buy Now</button>
+                <button class="btn-enter" onclick="selectRelic('tracksuit')">View Details</button>
+            </div>
         </div>
 
-        <div class="door" onclick="selectRelic('founder')" style="background-color: rgba(255, 51, 51, 0.03);">
+        <div class="door" style="background-color: rgba(255, 51, 51, 0.03);">
             <div class="door-number text-red">04</div>
             <div class="door-header">
                 <span class="scarcity-tag uppercase">LIMITED EDITION</span>
@@ -247,7 +340,10 @@
                 </div>
             </div>
             <div class="door-desc uppercase text-red">Bible + Suit. Total Immersion.</div>
-            <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);">Manifest The Suit</button>
+            <div class="door-actions">
+                <button class="btn-buy-now" style="background: var(--brand-red); color: white; border-color: var(--brand-red);" onclick="window.location.href='https://buy.stripe.com/cNi5kwffjdfxgpx6q2dwc03'">Buy Now</button>
+                <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);" onclick="selectRelic('founder')">View Details</button>
+            </div>
         </div>
     </main>
 
@@ -266,7 +362,7 @@
                         <strong>Item:</strong> <span id="item-name">--</span><br>
                         <span id="item-details" style="display:block; margin-top:10px; font-size: 0.75rem; opacity: 0.7;"></span>
                         
-                        <a id="candle-explainer" href="biological-frustration.html" class="hidden-explainer uppercase">VIEW_BOTANICAL_NARRATIVE_003.HTM</a>
+                        <a id="candle-explainer" href="biological-frustration.html" class="hidden-explainer uppercase">→ VIEW BOTANICAL NARRATIVE →</a>
                     </div>
 
                     <button class="submit-btn" id="submit-btn-text" onclick="triggerStripe()">Confirm & Pay</button>
@@ -278,6 +374,14 @@
             </div>
         </div>
     </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="biological-frustration.html">Botanical Narrative</a>
+            <a href="terms.html">Terms & Privacy</a>
+        </div>
+        <div class="footer-text">© 2026 UNSUBSCRIBE LLC | NYC</div>
+    </footer>
 
     <script>
         let currentStripeUrl = "";
@@ -339,7 +443,7 @@
             // Logic to toggle the hidden explainer link
             const explainer = document.getElementById('candle-explainer');
             if (key === 'candle') {
-                explainer.style.display = 'block';
+                explainer.style.display = 'inline-block';
             } else {
                 explainer.style.display = 'none';
             }
