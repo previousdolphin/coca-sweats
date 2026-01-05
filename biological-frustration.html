@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COCA | The Sinsemilla Project</title>
+    <title>CoCA | The Sinsemilla Project</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,12 +16,13 @@
             --bg-color: #FDFBF7; 
             --text-main: #1A1A1A;
             --accent: #A63D40; 
+            --forest: #2D4A3E;
+            --spice: #8B4513;
+            --citrus: #E8A844;
             --grain: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E');
         }
 
-        /* --- LOGO BRANDING --- */
         .logo { height: 60px; width: auto; transition: filter 0.3s; }
-        /* Inverts logo for dark backgrounds/modes */
         .dark-mode-logo { filter: invert(1); }
 
         body {
@@ -57,6 +58,135 @@
             background-size: cover; background-position: center;
         }
 
+        .scent-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
+        }
+
+        .scent-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .scent-card.forest::before { background: var(--forest); }
+        .scent-card.spice::before { background: var(--spice); }
+        .scent-card.citrus::before { background: var(--citrus); }
+
+        .scent-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1);
+        }
+
+        .molecule-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .scent-card:hover .molecule-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .botanical-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .botanical-item {
+            text-align: center;
+            padding: 1rem;
+            border: 1px solid #e7e5e4;
+            transition: all 0.3s ease;
+        }
+
+        .botanical-item:hover {
+            background: #fafaf9;
+            border-color: #a8a29e;
+        }
+
+        .disclaimer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #fbbf24;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #92400e;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d6d3d1 20%, #d6d3d1 80%, transparent);
+            margin: 4rem 0;
+        }
+
+        .pull-quote {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .pull-quote::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--forest), var(--spice), var(--citrus));
+        }
+
+        .experience-step {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .experience-step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            color: #d6d3d1;
+            line-height: 1;
+        }
+
+        .terpene-visual {
+            position: relative;
+            height: 8px;
+            background: #f5f5f4;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .terpene-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
     </style>
 </head>
 <body class="antialiased selection:bg-stone-200 selection:text-black">
@@ -82,6 +212,12 @@
             <p class="max-w-md mx-auto text-stone-600 leading-relaxed fade-in-up text-sm md:text-base">
                 Why have some of the most potent things in nature been the ones that have been denied their purpose.
             </p>
+            <div class="mt-12 fade-in-up">
+                <span class="disclaimer-badge">
+                    <i class="fas fa-leaf"></i>
+                    100% Botanical Terpenes · Zero Cannabis
+                </span>
+            </div>
         </div>
         
         <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
@@ -91,6 +227,7 @@
 
     <main class="max-w-7xl mx-auto px-6 py-24 border-t border-stone-200">
         
+        <!-- Section 01: The Mood -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-32 items-start">
             <div class="lg:col-span-4 sticky top-32">
                 <h3 class="text-xs font-bold uppercase tracking-widest mb-4 text-stone-400">01. The Mood</h3>
@@ -112,6 +249,7 @@
             </div>
         </section>
 
+        <!-- Section 02: The Biology -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-32 items-center">
             <div class="relative aspect-[4/5] image-placeholder grayscale hover:grayscale-0 transition-all duration-700">
                  <div class="absolute inset-0 flex items-center justify-center">
@@ -136,24 +274,246 @@
             </div>
         </section>
 
-        <section class="bg-stone-900 text-stone-100 -mx-6 px-6 py-24 rounded-sm relative overflow-hidden text-center">
-                <h2 class="serif text-4xl md:text-6xl mb-8 leading-tight">Why we bottled<br>"Sexual Frustration"</h2>
-                <p class="text-lg text-stone-400 mb-12 leading-relaxed max-w-2xl mx-auto">
-                    Most candles try to sell you "Peace." We are selling <strong>Potential</strong>.
+        <div class="section-divider"></div>
+
+        <!-- Section 03: The Scent Architecture -->
+        <section class="mb-32">
+            <div class="text-center mb-16">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-4 text-stone-400">03. The Scent Architecture</h3>
+                <h2 class="serif text-5xl md:text-6xl mb-6">Three Pillars of Aroma</h2>
+                <p class="max-w-2xl mx-auto text-stone-500 leading-relaxed">
+                    Our fragrance is composed of naturally-derived terpenes—the aromatic compounds found across the botanical kingdom. Not cannabis. Not synthetic. Just the purest essence of nature's most intoxicating molecules.
                 </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
-              <a href="index.html">  
+                <!-- Pine/Forest Card -->
+                <div class="scent-card forest bg-white p-8 border border-stone-200">
+                    <div class="molecule-icon" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                        <i class="fas fa-tree text-emerald-700"></i>
+                    </div>
+                    <h4 class="serif text-2xl mb-2" style="color: var(--forest);">The Forest</h4>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mb-4">Alpha-Pinene Base</p>
+                    <p class="text-sm text-stone-600 leading-relaxed mb-6">
+                        The first breath. A walk through dew-laden pines at dawn. This is the sharpness of conifer forests, the clean bite of rosemary, the medicinal clarity of eucalyptus.
+                    </p>
+                    <div class="terpene-visual mb-4">
+                        <div class="terpene-bar" style="width: 85%; background: linear-gradient(90deg, #059669, #10b981);"></div>
+                    </div>
+                    <div class="text-xs text-stone-400">
+                        <span class="font-medium">Also found in:</span> Pine needles, Rosemary, Basil, Sage, Eucalyptus
+                    </div>
+                </div>
+
+                <!-- Spice/Warmth Card -->
+                <div class="scent-card spice bg-white p-8 border border-stone-200">
+                    <div class="molecule-icon" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                        <i class="fas fa-pepper-hot text-amber-700"></i>
+                    </div>
+                    <h4 class="serif text-2xl mb-2" style="color: var(--spice);">The Warmth</h4>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mb-4">Beta-Caryophyllene Heart</p>
+                    <p class="text-sm text-stone-600 leading-relaxed mb-6">
+                        The lingering heat. A crack of black pepper across your tongue. The smoky depth of clove cigarettes, the comfort of cinnamon bark warming by the fire.
+                    </p>
+                    <div class="terpene-visual mb-4">
+                        <div class="terpene-bar" style="width: 85%; background: linear-gradient(90deg, #b45309, #d97706);"></div>
+                    </div>
+                    <div class="text-xs text-stone-400">
+                        <span class="font-medium">Also found in:</span> Black pepper, Cloves, Cinnamon, Oregano, Hops
+                    </div>
+                </div>
+
+                <!-- Citrus Card -->
+                <div class="scent-card citrus bg-white p-8 border border-stone-200">
+                    <div class="molecule-icon" style="background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);">
+                        <i class="fas fa-lemon text-yellow-600"></i>
+                    </div>
+                    <h4 class="serif text-2xl mb-2" style="color: var(--citrus);">The Lift</h4>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mb-4">Citrus Top Note</p>
+                    <p class="text-sm text-stone-600 leading-relaxed mb-6">
+                        The spark that ignites. Sun-warmed grapefruit skin releasing its oils. A bitter-bright effervescence that cuts through and elevates, refusing to let things get too serious.
+                    </p>
+                    <div class="terpene-visual mb-4">
+                        <div class="terpene-bar" style="width: 40%; background: linear-gradient(90deg, #ca8a04, #eab308);"></div>
+                    </div>
+                    <div class="text-xs text-stone-400">
+                        <span class="font-medium">Also found in:</span> Grapefruit, Orange peel, Lemon zest, Bergamot
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 04: The Botanical Truth -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32">
+            <div class="lg:col-span-5">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-4 text-stone-400">04. The Botanical Truth</h3>
+                <h2 class="serif text-5xl mb-6">Not Cannabis.<br><span class="italic text-stone-500">Just Chemistry.</span></h2>
+                
+                <div class="pull-quote mb-8">
+                    <p class="serif text-xl italic text-stone-600 leading-relaxed">
+                        "Terpenes don't belong to any one plant. They are nature's shared vocabulary—the same word spoken by a pine forest and a citrus grove."
+                    </p>
+                </div>
+
+                <p class="text-sm text-stone-600 leading-relaxed mb-6">
+                    Let's be absolutely clear: this product contains <strong>zero cannabis, zero THC, zero CBD</strong>. What it does contain are terpenes—aromatic compounds produced by thousands of plant species across the natural world.
+                </p>
+                <p class="text-sm text-stone-600 leading-relaxed">
+                    The terpenes that give the freshest female cannabis flowers their distinctive aroma are the same molecules found in pine trees, black pepper, and citrus fruits. We've simply borrowed nature's recipe for desire and bottled it.
+                </p>
+            </div>
+
+            <div class="lg:col-span-7">
+                <div class="bg-stone-50 p-8 md:p-12 border border-stone-200">
+                    <h4 class="text-xs font-bold uppercase tracking-widest mb-8 text-stone-400">Where Our Terpenes Live in Nature</h4>
+                    
+                    <div class="botanical-grid">
+                        <div class="botanical-item">
+                            <i class="fas fa-tree text-2xl text-emerald-600 mb-3"></i>
+                            <p class="text-xs font-medium">Pine</p>
+                            <p class="text-[10px] text-stone-400">Forests</p>
+                        </div>
+                        <div class="botanical-item">
+                            <i class="fas fa-seedling text-2xl text-green-600 mb-3"></i>
+                            <p class="text-xs font-medium">Rosemary</p>
+                            <p class="text-[10px] text-stone-400">Gardens</p>
+                        </div>
+                        <div class="botanical-item">
+                            <i class="fas fa-mortar-pestle text-2xl text-amber-700 mb-3"></i>
+                            <p class="text-xs font-medium">Black Pepper</p>
+                            <p class="text-[10px] text-stone-400">Spice Trade</p>
+                        </div>
+                        <div class="botanical-item">
+                            <i class="fas fa-fire text-2xl text-orange-600 mb-3"></i>
+                            <p class="text-xs font-medium">Cloves</p>
+                            <p class="text-[10px] text-stone-400">Indonesia</p>
+                        </div>
+                        <div class="botanical-item">
+                            <i class="fas fa-lemon text-2xl text-yellow-500 mb-3"></i>
+                            <p class="text-xs font-medium">Grapefruit</p>
+                            <p class="text-[10px] text-stone-400">Florida Groves</p>
+                        </div>
+                        <div class="botanical-item">
+                            <i class="fas fa-leaf text-2xl text-lime-600 mb-3"></i>
+                            <p class="text-xs font-medium">Basil</p>
+                            <p class="text-[10px] text-stone-400">Mediterranean</p>
+                        </div>
+                        <div class="botanical-item">
+                            <i class="fas fa-beer-mug-empty text-2xl text-amber-500 mb-3"></i>
+                            <p class="text-xs font-medium">Hops</p>
+                            <p class="text-[10px] text-stone-400">Breweries</p>
+                        </div>
+                        <div class="botanical-item">
+                            <i class="fas fa-spa text-2xl text-teal-600 mb-3"></i>
+                            <p class="text-xs font-medium">Eucalyptus</p>
+                            <p class="text-[10px] text-stone-400">Australia</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-stone-200">
+                        <p class="text-xs text-stone-500 leading-relaxed">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Our fragrance captures the aromatic profile of the most resinous, aromatic female flowers—using only legal, naturally-derived terpene isolates sourced from non-cannabis botanicals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 05: The Experience -->
+        <section class="mb-32">
+            <div class="text-center mb-16">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-4 text-stone-400">05. The Experience</h3>
+                <h2 class="serif text-5xl md:text-6xl mb-6">How It Unfolds</h2>
+                <p class="max-w-xl mx-auto text-stone-500">
+                    A fragrance is a story told in three acts. Here's how ours reads.
+                </p>
+            </div>
+
+            <div class="max-w-3xl mx-auto space-y-12">
+                
+                <div class="experience-step" data-step="I">
+                    <h4 class="serif text-2xl mb-2" style="color: var(--citrus);">The Opening</h4>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mb-3">0–15 Minutes</p>
+                    <p class="text-stone-600 leading-relaxed">
+                        Citrus hits first—a burst of grapefruit zest that catches you off guard. Bright and slightly bitter. Like someone interesting just walked into the room.
+                    </p>
+                </div>
+
+                <div class="experience-step" data-step="II">
+                    <h4 class="serif text-2xl mb-2" style="color: var(--forest);">The Heart</h4>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mb-3">15–60 Minutes</p>
+                    <p class="text-stone-600 leading-relaxed">
+                        The pine emerges, mingling with the citrus. It's no longer a grove—it's a forest. Cool and green and impossibly fresh. The scent of expensive sheets in a cabin you can't afford.
+                    </p>
+                </div>
+
+                <div class="experience-step" data-step="III">
+                    <h4 class="serif text-2xl mb-2" style="color: var(--spice);">The Base</h4>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mb-3">60+ Minutes</p>
+                    <p class="text-stone-600 leading-relaxed">
+                        As hours pass, warmth takes over. Black pepper and clove create a spicy, resinous depth. This is what remains when the candle has burned down—the memory of something that almost happened.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 06: The Clarification -->
+        <section class="bg-stone-100 -mx-6 px-6 py-24 mb-32">
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-widest mb-4 text-stone-400">06. The Clarification</h3>
+                        <h2 class="serif text-4xl mb-6">Frequently Asked</h2>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-medium text-sm mb-2">"Is this weed?"</p>
+                            <p class="text-sm text-stone-600">No. Zero cannabis, zero THC, zero CBD. This is a fragrance made from botanical terpenes found in common plants like pine, pepper, and citrus.</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-sm mb-2">"Will it get me high?"</p>
+                            <p class="text-sm text-stone-600">No. Terpenes are aromatic compounds, not psychoactive substances. This will make your space smell incredible. That's it.</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-sm mb-2">"Why does it smell like that?"</p>
+                            <p class="text-sm text-stone-600">Because the same terpenes that define the scent of premium cannabis flowers are found throughout nature. We've recreated that aromatic profile using non-cannabis sources.</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-sm mb-2">"Is it legal?"</p>
+                            <p class="text-sm text-stone-600">Completely. Terpenes derived from pine, pepper, and citrus are legal everywhere. This is a luxury fragrance, nothing more.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="bg-stone-900 text-stone-100 -mx-6 px-6 py-24 rounded-sm relative overflow-hidden text-center">
+            <h2 class="serif text-4xl md:text-6xl mb-8 leading-tight">Why we bottled<br>"Sexual Frustration"</h2>
+            <p class="text-lg text-stone-400 mb-6 leading-relaxed max-w-2xl mx-auto">
+                Most candles try to sell you "Peace." We are selling <strong>Potential</strong>.
+            </p>
+            <p class="text-sm text-stone-500 mb-12 max-w-lg mx-auto">
+                The scent of the freshest, most resinous botanical aromatics—captured at their peak of longing. No cannabis. No synthetics. Just nature's most intoxicating chemistry.
+            </p>
+            
+            <a href="index.html">  
                 <button class="border border-stone-600 px-8 py-4 text-xs uppercase tracking-widest hover:bg-stone-100 hover:text-black transition-colors duration-300">
                     > Secure the Artifact <
                 </button>
-              </a>
+            </a>
         </section>
 
     </main>
 
     <footer class="text-center py-12 border-t border-stone-200">
         <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo mx-auto mb-4 opacity-30 grayscale" alt="CoCA Logo">
-        <p class="text-[10px] uppercase tracking-widest text-stone-400">© 2026 UNSUBSCRIBE LLC | NYC</p>
+        <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">© 2026 UNSUBSCRIBE LLC | NYC</p>
+        <p class="text-[10px] uppercase tracking-widest text-stone-300">This product contains zero cannabis, THC, or CBD</p>
     </footer>
 
     <script>
@@ -166,6 +526,15 @@
                 if (elementTop < windowHeight - 100) {
                     reveal.style.opacity = "1";
                     reveal.style.transform = "translateY(0)";
+                }
+            });
+
+            // Animate terpene bars on scroll
+            const bars = document.querySelectorAll('.terpene-bar');
+            bars.forEach(bar => {
+                const rect = bar.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 50) {
+                    bar.style.width = bar.style.width; // Trigger animation
                 }
             });
         });
