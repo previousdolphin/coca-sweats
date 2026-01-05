@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NAMEOFMY | ARCHIVE</title>
+    <title>CoCA | ARCHIVE</title>
     <style>
         /* --- BRUTALIST CORE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,6 +14,7 @@
             --text-color: #000000;
             --border-color: #000000;
             --spacing-unit: 20px;
+            --accent-gold: #C9A227;
         }
 
         body {
@@ -27,7 +28,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* DARK MODE VARS */
         body.dark-mode {
             --bg-color: #050505;
             --text-color: #e0e0e0;
@@ -44,225 +44,1370 @@
             border-bottom: 2px solid var(--border-color);
             position: sticky; top: 0; z-index: 100; 
             background-color: var(--bg-color);
-            height: 90px;
+            min-height: 70px;
         }
 
-        .logo { height: 60px; width: auto; }
+        .logo { height: 50px; width: auto; cursor: pointer; }
         body.dark-mode .logo { filter: invert(1); }
+        
+        .nav-links { display: flex; align-items: center; gap: 20px; }
+        
+        .nav-link {
+            text-decoration: none; color: var(--text-color);
+            font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 0.05em; transition: color 0.2s;
+            border-bottom: 1px solid transparent; padding-bottom: 2px;
+        }
+        .nav-link:hover { color: var(--brand-red); border-bottom-color: var(--brand-red); }
 
         .btn-toggle {
             background: none; border: 1px solid var(--border-color);
             color: var(--text-color); padding: 8px 16px; cursor: pointer;
-            font-family: inherit; font-size: 0.8rem; font-weight: bold;
+            font-family: inherit; font-size: 0.75rem; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .btn-toggle:hover { background: var(--border-color); color: var(--bg-color); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 20px;
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: 'CoCA';
+            position: absolute;
+            font-size: 35vw;
+            font-weight: bold;
+            opacity: 0.02;
+            pointer-events: none;
+            letter-spacing: -0.05em;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--brand-red);
+            color: white;
+            padding: 8px 16px;
+            font-weight: bold;
+            font-size: 0.7rem;
+            margin-bottom: 30px;
+            letter-spacing: 0.1em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+            margin-bottom: 30px;
+            max-width: 1000px;
+        }
+
+        .hero-tagline {
+            font-size: 1.1rem;
+            max-width: 600px;
+            line-height: 1.5;
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--brand-red);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            letter-spacing: 0.1em;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            font-size: 0.7rem;
+            opacity: 0.5;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
         }
 
         /* --- MISSION MANIFESTO --- */
         .manifesto {
-            padding: 80px 20px; text-align: center;
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(255,51,51,0.02) 0%, transparent 100%);
+        }
+
+        .manifesto-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1000px;
+            margin: 50px auto 0;
+        }
+
+        .manifesto-item {
+            padding: 30px 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .manifesto-item:hover {
+            background: var(--brand-red);
+            color: white;
+            border-color: var(--brand-red);
+            transform: translateY(-5px);
+        }
+
+        .manifesto-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .manifesto-item h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .manifesto-item p {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* --- FEATURED PRODUCT --- */
+        .featured {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 80vh;
             border-bottom: 2px solid var(--border-color);
         }
-        .manifesto h1 { font-size: 2.2rem; margin-bottom: 25px; letter-spacing: -0.05em; line-height: 0.95; max-width: 900px; margin-left: auto; margin-right: auto;}
-        .manifesto p { max-width: 650px; margin: 0 auto; line-height: 1.5; font-size: 0.95rem; font-weight: bold;}
-        .warning-badge {
-            display: inline-block; background: var(--brand-red); color: white;
-            padding: 6px 10px; font-weight: bold; font-size: 0.8rem; margin-bottom: 20px;
+
+        .featured-visual {
+            background: rgba(128,128,128,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            border-right: 2px solid var(--border-color);
+        }
+
+        .featured-visual img {
+            max-width: 80%;
+            max-height: 70vh;
+            object-fit: contain;
+            filter: grayscale(30%);
+            transition: filter 0.5s;
+        }
+
+        .featured-visual:hover img {
+            filter: grayscale(0%);
+        }
+
+        .featured-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--brand-red);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+        }
+
+        .featured-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 50px;
+        }
+
+        .featured-tag {
+            font-size: 0.7rem;
+            color: var(--brand-red);
+            letter-spacing: 0.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .featured-title {
+            font-size: 2.5rem;
+            letter-spacing: -0.03em;
+            line-height: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .featured-price {
+            font-size: 1.8rem;
+            color: var(--brand-red);
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .featured-desc {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 400px;
+        }
+
+        .featured-details {
+            list-style: none;
+            margin-bottom: 30px;
+            font-size: 0.8rem;
+        }
+
+        .featured-details li {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .featured-details li:last-child {
+            border-bottom: none;
+        }
+
+        .featured-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            padding: 18px 30px;
+            background: var(--brand-red);
+            color: white;
+            border: 2px solid var(--brand-red);
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--brand-red);
+        }
+
+        .btn-secondary {
+            padding: 18px 30px;
+            background: transparent;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .featured-link {
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 0.75rem;
+            text-decoration: none;
+            color: var(--brand-red);
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--brand-red);
+            padding-bottom: 2px;
+            transition: opacity 0.3s;
+        }
+
+        .featured-link:hover {
+            opacity: 0.7;
+        }
+
+        /* --- SECTION DIVIDER --- */
+        .section-header {
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            letter-spacing: -0.03em;
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         /* --- THE ARCHIVE GRID --- */
-        .relic-grid { display: grid; grid-template-columns: 1fr 1fr; }
+        .relic-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr);
+        }
 
         .door {
             padding: 30px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            transition: background-color 0.2s ease;
-            position: relative; cursor: pointer; min-height: 550px;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            position: relative; 
+            min-height: 600px;
+            border-right: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
         }
 
-        .door:nth-child(odd) { border-right: 2px solid var(--border-color); }
-        .door:nth-child(-n+2) { border-bottom: 2px solid var(--border-color); }
-        .door:hover { background-color: rgba(128,128,128,0.05); }
+        .door:nth-child(3n) {
+            border-right: none;
+        }
+
+        .door:hover { 
+            background-color: rgba(255, 51, 51, 0.02);
+        }
         
-        .door-header { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-        .door-number { font-size: 3rem; opacity: 0.15; position: absolute; top: 15px; right: 20px; font-weight: bold; pointer-events: none;}
-        .door-title { font-size: 1.4rem; font-weight: bold; letter-spacing: -1px; line-height: 0.9; }
-        .door-price { font-size: 1.1rem; color: var(--brand-red); font-weight: bold; margin-top: 5px;}
+        .door-header { 
+            margin-bottom: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px; 
+        }
+
+        .door-number { 
+            font-size: 4rem; 
+            opacity: 0.08; 
+            position: absolute; 
+            top: 15px; 
+            right: 20px; 
+            font-weight: bold; 
+            pointer-events: none;
+        }
+
+        .door-title { 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            letter-spacing: -1px; 
+            line-height: 0.95; 
+        }
+
+        .door-price { 
+            font-size: 1.3rem; 
+            color: var(--brand-red); 
+            font-weight: bold; 
+            margin-top: 8px;
+        }
         
         .scarcity-tag, .preorder-tag {
-            font-size: 0.7rem; display: inline-block; width: fit-content;
-            padding: 2px 6px; margin-bottom: 5px; font-weight: bold; border: 1px solid currentColor;
+            font-size: 0.65rem; 
+            display: inline-block; 
+            width: fit-content;
+            padding: 3px 8px; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            border: 1px solid currentColor;
         }
+
         .scarcity-tag { color: var(--brand-red); }
         .preorder-tag { background: rgba(128,128,128,0.1); }
 
         .door-visual {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            margin: 20px 0; border: 1px dashed var(--border-color);
-            aspect-ratio: 1/1; padding: 10px; background: rgba(128,128,128,0.02);
-            overflow: hidden; position: relative;
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            margin: 20px 0; 
+            border: 1px dashed var(--border-color);
+            aspect-ratio: 1/1; 
+            padding: 15px; 
+            background: rgba(128,128,128,0.02);
+            overflow: hidden; 
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .door:hover .door-visual {
+            border-color: var(--brand-red);
+            border-style: solid;
         }
         
-        .door-visual video, .door-visual img { width: 100%; height: 100%; object-fit: contain; }
+        .door-visual video, .door-visual img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain;
+            transition: transform 0.5s;
+        }
+
+        .door:hover .door-visual video,
+        .door:hover .door-visual img {
+            transform: scale(1.05);
+        }
+
         .door-visual video, .door-visual img { mix-blend-mode: multiply; }
         body.dark-mode .door-visual video, body.dark-mode .door-visual img { mix-blend-mode: normal; }
 
-        .door-desc { font-size: 0.85rem; line-height: 1.3; margin-bottom: 25px; min-height: 3em; font-weight: bold; }
+        .door-desc { 
+            font-size: 0.8rem; 
+            line-height: 1.4; 
+            margin-bottom: 20px; 
+            min-height: 3em; 
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        .door-features {
+            font-size: 0.7rem;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(128,128,128,0.05);
+            border-left: 2px solid var(--brand-red);
+        }
+
+        .door-features li {
+            list-style: none;
+            padding: 4px 0;
+            opacity: 0.7;
+        }
 
         .btn-enter {
-            width: 100%; padding: 15px; border: 2px solid var(--border-color);
-            background: transparent; color: var(--text-color);
-            font-family: inherit; font-weight: bold; text-transform: uppercase;
-            cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+            width: 100%; 
+            padding: 15px; 
+            border: 2px solid var(--border-color);
+            background: transparent; 
+            color: var(--text-color);
+            font-family: inherit; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            cursor: pointer; 
+            transition: 0.2s; 
+            font-size: 0.85rem;
         }
-        .btn-enter:hover { background: var(--brand-red); color: white; border-color: var(--brand-red); }
+
+        .btn-enter:hover { 
+            background: var(--brand-red); 
+            color: white; 
+            border-color: var(--brand-red); 
+        }
+        
+        .btn-buy-now {
+            width: 100%; 
+            padding: 15px; 
+            border: 2px solid var(--brand-red);
+            background: var(--brand-red); 
+            color: white;
+            font-family: inherit; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            cursor: pointer; 
+            transition: 0.2s; 
+            font-size: 0.85rem;
+        }
+
+        .btn-buy-now:hover { 
+            background: transparent; 
+            color: var(--brand-red); 
+        }
+        
+        .door-actions {
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+        }
+
+        /* --- FOUNDER DOOR SPECIAL --- */
+        .door.founder-door {
+            grid-column: span 3;
+            min-height: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(255,51,51,0.03) 0%, transparent 50%);
+            border-right: none;
+        }
+
+        .founder-door .door-number {
+            font-size: 8rem;
+            opacity: 0.04;
+        }
+
+        .founder-visual-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .founder-visual-grid video {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border: 1px dashed var(--border-color);
+        }
+
+        .founder-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .founder-title {
+            font-size: 2.5rem;
+            color: var(--brand-red);
+            letter-spacing: -0.03em;
+            margin-bottom: 15px;
+        }
+
+        .founder-includes {
+            margin: 25px 0;
+            padding: 20px;
+            border: 2px solid var(--brand-red);
+            background: rgba(255,51,51,0.02);
+        }
+
+        .founder-includes h4 {
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+            color: var(--brand-red);
+        }
+
+        .founder-includes li {
+            list-style: none;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px dashed var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .founder-includes li:last-child {
+            border-bottom: none;
+        }
+
+        .founder-savings {
+            background: var(--brand-red);
+            color: white;
+            padding: 15px 20px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* --- TRUST SECTION --- */
+        .trust-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .trust-item {
+            padding: 40px 20px;
+            text-align: center;
+            border-right: 2px solid var(--border-color);
+        }
+
+        .trust-item:last-child {
+            border-right: none;
+        }
+
+        .trust-icon {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .trust-item h4 {
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .trust-item p {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            line-height: 1.4;
+        }
+
+        /* --- STORY SECTION --- */
+        .story-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .story-text {
+            padding: 80px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .story-text h3 {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--brand-red);
+            margin-bottom: 20px;
+        }
+
+        .story-text h2 {
+            font-size: 2rem;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 25px;
+        }
+
+        .story-text p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .story-visual {
+            background: var(--text-color);
+            color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            text-align: center;
+        }
+
+        .story-visual blockquote {
+            font-size: 1.8rem;
+            line-height: 1.2;
+            max-width: 400px;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .story-visual cite {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            letter-spacing: 0.1em;
+        }
+
+        /* --- EMAIL CAPTURE --- */
+        .email-section {
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            background: linear-gradient(180deg, transparent 0%, rgba(255,51,51,0.03) 100%);
+        }
+
+        .email-section h2 {
+            font-size: 1.8rem;
+            letter-spacing: -0.03em;
+            margin-bottom: 15px;
+        }
+
+        .email-section p {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .email-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 0;
+        }
+
+        .email-form input {
+            flex: 1;
+            padding: 18px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .email-form button {
+            padding: 18px 30px;
+            background: var(--text-color);
+            color: var(--bg-color);
+            border: 2px solid var(--text-color);
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s;
+        }
+
+        .email-form button:hover {
+            background: var(--brand-red);
+            border-color: var(--brand-red);
+        }
 
         /* --- CHECKOUT OVERLAY --- */
         #checkout-screen {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color); z-index: 200; overflow-y: auto;
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: var(--bg-color); 
+            z-index: 200; 
+            overflow-y: auto;
         }
         
-        .checkout-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+        .checkout-layout { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            min-height: 100vh; 
+        }
 
         .checkout-visual {
             border-right: 2px solid var(--border-color);
-            display: flex; align-items: center; justify-content: center;
-            padding: 40px; background: rgba(128,128,128,0.05);
-            position: sticky; top: 0; height: 100vh;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            padding: 40px; 
+            background: rgba(128,128,128,0.05);
+            position: sticky; 
+            top: 0; 
+            height: 100vh;
         }
         
         .checkout-visual video, .checkout-visual img { 
-            max-width: 80%; max-height: 80vh; 
+            max-width: 80%; 
+            max-height: 80vh; 
             box-shadow: 10px 10px 0px var(--border-color); 
-            border: 2px solid var(--border-color); object-fit: contain;
+            border: 2px solid var(--border-color); 
+            object-fit: contain;
         }
 
-        .checkout-form-container { padding: 60px 40px; display: flex; flex-direction: column; justify-content: center; }
+        .checkout-form-container { 
+            padding: 60px 40px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+        }
 
         .back-btn {
-            position: fixed; top: 20px; left: 20px;
-            background: var(--bg-color); border: 2px solid var(--border-color);
-            padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold;
-            z-index: 210; font-size: 0.9rem; box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            position: fixed; 
+            top: 20px; 
+            left: 20px;
+            background: var(--bg-color); 
+            border: 2px solid var(--border-color);
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-family: inherit; 
+            font-weight: bold;
+            z-index: 210; 
+            font-size: 0.9rem; 
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
         }
 
         .receipt-box { 
-            width: 100%; max-width: 450px; margin: 0 auto; 
-            border: 2px solid var(--border-color); padding: 25px; background: var(--bg-color);
+            width: 100%; 
+            max-width: 450px; 
+            margin: 0 auto; 
+            border: 2px solid var(--border-color); 
+            padding: 30px; 
+            background: var(--bg-color);
         }
-        .receipt-header { border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; }
+
+        .receipt-header { 
+            border-bottom: 2px solid var(--border-color); 
+            padding-bottom: 20px; 
+            margin-bottom: 25px; 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: bold; 
+            font-size: 1.2rem; 
+        }
+
+        .receipt-body {
+            margin-bottom: 25px;
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .receipt-body strong {
+            display: inline-block;
+            width: 80px;
+            opacity: 0.5;
+        }
+
+        .receipt-features {
+            background: rgba(128,128,128,0.05);
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 3px solid var(--brand-red);
+        }
+
+        .receipt-features h4 {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+            color: var(--brand-red);
+        }
+
+        .receipt-features li {
+            list-style: none;
+            font-size: 0.75rem;
+            padding: 5px 0;
+            opacity: 0.8;
+        }
 
         .submit-btn { 
-            width: 100%; padding: 18px; 
-            background: var(--text-color); color: var(--bg-color); 
-            border: none; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; font-family: inherit; font-size: 1rem; margin-top: 10px;
+            width: 100%; 
+            padding: 20px; 
+            background: var(--brand-red); 
+            color: white; 
+            border: 2px solid var(--brand-red); 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            font-family: inherit; 
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: transparent;
+            color: var(--brand-red);
+        }
+
+        .hidden-explainer {
+            display: block;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            text-decoration: none;
+            color: var(--brand-red);
+            font-weight: bold;
+            transition: opacity 0.3s;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--brand-red);
+            padding-bottom: 2px;
+            width: fit-content;
+        }
+
+        .hidden-explainer:hover { 
+            opacity: 0.7; 
+        }
+
+        .payment-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(128,128,128,0.05);
+            font-size: 0.65rem;
+            text-align: center;
+            opacity: 0.6;
+            line-height: 1.5;
+        }
+        
+        /* --- FOOTER --- */
+        footer {
+            padding: 60px var(--spacing-unit);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-brand h3 {
+            font-size: 1.5rem;
+            letter-spacing: -0.03em;
+            margin-bottom: 15px;
+        }
+
+        .footer-brand p {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            line-height: 1.5;
+            max-width: 300px;
+        }
+
+        .footer-links h4 {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .footer-links a {
+            display: block;
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--brand-red);
+        }
+
+        .footer-bottom {
+            grid-column: span 3;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            opacity: 0.5;
         }
 
         /* --- MOBILE --- */
+        @media (max-width: 1024px) {
+            .relic-grid { 
+                grid-template-columns: 1fr 1fr; 
+            }
+            .door:nth-child(3n) {
+                border-right: 2px solid var(--border-color);
+            }
+            .door:nth-child(2n) {
+                border-right: none;
+            }
+            .door.founder-door {
+                grid-column: span 2;
+            }
+            .manifesto-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .trust-section {
+                grid-template-columns: 1fr 1fr;
+            }
+            .trust-item:nth-child(2) {
+                border-right: none;
+            }
+        }
+
         @media (max-width: 900px) {
             .relic-grid { grid-template-columns: 1fr; }
-            .door { border-right: none !important; border-bottom: 2px solid var(--border-color) !important; min-height: auto; }
+            .door { 
+                border-right: none !important; 
+                min-height: auto; 
+            }
+            .door.founder-door {
+                grid-column: span 1;
+                grid-template-columns: 1fr;
+            }
             .checkout-layout { grid-template-columns: 1fr; }
-            .checkout-visual { position: relative; height: auto; border-right: none; border-bottom: 2px solid var(--border-color); }
+            .checkout-visual { 
+                position: relative; 
+                height: auto; 
+                border-right: none; 
+                border-bottom: 2px solid var(--border-color); 
+            }
+            .featured {
+                grid-template-columns: 1fr;
+            }
+            .featured-visual {
+                border-right: none;
+                border-bottom: 2px solid var(--border-color);
+                min-height: 50vh;
+            }
+            .story-section {
+                grid-template-columns: 1fr;
+            }
+            .trust-section {
+                grid-template-columns: 1fr;
+            }
+            .trust-item {
+                border-right: none;
+                border-bottom: 2px solid var(--border-color);
+            }
+            .trust-item:last-child {
+                border-bottom: none;
+            }
+            footer {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .footer-brand p {
+                max-width: none;
+            }
+            .footer-bottom {
+                grid-column: span 1;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .email-form {
+                flex-direction: column;
+            }
+            .hero-stats {
+                flex-direction: column;
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            nav { padding: 12px 15px; min-height: 60px; }
+            .logo { height: 40px; }
+            .nav-links { gap: 10px; }
+            .nav-link { font-size: 0.65rem; }
+            .hero h1 { font-size: 2rem; }
+            .featured-title { font-size: 1.8rem; }
+            .featured-content { padding: 40px 25px; }
+            .story-text { padding: 50px 25px; }
         }
     </style>
 </head>
 <body>
 
     <nav>
-        <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo">
-        <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
+        <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo" onclick="window.location.href='index.html'">
+        <div class="nav-links">
+            <a href="biological-frustration.html" class="nav-link">Botanical Narrative</a>
+            <a href="#archive" class="nav-link">Archive</a>
+            <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
+        </div>
     </nav>
 
-    <section class="manifesto">
-        <div class="warning-badge uppercase">Legal Accelerant</div>
-        <h1 class="uppercase">These are not products.<br>These are accelerants.</h1>
-        <p class="uppercase">
-            WE REJECT COPYRIGHT. WE ASSUME THE RISK.<br>
-            <strong>DON'T WITNESS THE LAWSUIT. FINANCE IT.</strong>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-badge uppercase">
+            <span>⚡</span> Now Accepting Pre-Orders
+        </div>
+        <h1 class="uppercase">We Reject Copyright.<br>We Assume the Risk.</h1>
+        <p class="hero-tagline uppercase">
+            These are not products. These are accelerants.<br>
+            <strong class="text-red">Don't witness the lawsuit. Finance it.</strong>
         </p>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-number">4</span>
+                <span class="stat-label uppercase">Artifacts Available</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">∞</span>
+                <span class="stat-label uppercase">Legal Exposure</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">NYC</span>
+                <span class="stat-label uppercase">Based Operations</span>
+            </div>
+        </div>
+        <div class="scroll-indicator uppercase">↓ Scroll to Enter</div>
     </section>
 
+
+    <!-- FEATURED PRODUCT -->
+    <section class="featured">
+        <div class="featured-visual">
+            <div class="featured-label uppercase">Featured Artifact</div>
+            <img src="IMG_2844.jpeg" alt="Female Sexual Frustration Candle">
+        </div>
+        <div class="featured-content">
+            <span class="featured-tag uppercase">Liturgical Object 003</span>
+            <h2 class="featured-title uppercase">Female Sexual Frustration</h2>
+            <span class="featured-price">$88.00</span>
+            <p class="featured-desc uppercase">
+                A scent profile derived from the most resinous female botanicals—plants denied their biological purpose, pouring energy into aromatic compounds instead of seeds.
+            </p>
+            <ul class="featured-details uppercase">
+                <li><span>Base</span><span>Pine & Rosemary Terpenes</span></li>
+                <li><span>Heart</span><span>Black Pepper & Clove</span></li>
+                <li><span>Top</span><span>Grapefruit Zest</span></li>
+                <li><span>Burn Time</span><span>60+ Hours</span></li>
+            </ul>
+            <div class="featured-actions">
+                <button class="btn-primary" onclick="window.location.href='https://buy.stripe.com/9B63co5EJfnF6OX5lYdwc02'">Buy Now — $88</button>
+                <button class="btn-secondary" onclick="selectRelic('candle')">View Full Details</button>
+            </div>
+            <a href="biological-frustration.html" class="featured-link uppercase">→ Read the Botanical Narrative</a>
+        </div>
+    </section>
+
+    <!-- ARCHIVE HEADER -->
+    <section class="section-header" id="archive">
+        <h2 class="uppercase">The Complete Archive</h2>
+        <p class="uppercase">Every artifact. Every price point. Choose your level of commitment.</p>
+    </section>
+
+    <!-- ARCHIVE GRID -->
     <main class="relic-grid">
-        <div class="door" onclick="selectRelic('candle')">
+        
+        <!-- DOCTRINE -->
+        <div class="door">
             <div class="door-number">01</div>
             <div class="door-header">
-                <span class="preorder-tag uppercase">PRE-ORDER</span>
-                <span class="door-title uppercase">LO-003: FEMALE SEXUAL FRUSTRATION</span>
-                <span class="door-price">$88.00</span>
+                <span class="scarcity-tag uppercase">Limited Edition</span>
+                <span class="door-title uppercase">The Doctrine</span>
+                <span class="door-price">$1,200.00</span>
             </div>
-            <div class="door-visual"><img src="IMG_2844.jpeg"></div>
-            <div class="door-desc uppercase">Scented with unfulfilled potential.</div>
-            <button class="btn-enter">Burn The Injunction</button>
+            <div class="door-visual">
+                <video autoplay loop muted playsinline><source src="coca4.mp4"></video>
+            </div>
+            <div class="door-desc uppercase">Leather Bound. Red Letter Edition. The complete text.</div>
+            <ul class="door-features uppercase">
+                <li>• Full-grain leather binding</li>
+                <li>• 6.5" × 9.5" format</li>
+                <li>• Numbered edition</li>
+            </ul>
+            <div class="door-actions">
+                <button class="btn-buy-now" onclick="window.location.href='https://buy.stripe.com/28E00cgjndfx8X5dSudwc01'">Buy Now</button>
+                <button class="btn-enter" onclick="selectRelic('bible')">View Details</button>
+            </div>
         </div>
 
-        <div class="door" onclick="selectRelic('bible')">
+        <!-- TRACKSUIT -->
+        <div class="door">
             <div class="door-number">02</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
-                <span class="door-title uppercase">The Doctrine</span>
-                <span class="door-price">$1200.00</span>
-            </div>
-            <div class="door-visual"><video autoplay loop muted playsinline><source src="coca4.mp4"></video></div>
-            <div class="door-desc uppercase">Leather Bound. Red Letter Edition.</div>
-            <button class="btn-enter">Fund the Precedent</button>
-        </div>
-
-        <div class="door" onclick="selectRelic('tracksuit')">
-            <div class="door-number">03</div>
-            <div class="door-header">
-                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                <span class="scarcity-tag uppercase">Limited Edition</span>
                 <span class="door-title uppercase">CoCA Tracksuit</span>
                 <span class="door-price">$450.00</span>
             </div>
-            <div class="door-visual"><video autoplay loop muted playsinline><source src="coca3.mp4"></video></div>
-            <div class="door-desc uppercase">Heavyweight Cotton. Oversized Fit.</div>
-            <button class="btn-enter">Force The Issue</button>
+            <div class="door-visual">
+                <video autoplay loop muted playsinline><source src="coca3.mp4"></video>
+            </div>
+            <div class="door-desc uppercase">Heavyweight Cotton. Oversized Fit. Uniform of the Movement.</div>
+            <ul class="door-features uppercase">
+                <li>• 400gsm French Terry</li>
+                <li>• Embroidered insignia</li>
+                <li>• Relaxed silhouette</li>
+                <li>• Made in USA</li>
+            </ul>
+            <div class="door-actions">
+                <button class="btn-buy-now" onclick="window.location.href='https://buy.stripe.com/5kQ00c0kpejBflteWydwc00'">Buy Now</button>
+                <button class="btn-enter" onclick="selectRelic('tracksuit')">View Details</button>
+            </div>
         </div>
 
-        <div class="door" onclick="selectRelic('founder')" style="background-color: rgba(255, 51, 51, 0.03);">
-            <div class="door-number text-red">04</div>
+        <!-- CANDLE -->
+        <div class="door">
+            <div class="door-number">03</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
-                <span class="door-title uppercase text-red">The Commitment</span>
-                <span class="door-price text-red">$1500.00</span>
+                <span class="preorder-tag uppercase">Pre-Order</span>
+                <span class="door-title uppercase">LO-003: The Candle</span>
+                <span class="door-price">$88.00</span>
             </div>
             <div class="door-visual">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; width:100%; height:100%;">
-                    <video autoplay loop muted playsinline style="object-fit:cover;"><source src="coca3.mp4"></video>
-                    <video autoplay loop muted playsinline style="object-fit:cover;"><source src="coca4.mp4"></video>
+                <img src="IMG_2844.jpeg" alt="Candle">
+            </div>
+            <div class="door-desc uppercase">Scented with unfulfilled potential. Zero cannabis.</div>
+            <ul class="door-features uppercase">
+                <li>• Botanical terpene blend</li>
+                <li>• 60+ hour burn time</li>
+                <li>• Hand-poured</li>
+                <li>• Iconoc glass vessel</li>
+            </ul>
+            <a href="biological-frustration.html" style="display: inline-block; margin-bottom: 15px; font-size: 0.7rem; text-decoration: none; color: var(--brand-red); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">View Botanical Narrative →</a>
+            <div class="door-actions">
+                <button class="btn-buy-now" onclick="window.location.href='https://buy.stripe.com/9B63co5EJfnF6OX5lYdwc02'">Pre-Order Now</button>
+                <button class="btn-enter" onclick="selectRelic('candle')">View Details</button>
+            </div>
+        </div>
+
+        <!-- FOUNDER PACKAGE -->
+        <div class="door founder-door">
+            <div class="door-number text-red">04</div>
+            
+            <div class="founder-visual-grid">
+                <video autoplay loop muted playsinline><source src="coca3.mp4"></video>
+                <video autoplay loop muted playsinline><source src="coca4.mp4"></video>
+            </div>
+            
+            <div class="founder-content">
+                <span class="scarcity-tag uppercase">Limited Edition</span>
+                <h2 class="founder-title uppercase">The Commitment</h2>
+                <p class="door-desc uppercase text-red" style="font-size: 1rem;">Total Immersion. Bible + Suit. For those who don't do halfway.</p>
+                
+                <div class="founder-includes">
+                    <h4 class="uppercase">Package Includes</h4>
+                    <ul>
+                        <li class="uppercase"><span>The Doctrine</span><span>$1,200</span></li>
+                        <li class="uppercase"><span>CoCA Tracksuit</span><span>$450</span></li>
+                        <li class="uppercase"><span>Founder Status</span><span>Priceless</span></li>
+                    </ul>
+                </div>
+                
+                <div class="founder-savings uppercase">
+                    <span>You Save: $150</span>
+                    <span style="font-size: 1.5rem; font-weight: bold;">$1,500.00</span>
+                </div>
+                
+                <div class="door-actions" style="margin-top: 25px;">
+                    <button class="btn-buy-now" style="background: var(--brand-red);" onclick="window.location.href='https://buy.stripe.com/cNi5kwffjdfxgpx6q2dwc03'">Secure The Commitment</button>
+                    <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);" onclick="selectRelic('founder')">View Details</button>
                 </div>
             </div>
-            <div class="door-desc uppercase text-red">Bible + Suit. Total Immersion.</div>
-            <button class="btn-enter" style="border-color: var(--brand-red); color: var(--brand-red);">Manifest The Suit</button>
         </div>
     </main>
 
+    <!-- TRUST INDICATORS -->
+    <section class="trust-section">
+        <div class="trust-item">
+            <span class="trust-icon">🔒</span>
+            <h4 class="uppercase">Secure Checkout</h4>
+            <p class="uppercase">Stripe-powered. Apple Pay ready.</p>
+        </div>
+        <div class="trust-item">
+            <span class="trust-icon">📦</span>
+            <h4 class="uppercase">Discreet Shipping</h4>
+            <p class="uppercase">Plain packaging. No external branding.</p>
+        </div>
+        <div class="trust-item">
+            <span class="trust-icon">🇺🇸</span>
+            <h4 class="uppercase">NYC Based</h4>
+            <p class="uppercase">Designed and shipped from NYC.</p>
+        </div>
+        <div class="trust-item">
+            <span class="trust-icon">📜</span>
+            <h4 class="uppercase">Limited Runs</h4>
+            <p class="uppercase">When they're gone, they're gone.</p>
+        </div>
+    </section>
+
+    <!-- STORY SECTION -->
+    <section class="story-section">
+        <div class="story-text">
+            <h3 class="uppercase">The Origin</h3>
+            <h2 class="uppercase">Why We Exist</h2>
+            <p class="uppercase">
+                CoCA began as a question: What happens when you treat sacred texts like fashion drops? When you approach legal boundaries not as limits, but as starting lines?
+            </p>
+            <p class="uppercase">
+                Every artifact in this archive exists in a state of productive tension. They are simultaneously products and provocations. Purchases and statements.
+            </p>
+            <p class="uppercase" style="color: var(--brand-red); font-weight: bold;">
+                We don't sell comfort. We sell commitment.
+            </p>
+        </div>
+        <div class="story-visual">
+            <blockquote class="uppercase">"The lawsuit is the point."</blockquote>
+            <cite class="uppercase">— Internal Memo, 2025</cite>
+        </div>
+    </section>
+
+    <!-- EMAIL CAPTURE -->
+    <section class="email-section">
+        <h2 class="uppercase">Join the Movement</h2>
+        <p class="uppercase">First access to drops. Legal updates. No spam. Unsubscribe anytime.</p>
+        <form class="email-form" onsubmit="event.preventDefault(); alert('Added to the list.');">
+            <input type="email" placeholder="YOUR EMAIL" required>
+            <button type="submit" class="uppercase">Subscribe</button>
+        </form>
+    </section>
+
+    <!-- CHECKOUT OVERLAY -->
     <section id="checkout-screen">
         <button class="back-btn uppercase" onclick="closeCheckout()">← Back</button>
         <div class="checkout-layout">
             <div class="checkout-visual" id="checkout-visual-container"></div>
             <div class="checkout-form-container">
-                <div class="receipt-box" id="receipt-box">
+                <div class="receipt-box">
                     <div class="receipt-header uppercase">
                         <span id="receipt-title">RECEIPT</span>
                         <span id="receipt-price">$0.00</span>
                     </div>
-                    <div style="margin-bottom: 20px; font-size: 0.8rem; line-height: 1.4; opacity: 0.8;" class="uppercase">
-                        <strong>Status:</strong> <span id="availability-tag">VERIFIED</span><br>
-                        <strong>Item:</strong> <span id="item-name">--</span><br>
-                        <span id="item-details" style="display:block; margin-top:10px; font-size: 0.75rem; opacity: 0.7;"></span>
+                    <div class="receipt-body uppercase">
+                        <p><strong>Status:</strong> <span id="availability-tag">VERIFIED</span></p>
+                        <p><strong>Item:</strong> <span id="item-name">--</span></p>
+                        <p id="item-details" style="margin-top: 15px; opacity: 0.7;"></p>
                     </div>
+                    
+                    <div class="receipt-features" id="receipt-features">
+                        <h4 class="uppercase">Includes</h4>
+                        <ul id="feature-list"></ul>
+                    </div>
+                    
+                    <a id="candle-explainer" href="biological-frustration.html" class="hidden-explainer uppercase">→ View Botanical Narrative →</a>
 
                     <button class="submit-btn" id="submit-btn-text" onclick="triggerStripe()">Confirm & Pay</button>
                     
-                    <p style="margin-top: 15px; font-size: 0.6rem; text-align: center; opacity: 0.5;" class="uppercase">
-                        Secure Checkout handled by Stripe. One-click Apple Pay available on next screen.
-                    </p>
+                    <div class="payment-note uppercase">
+                        Secure checkout via Stripe. Apple Pay, Google Pay, and all major cards accepted. One-click checkout available.
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <footer>
+        <div class="footer-brand">
+            <h3 class="uppercase">CoCA</h3>
+            <p class="uppercase">Church of Copyright Acceleration. Est. 2025. NY, NY.</p>
+        </div>
+        <div class="footer-links">
+            <h4 class="uppercase">Navigate</h4>
+            <a href="biological-frustration.html" class="uppercase">Botanical Narrative</a>
+            <a href="#archive" class="uppercase">Archive</a>
+            <a href="terms.html" class="uppercase">Terms & Privacy</a>
+        </div>
+        <div class="footer-links">
+            <h4 class="uppercase">Legal</h4>
+            <a href="terms.html" class="uppercase">Terms of Service</a>
+            <a href="terms.html" class="uppercase">Privacy Policy</a>
+            <a href="mailto:legal@coca.church" class="uppercase">Legal Inquiries</a>
+        </div>
+        <div class="footer-bottom uppercase">
+            <span>© 2026 Unsubscribe LLC | NYC</span>
+            <span>All rights reserved (ironically)</span>
+        </div>
+    </footer>
 
     <script>
         let currentStripeUrl = "";
@@ -272,37 +1417,44 @@
                 title: "LO-003: FEMALE SEXUAL FRUSTRATION",
                 price: "$88.00",
                 item: "Liturgical Object 003 (Candle)",
-                details: "Scented with female plants denied pollination.",
+                details: "A scent profile derived from Hemp resin botanical terpenes—the aromatic compounds of plants denied their biological purpose.",
+                features: ["Botanical terpene blend (Pine, Pepper, Citrus)", "60+ hour burn time", "Hand-poured", "iconic glass vessel", "Zero cannabis, THC, or CBD"],
                 stripeUrl: "https://buy.stripe.com/9B63co5EJfnF6OX5lYdwc02",
                 availability: "MADE TO ORDER",
-                mediaType: "image", src: "IMG_2844.jpeg",
+                mediaType: "image", 
+                src: "IMG_2844.jpeg",
                 btnText: "SECURE PRE-ORDER"
             },
             bible: {
                 title: "THE DOCTRINE",
-                price: "$1200.00",
+                price: "$1,200.00",
                 item: "CoCA Leather Bible",
-                details: "Leather Bound. Red Letter Edition. 6.5\" x 9.5\".",
+                details: "The complete text. Leather bound. Red letter edition. A statement piece that demands explanation.",
+                features: ["Full-grain leather binding", "6.5\" × 9.5\" format inner book"", "Numbered limited edition", "Includes certificate of authenticity"],
                 stripeUrl: "https://buy.stripe.com/28E00cgjndfx8X5dSudwc01",
                 availability: "LIMITED EDITION",
-                mediaType: "video", src: "coca4.mp4",
+                mediaType: "video", 
+                src: "coca4.mp4",
                 btnText: "FUND THE PRECEDENT"
             },
             tracksuit: {
                 title: "CoCA TRACKSUIT",
                 price: "$450.00",
                 item: "CoCA Tracksuit",
-                details: "Heavyweight Cotton. Oversized Fit.",
+                details: "The uniform of the movement. Heavyweight cotton. Oversized fit. Unmistakably CoCA.",
+                features: ["400gsm French Terry cotton", "Oversized relaxed fit", "Embroidered CoCA insignia", "Made in USA", "Matching top and bottom"],
                 stripeUrl: "https://buy.stripe.com/5kQ00c0kpejBflteWydwc00",
                 availability: "LIMITED EDITION",
-                mediaType: "video", src: "coca3.mp4",
+                mediaType: "video", 
+                src: "coca3.mp4",
                 btnText: "FORCE THE ISSUE"
             },
             founder: {
                 title: "THE COMMITMENT",
-                price: "$1500.00",
+                price: "$1,500.00",
                 item: "Founder Package",
-                details: "Secures 1 Bible and 1 Suit.",
+                details: "Total immersion. For those who don't do halfway. Bible + Suit at a founder's price.",
+                features: ["The Doctrine (Leather Bible)", "CoCA Tracksuit (Full Set)", "Founder status recognition", "$150 savings vs. individual items", "Priority shipping"],
                 stripeUrl: "https://buy.stripe.com/cNi5kwffjdfxgpx6q2dwc03",
                 availability: "LIMITED EDITION",
                 mediaType: "mixed",
@@ -321,9 +1473,17 @@
             document.getElementById('availability-tag').innerText = data.availability;
             document.getElementById('submit-btn-text').innerText = data.btnText;
 
+            // Populate features
+            const featureList = document.getElementById('feature-list');
+            featureList.innerHTML = data.features.map(f => `<li class="uppercase">• ${f}</li>`).join('');
+
+            // Toggle explainer link
+            const explainer = document.getElementById('candle-explainer');
+            explainer.style.display = key === 'candle' ? 'inline-block' : 'none';
+
             let visualHTML = '';
             if(key === 'founder') {
-                visualHTML = `<div style="display:flex; gap:10px;"><video autoplay loop muted playsinline style="width:48%"><source src="coca3.mp4"></video><video autoplay loop muted playsinline style="width:48%"><source src="coca4.mp4"></video></div>`;
+                visualHTML = `<div style="display:flex; gap:15px;"><video autoplay loop muted playsinline style="width:48%; border: 2px solid var(--border-color); box-shadow: 10px 10px 0px var(--border-color);"><source src="coca3.mp4"></video><video autoplay loop muted playsinline style="width:48%; border: 2px solid var(--border-color); box-shadow: 10px 10px 0px var(--border-color);"><source src="coca4.mp4"></video></div>`;
             } else if (data.mediaType === 'image') {
                 visualHTML = `<img src="${data.src}">`;
             } else {
@@ -348,6 +1508,16 @@
         document.getElementById('theme-toggle').addEventListener('click', () => {
             const isDark = document.body.classList.toggle('dark-mode');
             document.getElementById('theme-toggle').innerText = isDark ? '☀️ LIGHT' : '🌑 DARK';
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
         });
     </script>
 </body>
