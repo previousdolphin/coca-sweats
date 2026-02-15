@@ -291,8 +291,8 @@
             bgColor: 0xFAFAFA,
             wireColor: '#111111', 
             shirtColor: 0xFFFFFF,
-            density: 22, // Balanced density
-            lineThickness: 3, 
+            density: 24, // Balanced density
+            lineThickness: 4, 
         };
 
         let scene, camera, renderer, shirtMesh, textMesh;
@@ -550,7 +550,7 @@
             scene.fog = new THREE.Fog(config.bgColor, 10, 30);
 
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.z = 14; // Zoomed out to fit shirt
+            camera.position.z = 10; // Zoomed out to fit shirt
 
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -615,7 +615,7 @@
                 alphaMap: alphaMap, 
                 alphaTest: 0.1,
                 transparent: true,
-                opacity: 0.08, // Subtle ghosting
+                opacity: 0.1, // Subtle ghosting
                 side: THREE.DoubleSide
             });
             const bgMesh = new THREE.Mesh(bgGeo, bgMat);
