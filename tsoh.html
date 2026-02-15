@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CONSTRUCT_11 | STRUCTURAL</title>
+    <title>THIS SIDE OF HISTORY | T-SHIRT ART PRINT</title>
     
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Space+Mono:wght@400;700&family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
+    <!-- Removed Barcode Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- TAILWIND -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -164,12 +165,6 @@
             transition: opacity 0.5s ease-out;
         }
         
-        .barcode {
-            font-family: 'Libre Barcode 39 Text', cursive;
-            font-size: 2rem;
-            transform: scaleY(1.5);
-        }
-
         /* UI TRANSITIONS */
         .tag-container {
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -274,10 +269,12 @@
                 > Sizes: S,M,L
             </p>
 
-            <button class="bg-black text-white w-full py-3 text-xs font-bold uppercase hover:bg--600 transition-colors" onclick="event.stopPropagation(); alert('Added to Cart')">
+            <button class="bg-black text-white w-full py-3 text-xs font-bold uppercase hover:bg-red-600 transition-colors" onclick="event.stopPropagation(); window.open('https://buy.stripe.com/cNi3coebf2AT8X5eWydwc05', '_blank')">
                 Acquire
             </button>
             
+            <!-- BARCODE REMOVED HERE -->
+        </div>
     </div>
 
     <script>
@@ -692,3 +689,4 @@
     </script>
 </body>
 </html>
+
