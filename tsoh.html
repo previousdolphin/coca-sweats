@@ -468,17 +468,17 @@
 
             ctx.clearRect(0,0,size,size);
             
-            // Font Matching Header: Inter Black (900)
+            // Font Helvetica (900)
             ctx.fillStyle = config.wireColor; 
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
             // Fallback stack ensures bold sans-serif
-            ctx.font = '900 110px "Inter", "Arial Black", sans-serif';
+            ctx.font = '900 110px "Helvetica", "Helvetica", sans-serif';
             
             const cx = size/2;
             const cy = size/2;
-            const lh = 120; 
+            const lh = 136; 
 
             // 4-Line Stack
             ctx.fillText("THIS", cx, cy - lh * 1.5);
