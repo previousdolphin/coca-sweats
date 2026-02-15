@@ -1,0 +1,602 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CONSTRUCT_11 | STRUCTURAL</title>
+    
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Space+Mono:wght@400;700&family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
+    
+    <!-- TAILWIND -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- THREE.JS & GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        /* CORE RESET */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; 
+            background-color: #FAFAFA;
+            color: #111;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* VIRTUAL SCROLL */
+        #virtual-scroll {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+            z-index: 20;
+            scrollbar-width: none;
+        }
+        #virtual-scroll::-webkit-scrollbar { display: none; }
+        
+        #scroll-content {
+            height: 500vh;
+            width: 100%;
+        }
+
+        /* CANVAS */
+        #gl {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            outline: none;
+        }
+
+        /* UI LAYER */
+        #ui-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            pointer-events: none;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .pointer-auto { pointer-events: auto; }
+
+        /* LOADING */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #FAFAFA;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .barcode {
+            font-family: 'Libre Barcode 39 Text', cursive;
+            font-size: 2rem;
+            transform: scaleY(1.5);
+        }
+
+        /* UI TRANSITIONS */
+        .tag-container {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .tag-hidden {
+            transform: translate(10%, 85%) rotate(-5deg);
+        }
+        .tag-visible {
+            transform: translate(0, 0) rotate(0deg);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gl"></canvas>
+    
+    <div id="virtual-scroll">
+        <div id="scroll-content"></div>
+    </div>
+
+    <!-- LOADER -->
+    <div id="loader">
+        <div class="text-4xl font-black tracking-tighter mb-2">CONSTRUCT_11</div>
+        <div class="w-16 h-1 bg-black animate-pulse"></div>
+        <div class="mt-4 font-mono text-xs opacity-50">ASSEMBLING GRID...</div>
+    </div>
+
+    <!-- UI OVERLAY -->
+    <div id="ui-layer">
+        
+        <!-- HEADER -->
+        <header class="flex justify-between items-start w-full pointer-auto">
+            <div>
+                <h1 class="text-xl font-black tracking-tighter uppercase leading-none font-inter">This Side<br>Of History</h1>
+                <p class="text-[10px] font-mono mt-2 bg-black text-white inline-block px-1">BY ANNABEL DAOU</p>
+            </div>
+            
+            <div class="text-right hidden md:block">
+                <p class="text-[10px] uppercase tracking-widest opacity-60">SOHO POP-UP // NYC</p>
+                <p class="text-[10px] uppercase tracking-widest opacity-60">40.7128° N, 74.0060° W</p>
+            </div>
+        </header>
+
+        <!-- CENTER HINT -->
+        <div class="absolute top-1/2 left-4 md:left-8 -translate-y-1/2 w-32 pointer-events-none opacity-50 hidden md:block">
+            <p class="text-[9px] leading-relaxed">
+                "The mesh is a trap and a safety net."
+            </p>
+            <div class="h-[1px] w-8 bg-black mt-4"></div>
+        </div>
+
+        <!-- FOOTER AREA -->
+        <footer class="flex justify-between items-end w-full pointer-auto relative h-20">
+            <div class="flex flex-col gap-1 absolute bottom-0 left-0">
+                <div class="text-[10px] uppercase font-bold opacity-40">Scroll to Explore</div>
+                <div class="w-full h-[1px] bg-black/20"></div>
+                <div class="text-[10px] uppercase font-bold">Limited Edition: 042/100</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- FLOATING INTERACTIVE TAG -->
+    <div id="tag-wrapper" class="fixed bottom-8 right-8 z-40 pointer-auto tag-container tag-hidden cursor-pointer group" onclick="toggleTag()">
+        
+        <!-- THE TAB (Visible when hidden) -->
+        <div class="absolute -top-12 right-0 bg-black text-white px-4 py-2 font-bold text-xs uppercase tracking-widest shadow-lg group-hover:-translate-y-1 transition-transform">
+            Admission $140
+        </div>
+
+        <!-- THE RECEIPT -->
+        <div class="bg-white text-black w-56 shadow-2xl relative border border-gray-200 p-6 flex flex-col items-center text-center transform origin-bottom-right">
+            
+            <!-- Close Button -->
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-black" onclick="event.stopPropagation(); toggleTag()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <!-- Hole Punch -->
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#FAFAFA] rounded-full border border-gray-300 shadow-inner"></div>
+
+            <div class="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 mb-4 w-full mt-2">Ticket</div>
+            
+            <div class="flex justify-between w-full items-baseline mb-2">
+                <span class="font-black text-3xl">$140</span>
+                <span class="text-[10px] opacity-50">USD</span>
+            </div>
+
+            <p class="text-[10px] leading-tight opacity-60 mb-4 text-left w-full">
+                > Solid Cotton Body<br>
+                > Diamond Mesh Inset<br>
+                > Internal Print<br>
+                > Size: L
+            </p>
+
+            <button class="bg-black text-white w-full py-3 text-xs font-bold uppercase hover:bg-red-600 transition-colors" onclick="event.stopPropagation(); alert('Added to Cart')">
+                Acquire
+            </button>
+            
+            <div class="barcode mt-3 opacity-80">*CONSTRUCT11*</div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * CONFIGURATION
+         */
+        const config = {
+            bgColor: 0xFAFAFA,
+            wireColor: '#111111', 
+            shirtColor: 0xFFFFFF,
+            density: 22, // Balanced density
+            lineThickness: 3, 
+        };
+
+        let scene, camera, renderer, shirtMesh, textMesh;
+        let scrollPos = 0;
+        let targetScrollPos = 0;
+        let mouse = new THREE.Vector2();
+        let isTagOpen = false;
+
+        function toggleTag() {
+            isTagOpen = !isTagOpen;
+            const el = document.getElementById('tag-wrapper');
+            if(isTagOpen) {
+                el.classList.remove('tag-hidden');
+                el.classList.add('tag-visible');
+            } else {
+                el.classList.add('tag-hidden');
+                el.classList.remove('tag-visible');
+            }
+        }
+
+        /**
+         * TEXTURE GENERATION
+         */
+        function createShirtTextures() {
+            const size = 2048;
+            
+            // --- WINDOW DIMENSIONS ---
+            const wW = size * 0.40; 
+            const wX = (size - wW) / 2;
+            const wY = size * 0.18; 
+            const wH = size * 0.62; 
+
+            const step = size / config.density;
+
+            // 1. Generate Structured Fence (Offscreen)
+            const wireCanvas = document.createElement('canvas');
+            wireCanvas.width = size;
+            wireCanvas.height = size;
+            const wCtx = wireCanvas.getContext('2d');
+            
+            wCtx.strokeStyle = '#FFFFFF'; 
+            wCtx.lineWidth = config.lineThickness;
+            wCtx.lineCap = 'butt'; 
+            wCtx.lineJoin = 'miter';
+            
+            // Clip
+            wCtx.beginPath(); wCtx.rect(wX, wY, wW, wH); wCtx.clip();
+            
+            // Draw Correct Mesh
+            drawStructuredFence(wCtx, size, step);
+            
+            // 2. Alpha Map
+            const aCanvas = document.createElement('canvas');
+            aCanvas.width = size; aCanvas.height = size;
+            const aCtx = aCanvas.getContext('2d');
+            
+            aCtx.fillStyle = '#FFFFFF'; // Shirt Body (Opaque)
+            aCtx.fillRect(0,0,size,size);
+            
+            aCtx.fillStyle = '#000000'; // Window (Transparent)
+            aCtx.fillRect(wX, wY, wW, wH);
+            
+            aCtx.drawImage(wireCanvas, 0, 0); // Wires (Opaque)
+            
+            const alphaMap = new THREE.CanvasTexture(aCanvas);
+            alphaMap.anisotropy = 16;
+            
+            // 3. Color Map
+            const cCanvas = document.createElement('canvas');
+            cCanvas.width = size; cCanvas.height = size;
+            const cCtx = cCanvas.getContext('2d');
+            
+            cCtx.fillStyle = '#FFFFFF'; // White Shirt
+            cCtx.fillRect(0,0,size,size);
+            
+            // Create Black Wires from White Wire Canvas
+            const blackWireCanvas = document.createElement('canvas');
+            blackWireCanvas.width = size; blackWireCanvas.height = size;
+            const bCtx = blackWireCanvas.getContext('2d');
+            
+            bCtx.fillStyle = config.wireColor; 
+            bCtx.fillRect(0,0,size,size);
+            bCtx.globalCompositeOperation = 'destination-in';
+            bCtx.drawImage(wireCanvas, 0, 0);
+            
+            cCtx.drawImage(blackWireCanvas, 0, 0);
+            
+            const colorMap = new THREE.CanvasTexture(cCanvas);
+            colorMap.anisotropy = 16;
+            
+            return { alphaMap, colorMap };
+        }
+
+        // --- STRUCTURED GRID LOGIC ---
+        // Draws diagonals to form perfect diamonds, but with missing segments
+        function drawStructuredFence(ctx, size, step) {
+            
+            const isBroken = () => Math.random() < 0.05; // 5% Broken Links
+            const isBent = () => Math.random() < 0.02;   // 2% Bent Links
+
+            // 1. DIAGONALS (Top-Left to Bottom-Right)
+            for (let offset = -size; offset < size * 2; offset += step) {
+                ctx.beginPath();
+                for (let x = 0; x < size; x += step) {
+                    const y = x + offset;
+                    // Segment endpoints
+                    const x1 = x;
+                    const y1 = y;
+                    const x2 = x + step;
+                    const y2 = y + step;
+
+                    if (y > -step && y < size + step) {
+                        if (!isBroken()) {
+                            // Apply slight bend if needed
+                            if (isBent()) {
+                                const bx = (x1 + x2)/2 + (Math.random()-0.5)*10;
+                                const by = (y1 + y2)/2 + (Math.random()-0.5)*10;
+                                ctx.moveTo(x1, y1);
+                                ctx.lineTo(bx, by);
+                                ctx.lineTo(x2, y2);
+                            } else {
+                                ctx.moveTo(x1, y1);
+                                ctx.lineTo(x2, y2);
+                            }
+                        }
+                    }
+                }
+                ctx.stroke();
+            }
+
+            // 2. DIAGONALS (Top-Right to Bottom-Left)
+            for (let offset = -size; offset < size * 2; offset += step) {
+                ctx.beginPath();
+                for (let x = 0; x < size; x += step) {
+                    const y = -x + offset;
+                    const x1 = x;
+                    const y1 = y;
+                    const x2 = x + step;
+                    const y2 = - (x + step) + offset;
+
+                    if (y > -step && y < size + step) {
+                        if (!isBroken()) {
+                             if (isBent()) {
+                                const bx = (x1 + x2)/2 + (Math.random()-0.5)*10;
+                                const by = (y1 + y2)/2 + (Math.random()-0.5)*10;
+                                ctx.moveTo(x1, y1);
+                                ctx.lineTo(bx, by);
+                                ctx.lineTo(x2, y2);
+                            } else {
+                                ctx.moveTo(x1, y1);
+                                ctx.lineTo(x2, y2);
+                            }
+                        }
+                    }
+                }
+                ctx.stroke();
+            }
+        }
+
+        /**
+         * TEXTURE: INNER TEXT
+         */
+        function createTextTexture() {
+            const size = 1024;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0,0,size,size);
+            
+            // Font Matching Header: Inter Black (900)
+            ctx.fillStyle = config.wireColor; 
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Fallback stack ensures bold sans-serif
+            ctx.font = '900 110px "Inter", "Arial Black", sans-serif';
+            
+            const cx = size/2;
+            const cy = size/2;
+            const lh = 120; 
+
+            // 4-Line Stack
+            ctx.fillText("THIS", cx, cy - lh * 1.5);
+            ctx.fillText("SIDE", cx, cy - lh * 0.5);
+            ctx.fillText("OF", cx, cy + lh * 0.5);
+            ctx.fillText("HISTORY", cx, cy + lh * 1.5);
+            
+            // No Underline
+
+            const tex = new THREE.CanvasTexture(canvas);
+            return tex;
+        }
+
+        /**
+         * GEOMETRY
+         */
+        function createShirtGeometry() {
+            const shape = new THREE.Shape();
+            const w = 1.7; const h = 2.5; const sLen = 1.2;
+            
+            shape.moveTo(0, -h);
+            shape.splineThru([new THREE.Vector2(w * 0.6, -h - 0.2), new THREE.Vector2(w, -h)]);
+            shape.bezierCurveTo(w - 0.1, -1, w - 0.2, 0.5, w - 0.1, 0.9);
+            shape.bezierCurveTo(w + 0.4, 0.7, w + sLen - 0.1, 0.4, w + sLen, 0.4);
+            shape.bezierCurveTo(w + sLen + 0.2, 0.4, w + sLen + 0.2, 1.0, w + sLen, 1.0);
+            shape.lineTo(1.8, 1.9);
+            shape.bezierCurveTo(1.2, 1.9, 0.5, 1.5, 0, 1.5);
+            shape.bezierCurveTo(-0.5, 1.5, -1.2, 1.9, -1.8, 1.9);
+            shape.lineTo(-w - sLen, 1.0);
+            shape.bezierCurveTo(-w - sLen - 0.2, 1.0, -w - sLen - 0.2, 0.4, -w - sLen, 0.4);
+            shape.bezierCurveTo(-w - sLen + 0.1, 0.4, -w - 0.4, 0.7, -w + 0.1, 0.9);
+            shape.bezierCurveTo(-w + 0.2, 0.5, -w + 0.1, -1, -w, -h);
+            shape.splineThru([new THREE.Vector2(-w * 0.6, -h - 0.2), new THREE.Vector2(0, -h)]);
+
+            const extrudeSettings = {
+                steps: 2,
+                depth: 0.6, 
+                bevelEnabled: true,
+                bevelThickness: 0.1,
+                bevelSize: 0.1,
+                bevelSegments: 12,
+                curveSegments: 20
+            };
+
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            geometry.center();
+
+            // Box Mapping UVs
+            geometry.computeBoundingBox();
+            const min = geometry.boundingBox.min;
+            const max = geometry.boundingBox.max;
+            const rangeX = max.x - min.x;
+            const rangeY = max.y - min.y;
+            const pos = geometry.attributes.position;
+            const uv = geometry.attributes.uv;
+
+            for (let i = 0; i < pos.count; i++) {
+                const x = pos.getX(i);
+                const y = pos.getY(i);
+                uv.setXY(i, (x - min.x) / rangeX, (y - min.y) / rangeY);
+            }
+            uv.needsUpdate = true;
+            return geometry;
+        }
+
+        /**
+         * INIT
+         */
+        function init() {
+            const canvas = document.getElementById('gl');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(config.bgColor);
+            scene.fog = new THREE.Fog(config.bgColor, 10, 30);
+
+            camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = 12; // Zoomed out to fit shirt
+
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+            scene.add(ambient);
+            const spot = new THREE.SpotLight(0xffffff, 0.8);
+            spot.position.set(5, 10, 10);
+            spot.castShadow = true;
+            spot.shadow.mapSize.width = 2048;
+            spot.shadow.mapSize.height = 2048;
+            scene.add(spot);
+            
+            // 1. Textures
+            const { alphaMap, colorMap } = createShirtTextures();
+            const textTex = createTextTexture();
+
+            // 2. Shirt Material
+            const material = new THREE.MeshStandardMaterial({
+                map: colorMap,
+                alphaMap: alphaMap, 
+                alphaTest: 0.25, 
+                side: THREE.DoubleSide,
+                roughness: 0.6,
+                metalness: 0.1,
+                transparent: false 
+            });
+            material.customDepthMaterial = new THREE.MeshDepthMaterial({
+                depthPacking: THREE.RGBADepthPacking,
+                map: alphaMap,
+                alphaTest: 0.25
+            });
+
+            // 3. Shirt Mesh
+            const geo = createShirtGeometry();
+            shirtMesh = new THREE.Mesh(geo, material);
+            shirtMesh.castShadow = true;
+            shirtMesh.receiveShadow = true;
+            scene.add(shirtMesh);
+
+            // 4. Inner Text Mesh
+            const textGeo = new THREE.PlaneGeometry(2.3, 3.3); 
+            const textMat = new THREE.MeshBasicMaterial({
+                map: textTex,
+                transparent: true,
+                opacity: 0.95,
+                color: 0x000000, 
+                side: THREE.FrontSide
+            });
+            textMesh = new THREE.Mesh(textGeo, textMat);
+            textMesh.position.z = -0.28; 
+            textMesh.position.y = 0.1;
+            shirtMesh.add(textMesh);
+
+            // 5. Background Fence
+            const bgGeo = new THREE.PlaneGeometry(60, 60);
+            const bgMat = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                alphaMap: alphaMap, 
+                alphaTest: 0.1,
+                transparent: true,
+                opacity: 0.05,
+                side: THREE.DoubleSide
+            });
+            const bgMesh = new THREE.Mesh(bgGeo, bgMat);
+            bgMesh.position.z = -5;
+            bgMesh.scale.set(2,2,2); 
+            scene.add(bgMesh);
+
+            window.addEventListener('resize', onResize);
+            window.addEventListener('mousemove', onMouseMove);
+            document.getElementById('virtual-scroll').addEventListener('scroll', onScroll);
+            
+            setTimeout(() => {
+                const l = document.getElementById('loader');
+                l.style.opacity = '0';
+                setTimeout(() => l.style.display = 'none', 500);
+            }, 800);
+
+            // Redraw text texture slightly later to ensure Font is loaded
+            setTimeout(() => {
+                const newTex = createTextTexture();
+                textMesh.material.map = newTex;
+                textMesh.material.needsUpdate = true;
+            }, 500);
+
+            animate();
+        }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onMouseMove(e) {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function onScroll(e) {
+            const t = e.target;
+            targetScrollPos = t.scrollTop / (t.scrollHeight - t.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            scrollPos += (targetScrollPos - scrollPos) * 0.05;
+            const time = Date.now() * 0.001;
+
+            if (shirtMesh) {
+                // Scroll Logic
+                shirtMesh.position.z = -scrollPos * 2;
+                shirtMesh.position.y = Math.sin(time * 0.5) * 0.1 + (scrollPos * 0.5);
+
+                const spin = scrollPos * Math.PI * 4;
+                const tiltX = (mouse.y * 0.2) + Math.sin(time) * 0.05;
+                const tiltY = (mouse.x * 0.2) + spin;
+
+                shirtMesh.rotation.x = tiltX;
+                shirtMesh.rotation.y = tiltY;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+
+    </script>
+</body>
+</html>
+
+
