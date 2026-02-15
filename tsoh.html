@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,6 +30,82 @@
             font-family: 'Space Mono', monospace;
         }
 
+        /* --- CCTV / KODACHROME FX (LIGHT MODE) --- */
+        #fx-container {
+            position: fixed;
+            inset: 0;
+            z-index: 25; /* Sit above 3D, below UI */
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* 1. The Grain (Dark noise on light bg) */
+        .grain-overlay {
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.15;
+            animation: grain-dance 0.4s steps(3) infinite;
+            mix-blend-mode: multiply; /* Key for light mode grain */
+        }
+
+        /* 2. Scanlines */
+        .scanlines {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.05) 50%,
+                rgba(0,0,0,0.05)
+            );
+            background-size: 100% 4px;
+            animation: scanline-scroll 10s linear infinite;
+        }
+
+        /* 3. Color Grade / Vignette */
+        .color-grade {
+            position: absolute;
+            inset: 0;
+            /* Light vignette + Warm Sepia Tone */
+            background: radial-gradient(circle at center, rgba(255,250,240,0) 40%, rgba(200,190,170,0.2) 90%, rgba(50,40,30,0.1) 100%);
+            box-shadow: inset 0 0 150px rgba(180, 160, 140, 0.3);
+            mix-blend-mode: multiply;
+        }
+
+        /* 4. Chromatic Abberation / Shift */
+        .screen-shift {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.03), rgba(0,0,255,0.03));
+            background-size: 3px 3px;
+            mix-blend-mode: multiply;
+            opacity: 0.5;
+        }
+
+        /* FX KEYFRAMES */
+        @keyframes grain-dance {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-5%, -10%); }
+            20% { transform: translate(-15%, 5%); }
+            30% { transform: translate(7%, -25%); }
+            40% { transform: translate(-5%, 25%); }
+            50% { transform: translate(-15%, 10%); }
+            60% { transform: translate(15%, 0%); }
+            70% { transform: translate(0%, 15%); }
+            80% { transform: translate(3%, 35%); }
+            90% { transform: translate(-10%, 10%); }
+        }
+
+        @keyframes scanline-scroll {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 0% 100%; }
+        }
+
         /* VIRTUAL SCROLL */
         #virtual-scroll {
             position: absolute;
@@ -58,6 +133,8 @@
             height: 100%;
             z-index: 1;
             outline: none;
+            /* Filter to blend 3D with "film" look */
+            filter: contrast(1.05) sepia(0.1) brightness(1.02);
         }
 
         /* UI LAYER */
@@ -107,6 +184,14 @@
 </head>
 <body>
 
+    <!-- VISUAL FX LAYERS -->
+    <div id="fx-container">
+        <div class="grain-overlay"></div>
+        <div class="scanlines"></div>
+        <div class="color-grade"></div>
+        <div class="screen-shift"></div>
+    </div>
+
     <canvas id="gl"></canvas>
     
     <div id="virtual-scroll">
@@ -115,9 +200,9 @@
 
     <!-- LOADER -->
     <div id="loader">
-        <div class="text-4xl font-black tracking-tighter mb-2">CONSTRUCT_11</div>
+        <div class="text-4xl font-black tracking-tighter mb-2">THIS_SIDE_OF_HISTORY</div>
         <div class="w-16 h-1 bg-black animate-pulse"></div>
-        <div class="mt-4 font-mono text-xs opacity-50">ASSEMBLING GRID...</div>
+        <div class="mt-4 font-mono text-xs opacity-50">ENTERING SHOP...</div>
     </div>
 
     <!-- UI OVERLAY -->
@@ -133,6 +218,8 @@
             <div class="text-right hidden md:block">
                 <p class="text-[10px] uppercase tracking-widest opacity-60">SOHO POP-UP // NYC</p>
                 <p class="text-[10px] uppercase tracking-widest opacity-60">40.7128° N, 74.0060° W</p>
+                <!-- Added subtle timestamp for CCTV feel -->
+                <p class="text-[9px] uppercase tracking-widest opacity-40 mt-1" id="time-display">00:00:00</p>
             </div>
         </header>
 
@@ -159,7 +246,7 @@
         
         <!-- THE TAB (Visible when hidden) -->
         <div class="absolute -top-12 right-0 bg-black text-white px-4 py-2 font-bold text-xs uppercase tracking-widest shadow-lg group-hover:-translate-y-1 transition-transform">
-            Admission $140
+            Admission $60
         </div>
 
         <!-- THE RECEIPT -->
@@ -176,26 +263,30 @@
             <div class="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 mb-4 w-full mt-2">Ticket</div>
             
             <div class="flex justify-between w-full items-baseline mb-2">
-                <span class="font-black text-3xl">$140</span>
+                <span class="font-black text-3xl">$60</span>
                 <span class="text-[10px] opacity-50">USD</span>
             </div>
 
             <p class="text-[10px] leading-tight opacity-60 mb-4 text-left w-full">
-                > Solid Cotton Body<br>
-                > Diamond Mesh Inset<br>
-                > Internal Print<br>
-                > Size: L
+                > 100% Cotton<br>
+                > Right side of history<br>
+                > Screen Printed<br>
+                > Sizes: S,M,L
             </p>
 
-            <button class="bg-black text-white w-full py-3 text-xs font-bold uppercase hover:bg-red-600 transition-colors" onclick="event.stopPropagation(); alert('Added to Cart')">
+            <button class="bg-black text-white w-full py-3 text-xs font-bold uppercase hover:bg--600 transition-colors" onclick="event.stopPropagation(); alert('Added to Cart')">
                 Acquire
             </button>
             
-            <div class="barcode mt-3 opacity-80">*CONSTRUCT11*</div>
-        </div>
     </div>
 
     <script>
+        // Simple Time Update for CCTV feel
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('time-display').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
+
         /**
          * CONFIGURATION
          */
@@ -462,7 +553,7 @@
             scene.fog = new THREE.Fog(config.bgColor, 10, 30);
 
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.z = 12; // Zoomed out to fit shirt
+            camera.position.z = 14; // Zoomed out to fit shirt
 
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -520,14 +611,14 @@
             textMesh.position.y = 0.1;
             shirtMesh.add(textMesh);
 
-            // 5. Background Fence
+            // 5. Background Fence (More visible against white)
             const bgGeo = new THREE.PlaneGeometry(60, 60);
             const bgMat = new THREE.MeshStandardMaterial({
-                color: 0x000000,
+                color: 0x222222, // Darker fence for contrast
                 alphaMap: alphaMap, 
                 alphaTest: 0.1,
                 transparent: true,
-                opacity: 0.05,
+                opacity: 0.08, // Subtle ghosting
                 side: THREE.DoubleSide
             });
             const bgMesh = new THREE.Mesh(bgGeo, bgMat);
@@ -583,8 +674,11 @@
                 shirtMesh.position.y = Math.sin(time * 0.5) * 0.1 + (scrollPos * 0.5);
 
                 const spin = scrollPos * Math.PI * 4;
-                const tiltX = (mouse.y * 0.2) + Math.sin(time) * 0.05;
-                const tiltY = (mouse.x * 0.2) + spin;
+                // Add slight jitter for CCTV feel
+                const jitter = (Math.random() - 0.5) * 0.002;
+                
+                const tiltX = (mouse.y * 0.2) + Math.sin(time) * 0.05 + jitter;
+                const tiltY = (mouse.x * 0.2) + spin + jitter;
 
                 shirtMesh.rotation.x = tiltX;
                 shirtMesh.rotation.y = tiltY;
@@ -598,5 +692,3 @@
     </script>
 </body>
 </html>
-
-
