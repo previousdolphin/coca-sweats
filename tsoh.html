@@ -8,7 +8,6 @@
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Removed Barcode Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- TAILWIND -->
@@ -272,8 +271,6 @@
             <button class="bg-black text-white w-full py-3 text-xs font-bold uppercase hover:bg-red-600 transition-colors" onclick="event.stopPropagation(); window.open('https://buy.stripe.com/cNi3coebf2AT8X5eWydwc05', '_blank')">
                 Acquire
             </button>
-            
-            <!-- BARCODE REMOVED HERE -->
         </div>
     </div>
 
@@ -291,7 +288,7 @@
             bgColor: 0xFAFAFA,
             wireColor: '#111111', 
             shirtColor: 0xFFFFFF,
-            density: 24, // Balanced density
+            density: 28, // Adjusted density for vertical diamonds
             lineThickness: 4, 
         };
 
@@ -341,7 +338,7 @@
             // Clip
             wCtx.beginPath(); wCtx.rect(wX, wY, wW, wH); wCtx.clip();
             
-            // Draw Correct Mesh
+            // Draw Correct Mesh with vertical elongation
             drawStructuredFence(wCtx, size, step);
             
             // 2. Alpha Map
@@ -387,64 +384,71 @@
         }
 
         // --- STRUCTURED GRID LOGIC ---
-        // Draws diagonals to form perfect diamonds, but with missing segments
+        // Draws diagonals with a steep slope to create vertically elongated diamonds.
         function drawStructuredFence(ctx, size, step) {
             
-            const isBroken = () => Math.random() < 0.05; // 5% Broken Links
-            const isBent = () => Math.random() < 0.02;   // 2% Bent Links
+            const isBroken = () => Math.random() < 0.05; 
+            const isBent = () => Math.random() < 0.02;   
+            
+            // Aspect Ratio: How much taller the diamonds are compared to their width.
+            // 2.0 = twice as tall as wide.
+            const aspect = 2.0; 
 
-            // 1. DIAGONALS (Top-Left to Bottom-Right)
-            for (let offset = -size; offset < size * 2; offset += step) {
+            // 1. DIAGONALS (Down-Right)
+            // Line Equation: y = aspect * x + offset
+            
+            for (let offset = -size * aspect; offset < size; offset += step) {
                 ctx.beginPath();
                 for (let x = 0; x < size; x += step) {
-                    const y = x + offset;
-                    // Segment endpoints
                     const x1 = x;
-                    const y1 = y;
+                    const y1 = aspect * x + offset;
+                    
                     const x2 = x + step;
-                    const y2 = y + step;
+                    const y2 = aspect * (x + step) + offset;
 
-                    if (y > -step && y < size + step) {
-                        if (!isBroken()) {
-                            // Apply slight bend if needed
-                            if (isBent()) {
-                                const bx = (x1 + x2)/2 + (Math.random()-0.5)*10;
-                                const by = (y1 + y2)/2 + (Math.random()-0.5)*10;
-                                ctx.moveTo(x1, y1);
-                                ctx.lineTo(bx, by);
-                                ctx.lineTo(x2, y2);
-                            } else {
-                                ctx.moveTo(x1, y1);
-                                ctx.lineTo(x2, y2);
-                            }
+                    // Optimization: Skip drawing if completely off-screen
+                    if ((y1 < -100 && y2 < -100) || (y1 > size + 100 && y2 > size + 100)) continue;
+
+                    if (!isBroken()) {
+                        if (isBent()) {
+                            const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * 8;
+                            const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * 8;
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(midX, midY);
+                            ctx.lineTo(x2, y2);
+                        } else {
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
                         }
                     }
                 }
                 ctx.stroke();
             }
 
-            // 2. DIAGONALS (Top-Right to Bottom-Left)
-            for (let offset = -size; offset < size * 2; offset += step) {
+            // 2. DIAGONALS (Up-Right)
+            // Line Equation: y = -aspect * x + offset
+            
+            for (let offset = -size; offset < size + (size * aspect); offset += step) {
                 ctx.beginPath();
                 for (let x = 0; x < size; x += step) {
-                    const y = -x + offset;
                     const x1 = x;
-                    const y1 = y;
+                    const y1 = -aspect * x + offset;
+                    
                     const x2 = x + step;
-                    const y2 = - (x + step) + offset;
+                    const y2 = -aspect * (x + step) + offset;
 
-                    if (y > -step && y < size + step) {
-                        if (!isBroken()) {
-                             if (isBent()) {
-                                const bx = (x1 + x2)/2 + (Math.random()-0.5)*10;
-                                const by = (y1 + y2)/2 + (Math.random()-0.5)*10;
-                                ctx.moveTo(x1, y1);
-                                ctx.lineTo(bx, by);
-                                ctx.lineTo(x2, y2);
-                            } else {
-                                ctx.moveTo(x1, y1);
-                                ctx.lineTo(x2, y2);
-                            }
+                    if ((y1 < -100 && y2 < -100) || (y1 > size + 100 && y2 > size + 100)) continue;
+
+                    if (!isBroken()) {
+                        if (isBent()) {
+                            const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * 8;
+                            const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * 8;
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(midX, midY);
+                            ctx.lineTo(x2, y2);
+                        } else {
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
                         }
                     }
                 }
@@ -482,8 +486,6 @@
             ctx.fillText("OF", cx, cy + lh * 0.5);
             ctx.fillText("HISTORY", cx, cy + lh * 1.5);
             
-            // No Underline
-
             const tex = new THREE.CanvasTexture(canvas);
             return tex;
         }
@@ -550,7 +552,7 @@
             scene.fog = new THREE.Fog(config.bgColor, 10, 30);
 
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.z = 10; // Zoomed out to fit shirt
+            camera.position.z = 10; 
 
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -576,7 +578,8 @@
                 map: colorMap,
                 alphaMap: alphaMap, 
                 alphaTest: 0.25, 
-                side: THREE.DoubleSide,
+                // CRITICAL CHANGE: Use FrontSide to prevent seeing the back fence through the front holes
+                side: THREE.FrontSide, 
                 roughness: 0.6,
                 metalness: 0.1,
                 transparent: false 
@@ -601,7 +604,7 @@
                 transparent: true,
                 opacity: 0.95,
                 color: 0x000000, 
-                side: THREE.FrontSide
+                side: THREE.FrontSide // Text visible only from front
             });
             textMesh = new THREE.Mesh(textGeo, textMat);
             textMesh.position.z = -0.28; 
@@ -611,11 +614,11 @@
             // 5. Background Fence (More visible against white)
             const bgGeo = new THREE.PlaneGeometry(60, 60);
             const bgMat = new THREE.MeshStandardMaterial({
-                color: 0x222222, // Darker fence for contrast
+                color: 0x222222, 
                 alphaMap: alphaMap, 
                 alphaTest: 0.1,
                 transparent: true,
-                opacity: 0.1, // Subtle ghosting
+                opacity: 0.1, 
                 side: THREE.DoubleSide
             });
             const bgMesh = new THREE.Mesh(bgGeo, bgMat);
@@ -689,4 +692,3 @@
     </script>
 </body>
 </html>
-
