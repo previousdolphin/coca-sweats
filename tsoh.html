@@ -30,16 +30,28 @@
             font-family: 'Space Mono', monospace;
         }
 
+        /* ART OVERLAY - FLOAT LAYER */
+        #art-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.25; /* 25% Transparency */
+            z-index: 45; /* In front of everything except the loader */
+            pointer-events: none; /* Allows clicks to pass through to the shirt and UI */
+            mix-blend-mode: multiply; /* Optional: helps integrate with the light aesthetic */
+        }
+
         /* --- CCTV / KODACHROME FX (LIGHT MODE) --- */
         #fx-container {
             position: fixed;
             inset: 0;
-            z-index: 25; /* Sit above 3D, below UI */
+            z-index: 25; 
             pointer-events: none;
             overflow: hidden;
         }
 
-        /* 1. The Grain (Dark noise on light bg) */
         .grain-overlay {
             position: absolute;
             top: -100%;
@@ -49,10 +61,9 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
             opacity: 0.15;
             animation: grain-dance 0.4s steps(3) infinite;
-            mix-blend-mode: multiply; /* Key for light mode grain */
+            mix-blend-mode: multiply;
         }
 
-        /* 2. Scanlines */
         .scanlines {
             position: absolute;
             inset: 0;
@@ -67,17 +78,14 @@
             animation: scanline-scroll 10s linear infinite;
         }
 
-        /* 3. Color Grade / Vignette */
         .color-grade {
             position: absolute;
             inset: 0;
-            /* Light vignette + Warm Sepia Tone */
             background: radial-gradient(circle at center, rgba(255,250,240,0) 40%, rgba(200,190,170,0.2) 90%, rgba(50,40,30,0.1) 100%);
             box-shadow: inset 0 0 150px rgba(180, 160, 140, 0.3);
             mix-blend-mode: multiply;
         }
 
-        /* 4. Chromatic Abberation / Shift */
         .screen-shift {
             position: absolute;
             inset: 0;
@@ -87,7 +95,6 @@
             opacity: 0.5;
         }
 
-        /* FX KEYFRAMES */
         @keyframes grain-dance {
             0%, 100% { transform: translate(0, 0); }
             10% { transform: translate(-5%, -10%); }
@@ -106,7 +113,6 @@
             100% { background-position: 0% 100%; }
         }
 
-        /* VIRTUAL SCROLL */
         #virtual-scroll {
             position: absolute;
             top: 0;
@@ -124,7 +130,6 @@
             width: 100%;
         }
 
-        /* CANVAS */
         #gl {
             position: fixed;
             top: 0;
@@ -133,11 +138,9 @@
             height: 100%;
             z-index: 1;
             outline: none;
-            /* Filter to blend 3D with "film" look */
             filter: contrast(1.05) sepia(0.1) brightness(1.02);
         }
 
-        /* UI LAYER */
         #ui-layer {
             position: fixed;
             inset: 0;
@@ -151,12 +154,11 @@
 
         .pointer-auto { pointer-events: auto; }
 
-        /* LOADING */
         #loader {
             position: fixed;
             inset: 0;
             background: #FAFAFA;
-            z-index: 50;
+            z-index: 100;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -164,7 +166,6 @@
             transition: opacity 0.5s ease-out;
         }
         
-        /* UI TRANSITIONS */
         .tag-container {
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -177,6 +178,9 @@
     </style>
 </head>
 <body>
+
+    <!-- FLOATING ART OVERLAY -->
+    <img id="art-overlay" src="IMG_3552.jpeg" onerror="this.style.display='none'">
 
     <!-- VISUAL FX LAYERS -->
     <div id="fx-container">
@@ -212,7 +216,6 @@
             <div class="text-right hidden md:block">
                 <p class="text-[10px] uppercase tracking-widest opacity-60">SOHO POP-UP // NYC</p>
                 <p class="text-[10px] uppercase tracking-widest opacity-60">40.7128° N, 74.0060° W</p>
-                <!-- Added subtle timestamp for CCTV feel -->
                 <p class="text-[9px] uppercase tracking-widest opacity-40 mt-1" id="time-display">00:00:00</p>
             </div>
         </header>
@@ -238,20 +241,16 @@
     <!-- FLOATING INTERACTIVE TAG -->
     <div id="tag-wrapper" class="fixed bottom-8 right-8 z-40 pointer-auto tag-container tag-hidden cursor-pointer group" onclick="toggleTag()">
         
-        <!-- THE TAB (Visible when hidden) -->
         <div class="absolute -top-12 right-0 bg-black text-white px-4 py-2 font-bold text-xs uppercase tracking-widest shadow-lg group-hover:-translate-y-1 transition-transform">
             Admission $60
         </div>
 
-        <!-- THE RECEIPT -->
         <div class="bg-white text-black w-56 shadow-2xl relative border border-gray-200 p-6 flex flex-col items-center text-center transform origin-bottom-right">
             
-            <!-- Close Button -->
             <button class="absolute top-2 right-2 text-gray-400 hover:text-black" onclick="event.stopPropagation(); toggleTag()">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
 
-            <!-- Hole Punch -->
             <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#FAFAFA] rounded-full border border-gray-300 shadow-inner"></div>
 
             <div class="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 mb-4 w-full mt-2">Ticket</div>
@@ -275,20 +274,16 @@
     </div>
 
     <script>
-        // Simple Time Update for CCTV feel
         setInterval(() => {
             const now = new Date();
             document.getElementById('time-display').innerText = now.toLocaleTimeString('en-US', { hour12: false });
         }, 1000);
 
-        /**
-         * CONFIGURATION
-         */
         const config = {
             bgColor: 0xFAFAFA,
             wireColor: '#111111', 
             shirtColor: 0xFFFFFF,
-            density: 28, // Adjusted density for vertical diamonds
+            density: 28,
             lineThickness: 4, 
         };
 
@@ -310,145 +305,93 @@
             }
         }
 
-        /**
-         * TEXTURE GENERATION
-         */
         function createShirtTextures() {
             const size = 2048;
-            
-            // --- WINDOW DIMENSIONS ---
             const wW = size * 0.40; 
             const wX = (size - wW) / 2;
             const wY = size * 0.18; 
             const wH = size * 0.62; 
-
             const step = size / config.density;
 
-            // 1. Generate Structured Fence (Offscreen)
             const wireCanvas = document.createElement('canvas');
-            wireCanvas.width = size;
-            wireCanvas.height = size;
+            wireCanvas.width = size; wireCanvas.height = size;
             const wCtx = wireCanvas.getContext('2d');
-            
             wCtx.strokeStyle = '#FFFFFF'; 
             wCtx.lineWidth = config.lineThickness;
-            wCtx.lineCap = 'butt'; 
-            wCtx.lineJoin = 'miter';
+            wCtx.lineCap = 'butt'; wCtx.lineJoin = 'miter';
             
-            // Clip
             wCtx.beginPath(); wCtx.rect(wX, wY, wW, wH); wCtx.clip();
-            
-            // Draw Correct Mesh with vertical elongation
             drawStructuredFence(wCtx, size, step);
             
-            // 2. Alpha Map
             const aCanvas = document.createElement('canvas');
             aCanvas.width = size; aCanvas.height = size;
             const aCtx = aCanvas.getContext('2d');
-            
-            aCtx.fillStyle = '#FFFFFF'; // Shirt Body (Opaque)
-            aCtx.fillRect(0,0,size,size);
-            
-            aCtx.fillStyle = '#000000'; // Window (Transparent)
-            aCtx.fillRect(wX, wY, wW, wH);
-            
-            aCtx.drawImage(wireCanvas, 0, 0); // Wires (Opaque)
-            
+            aCtx.fillStyle = '#FFFFFF'; aCtx.fillRect(0,0,size,size);
+            aCtx.fillStyle = '#000000'; aCtx.fillRect(wX, wY, wW, wH);
+            aCtx.drawImage(wireCanvas, 0, 0);
             const alphaMap = new THREE.CanvasTexture(aCanvas);
             alphaMap.anisotropy = 16;
             
-            // 3. Color Map
             const cCanvas = document.createElement('canvas');
             cCanvas.width = size; cCanvas.height = size;
             const cCtx = cCanvas.getContext('2d');
+            cCtx.fillStyle = '#FFFFFF'; cCtx.fillRect(0,0,size,size);
             
-            cCtx.fillStyle = '#FFFFFF'; // White Shirt
-            cCtx.fillRect(0,0,size,size);
-            
-            // Create Black Wires from White Wire Canvas
             const blackWireCanvas = document.createElement('canvas');
             blackWireCanvas.width = size; blackWireCanvas.height = size;
             const bCtx = blackWireCanvas.getContext('2d');
-            
-            bCtx.fillStyle = config.wireColor; 
-            bCtx.fillRect(0,0,size,size);
+            bCtx.fillStyle = config.wireColor; bCtx.fillRect(0,0,size,size);
             bCtx.globalCompositeOperation = 'destination-in';
             bCtx.drawImage(wireCanvas, 0, 0);
             
             cCtx.drawImage(blackWireCanvas, 0, 0);
-            
             const colorMap = new THREE.CanvasTexture(cCanvas);
             colorMap.anisotropy = 16;
             
             return { alphaMap, colorMap };
         }
 
-        // --- STRUCTURED GRID LOGIC ---
-        // Draws diagonals with a steep slope to create vertically elongated diamonds.
         function drawStructuredFence(ctx, size, step) {
-            
             const isBroken = () => Math.random() < 0.05; 
             const isBent = () => Math.random() < 0.02;   
-            
-            // Aspect Ratio: How much taller the diamonds are compared to their width.
-            // 2.0 = twice as tall as wide.
             const aspect = 2.0; 
 
-            // 1. DIAGONALS (Down-Right)
-            // Line Equation: y = aspect * x + offset
-            
             for (let offset = -size * aspect; offset < size; offset += step) {
                 ctx.beginPath();
                 for (let x = 0; x < size; x += step) {
                     const x1 = x;
                     const y1 = aspect * x + offset;
-                    
                     const x2 = x + step;
                     const y2 = aspect * (x + step) + offset;
-
-                    // Optimization: Skip drawing if completely off-screen
                     if ((y1 < -100 && y2 < -100) || (y1 > size + 100 && y2 > size + 100)) continue;
-
                     if (!isBroken()) {
                         if (isBent()) {
                             const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * 8;
                             const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * 8;
-                            ctx.moveTo(x1, y1);
-                            ctx.lineTo(midX, midY);
-                            ctx.lineTo(x2, y2);
+                            ctx.moveTo(x1, y1); ctx.lineTo(midX, midY); ctx.lineTo(x2, y2);
                         } else {
-                            ctx.moveTo(x1, y1);
-                            ctx.lineTo(x2, y2);
+                            ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
                         }
                     }
                 }
                 ctx.stroke();
             }
 
-            // 2. DIAGONALS (Up-Right)
-            // Line Equation: y = -aspect * x + offset
-            
             for (let offset = -size; offset < size + (size * aspect); offset += step) {
                 ctx.beginPath();
                 for (let x = 0; x < size; x += step) {
                     const x1 = x;
                     const y1 = -aspect * x + offset;
-                    
                     const x2 = x + step;
                     const y2 = -aspect * (x + step) + offset;
-
                     if ((y1 < -100 && y2 < -100) || (y1 > size + 100 && y2 > size + 100)) continue;
-
                     if (!isBroken()) {
                         if (isBent()) {
                             const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * 8;
                             const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * 8;
-                            ctx.moveTo(x1, y1);
-                            ctx.lineTo(midX, midY);
-                            ctx.lineTo(x2, y2);
+                            ctx.moveTo(x1, y1); ctx.lineTo(midX, midY); ctx.lineTo(x2, y2);
                         } else {
-                            ctx.moveTo(x1, y1);
-                            ctx.lineTo(x2, y2);
+                            ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
                         }
                     }
                 }
@@ -456,47 +399,26 @@
             }
         }
 
-        /**
-         * TEXTURE: INNER TEXT
-         */
         function createTextTexture() {
             const size = 1024;
             const canvas = document.createElement('canvas');
-            canvas.width = size;
-            canvas.height = size;
+            canvas.width = size; canvas.height = size;
             const ctx = canvas.getContext('2d');
-
             ctx.clearRect(0,0,size,size);
-            
-            // Font Helvetica (900)
             ctx.fillStyle = config.wireColor; 
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // Fallback stack ensures bold sans-serif
-            ctx.font = '900 110px "Helvetica", "Helvetica", sans-serif';
-            
-            const cx = size/2;
-            const cy = size/2;
-            const lh = 136; 
-
-            // 4-Line Stack
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.font = '900 110px "Inter", "Arial Black", sans-serif';
+            const cx = size/2; const cy = size/2; const lh = 120; 
             ctx.fillText("THIS", cx, cy - lh * 1.5);
             ctx.fillText("SIDE", cx, cy - lh * 0.5);
             ctx.fillText("OF", cx, cy + lh * 0.5);
             ctx.fillText("HISTORY", cx, cy + lh * 1.5);
-            
-            const tex = new THREE.CanvasTexture(canvas);
-            return tex;
+            return new THREE.CanvasTexture(canvas);
         }
 
-        /**
-         * GEOMETRY
-         */
         function createShirtGeometry() {
             const shape = new THREE.Shape();
             const w = 1.7; const h = 2.5; const sLen = 1.2;
-            
             shape.moveTo(0, -h);
             shape.splineThru([new THREE.Vector2(w * 0.6, -h - 0.2), new THREE.Vector2(w, -h)]);
             shape.bezierCurveTo(w - 0.1, -1, w - 0.2, 0.5, w - 0.1, 0.9);
@@ -512,118 +434,72 @@
             shape.splineThru([new THREE.Vector2(-w * 0.6, -h - 0.2), new THREE.Vector2(0, -h)]);
 
             const extrudeSettings = {
-                steps: 2,
-                depth: 0.6, 
-                bevelEnabled: true,
-                bevelThickness: 0.1,
-                bevelSize: 0.1,
-                bevelSegments: 12,
-                curveSegments: 20
+                steps: 2, depth: 0.6, bevelEnabled: true,
+                bevelThickness: 0.1, bevelSize: 0.1, bevelSegments: 12, curveSegments: 20
             };
-
             const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
             geometry.center();
-
-            // Box Mapping UVs
             geometry.computeBoundingBox();
-            const min = geometry.boundingBox.min;
-            const max = geometry.boundingBox.max;
-            const rangeX = max.x - min.x;
-            const rangeY = max.y - min.y;
-            const pos = geometry.attributes.position;
-            const uv = geometry.attributes.uv;
-
+            const min = geometry.boundingBox.min; const max = geometry.boundingBox.max;
+            const rangeX = max.x - min.x; const rangeY = max.y - min.y;
+            const pos = geometry.attributes.position; const uv = geometry.attributes.uv;
             for (let i = 0; i < pos.count; i++) {
-                const x = pos.getX(i);
-                const y = pos.getY(i);
+                const x = pos.getX(i); const y = pos.getY(i);
                 uv.setXY(i, (x - min.x) / rangeX, (y - min.y) / rangeY);
             }
-            uv.needsUpdate = true;
             return geometry;
         }
 
-        /**
-         * INIT
-         */
         function init() {
             const canvas = document.getElementById('gl');
             scene = new THREE.Scene();
             scene.background = new THREE.Color(config.bgColor);
             scene.fog = new THREE.Fog(config.bgColor, 10, 30);
-
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
             camera.position.z = 10; 
-
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.9);
-            scene.add(ambient);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.9));
             const spot = new THREE.SpotLight(0xffffff, 0.8);
-            spot.position.set(5, 10, 10);
-            spot.castShadow = true;
-            spot.shadow.mapSize.width = 2048;
-            spot.shadow.mapSize.height = 2048;
+            spot.position.set(5, 10, 10); spot.castShadow = true;
+            spot.shadow.mapSize.width = 2048; spot.shadow.mapSize.height = 2048;
             scene.add(spot);
             
-            // 1. Textures
             const { alphaMap, colorMap } = createShirtTextures();
             const textTex = createTextTexture();
 
-            // 2. Shirt Material
             const material = new THREE.MeshStandardMaterial({
-                map: colorMap,
-                alphaMap: alphaMap, 
-                alphaTest: 0.25, 
-                // CRITICAL CHANGE: Use FrontSide to prevent seeing the back fence through the front holes
-                side: THREE.FrontSide, 
-                roughness: 0.6,
-                metalness: 0.1,
-                transparent: false 
+                map: colorMap, alphaMap: alphaMap, alphaTest: 0.25, 
+                side: THREE.FrontSide, // Show only one face per side
+                roughness: 0.6, metalness: 0.1, transparent: false 
             });
             material.customDepthMaterial = new THREE.MeshDepthMaterial({
-                depthPacking: THREE.RGBADepthPacking,
-                map: alphaMap,
-                alphaTest: 0.25
+                depthPacking: THREE.RGBADepthPacking, map: alphaMap, alphaTest: 0.25
             });
 
-            // 3. Shirt Mesh
             const geo = createShirtGeometry();
             shirtMesh = new THREE.Mesh(geo, material);
-            shirtMesh.castShadow = true;
-            shirtMesh.receiveShadow = true;
+            shirtMesh.castShadow = true; shirtMesh.receiveShadow = true;
             scene.add(shirtMesh);
 
-            // 4. Inner Text Mesh
             const textGeo = new THREE.PlaneGeometry(2.3, 3.3); 
             const textMat = new THREE.MeshBasicMaterial({
-                map: textTex,
-                transparent: true,
-                opacity: 0.95,
-                color: 0x000000, 
-                side: THREE.FrontSide // Text visible only from front
+                map: textTex, transparent: true, opacity: 0.95, color: 0x000000, side: THREE.FrontSide
             });
             textMesh = new THREE.Mesh(textGeo, textMat);
-            textMesh.position.z = -0.28; 
-            textMesh.position.y = 0.1;
+            textMesh.position.z = -0.28; textMesh.position.y = 0.1;
             shirtMesh.add(textMesh);
 
-            // 5. Background Fence (More visible against white)
             const bgGeo = new THREE.PlaneGeometry(60, 60);
             const bgMat = new THREE.MeshStandardMaterial({
-                color: 0x222222, 
-                alphaMap: alphaMap, 
-                alphaTest: 0.1,
-                transparent: true,
-                opacity: 0.1, 
-                side: THREE.DoubleSide
+                color: 0x222222, alphaMap: alphaMap, alphaTest: 0.1, transparent: true, opacity: 0.1, side: THREE.DoubleSide
             });
             const bgMesh = new THREE.Mesh(bgGeo, bgMat);
-            bgMesh.position.z = -5;
-            bgMesh.scale.set(2,2,2); 
+            bgMesh.position.z = -5; bgMesh.scale.set(2,2,2); 
             scene.add(bgMesh);
 
             window.addEventListener('resize', onResize);
@@ -636,7 +512,6 @@
                 setTimeout(() => l.style.display = 'none', 500);
             }, 800);
 
-            // Redraw text texture slightly later to ensure Font is loaded
             setTimeout(() => {
                 const newTex = createTextTexture();
                 textMesh.material.map = newTex;
@@ -664,31 +539,21 @@
 
         function animate() {
             requestAnimationFrame(animate);
-
             scrollPos += (targetScrollPos - scrollPos) * 0.05;
             const time = Date.now() * 0.001;
-
             if (shirtMesh) {
-                // Scroll Logic
                 shirtMesh.position.z = -scrollPos * 2;
                 shirtMesh.position.y = Math.sin(time * 0.5) * 0.1 + (scrollPos * 0.5);
-
                 const spin = scrollPos * Math.PI * 4;
-                // Add slight jitter for CCTV feel
                 const jitter = (Math.random() - 0.5) * 0.002;
-                
-                const tiltX = (mouse.y * 0.2) + Math.sin(time) * 0.05 + jitter;
-                const tiltY = (mouse.x * 0.2) + spin + jitter;
-
-                shirtMesh.rotation.x = tiltX;
-                shirtMesh.rotation.y = tiltY;
+                shirtMesh.rotation.x = (mouse.y * 0.2) + Math.sin(time) * 0.05 + jitter;
+                shirtMesh.rotation.y = (mouse.x * 0.2) + spin + jitter;
             }
-
             renderer.render(scene, camera);
         }
 
         init();
-
     </script>
 </body>
 </html>
+
