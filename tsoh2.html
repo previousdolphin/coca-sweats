@@ -48,22 +48,32 @@
             mix-blend-mode: screen; 
             padding: 0;
             transition: height 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                        top 0.6s cubic-bezier(0.19, 1, 0.22, 1),
                         padding 0.6s cubic-bezier(0.19, 1, 0.22, 1),
                         background-color 0.6s ease,
                         opacity 0.6s ease,
                         box-shadow 0.6s ease;
         }
 
-        /* ACTIVE SHOWCASE STATE */
+        /* ACTIVE SHOWCASE STATE (DESKTOP DEFAULT) */
         #art-overlay.showcase-mode {
             opacity: 1;
             mix-blend-mode: normal;
             height: 75vh;
+            top: 50%;
             padding: 1rem;
-            padding-bottom: 3.5rem; /* Gallery print / polaroid feel */
+            padding-bottom: 3.5rem; 
             background-color: #FFFFFF;
             box-shadow: 0 30px 60px rgba(0,0,0,0.9);
             border-radius: 4px;
+        }
+
+        /* MOBILE SHOWCASE STATE (PREVENT TICKET OVERLAP) */
+        @media (max-width: 768px) {
+            #art-overlay.showcase-mode {
+                height: 40vh; /* Scale down slightly more on mobile */
+                top: 32%;     /* Shift image up towards the top of the screen */
+            }
         }
 
         /* DIM STATE FOR BG ELEMENTS */
@@ -248,7 +258,6 @@
     </div>
 
     <!-- FLOATING INTERACTIVE TAG -->
-    <!-- Note: Z-index increased to z-50 to ensure it always stays above the showcased art -->
     <div id="tag-wrapper" class="fixed bottom-8 right-8 z-50 pointer-auto tag-container tag-hidden cursor-pointer group" onclick="toggleTag()">
         
         <div class="absolute -top-12 right-0 bg-white text-black px-4 py-2 font-bold text-xs uppercase tracking-widest shadow-lg group-hover:-translate-y-1 transition-transform">
@@ -570,9 +579,16 @@
             textMesh.position.y = 0.1;
             shirtMesh.add(textMesh);
 
-            // 2. Solid White Back Plane
+            // 2. Load the image and map it to the Back Plane
+            const textureLoader = new THREE.TextureLoader();
+            const artTexture = textureLoader.load('IMG_3552.jpeg');
+            
             const backPlaneGeo = new THREE.PlaneGeometry(2.5, 3.5);
-            const backPlaneMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide });
+            const backPlaneMat = new THREE.MeshBasicMaterial({ 
+                map: artTexture,
+                color: 0xFFFFFF, // Pure white tint preserves original image colors
+                side: THREE.DoubleSide 
+            });
             const backPlane = new THREE.Mesh(backPlaneGeo, backPlaneMat);
             backPlane.position.z = -0.29; 
             backPlane.position.y = 0.1;
