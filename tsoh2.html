@@ -437,7 +437,7 @@
             }
         }
 
-        function XcreateTextTexture() {
+        function createTextTexture() {
             const size = 1024;
             const canvas = document.createElement('canvas');
             canvas.width = size; canvas.height = size;
@@ -447,10 +447,7 @@
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.font = '900 110px "Inter", "Arial Black", sans-serif';
             const cx = size/2; const cy = size/2; const lh = 120; 
-            ctx.fillText("THIS", cx, cy - lh * 1.5);
-            ctx.fillText("SIDE", cx, cy - lh * 0.5);
-            ctx.fillText("OF", cx, cy + lh * 0.5);
-            ctx.fillText("HISTORY", cx, cy + lh * 1.5);
+
             return new THREE.CanvasTexture(canvas);
         }
 
