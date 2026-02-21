@@ -28,24 +28,50 @@
             background-color: #000000;
             color: #FFFFFF;
             font-family: 'Space Mono', monospace;
-            touch-action: none; /* Prevents native swipe/scroll to ensure smooth custom swipe navigation */
+            touch-action: none; 
         }
 
-        /* ART OVERLAY - FLOAT LAYER */
+        /* ART OVERLAY - FLOAT LAYER & SHOWCASE */
         #art-overlay {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            height: 100vh; /* Scales to fit vertically */
+            height: 100vh;
             width: auto;
-            max-width: 100vw; /* Prevents horizontal overflow on narrow screens */
+            max-width: 100vw;
             object-fit: contain;
-            background-color: #000000; /* Black background behind the image */
-            opacity: 0.35; /* Increased slightly for visibility on dark */
+            background-color: #000000; 
+            opacity: 0.35; 
             z-index: 45; 
             pointer-events: none; 
-            mix-blend-mode: screen; /* Changed to screen so it shows on a black background */
+            mix-blend-mode: screen; 
+            padding: 0;
+            transition: height 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                        padding 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                        background-color 0.6s ease,
+                        opacity 0.6s ease,
+                        box-shadow 0.6s ease;
+        }
+
+        /* ACTIVE SHOWCASE STATE */
+        #art-overlay.showcase-mode {
+            opacity: 1;
+            mix-blend-mode: normal;
+            height: 75vh;
+            padding: 1rem;
+            padding-bottom: 3.5rem; /* Gallery print / polaroid feel */
+            background-color: #FFFFFF;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+            border-radius: 4px;
+        }
+
+        /* DIM STATE FOR BG ELEMENTS */
+        #gl, #fx-container {
+            transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .dimmed {
+            opacity: 0.1 !important;
         }
 
         /* --- CCTV / KODACHROME FX (DARK MODE) --- */
@@ -222,7 +248,8 @@
     </div>
 
     <!-- FLOATING INTERACTIVE TAG -->
-    <div id="tag-wrapper" class="fixed bottom-8 right-8 z-40 pointer-auto tag-container tag-hidden cursor-pointer group" onclick="toggleTag()">
+    <!-- Note: Z-index increased to z-50 to ensure it always stays above the showcased art -->
+    <div id="tag-wrapper" class="fixed bottom-8 right-8 z-50 pointer-auto tag-container tag-hidden cursor-pointer group" onclick="toggleTag()">
         
         <div class="absolute -top-12 right-0 bg-white text-black px-4 py-2 font-bold text-xs uppercase tracking-widest shadow-lg group-hover:-translate-y-1 transition-transform">
             Admission $150
@@ -284,12 +311,26 @@
         function toggleTag() {
             isTagOpen = !isTagOpen;
             const el = document.getElementById('tag-wrapper');
+            const art = document.getElementById('art-overlay');
+            const gl = document.getElementById('gl');
+            const fx = document.getElementById('fx-container');
+
             if(isTagOpen) {
                 el.classList.remove('tag-hidden');
                 el.classList.add('tag-visible');
+                
+                // Trigger Showcase mode
+                art.classList.add('showcase-mode');
+                gl.classList.add('dimmed');
+                fx.classList.add('dimmed');
             } else {
                 el.classList.add('tag-hidden');
                 el.classList.remove('tag-visible');
+                
+                // Remove Showcase mode
+                art.classList.remove('showcase-mode');
+                gl.classList.remove('dimmed');
+                fx.classList.remove('dimmed');
             }
         }
 
@@ -393,7 +434,7 @@
             canvas.width = size; canvas.height = size;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0,0,size,size);
-            ctx.fillStyle = config.shirtColor; 
+            ctx.fillStyle = config.wireColor; 
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.font = '900 110px "Inter", "Arial Black", sans-serif';
             const cx = size/2; const cy = size/2; const lh = 120; 
@@ -456,14 +497,13 @@
         let lastPos = { x: 0, y: 0 };
 
         window.addEventListener('pointerdown', (e) => {
-            // Ignore if clicking on interactive UI elements (like buttons/tags)
+            // Ignore if clicking on interactive UI elements
             if (e.target.closest('.pointer-auto')) return;
             isDragging = true;
             lastPos = { x: e.clientX, y: e.clientY };
         });
 
         window.addEventListener('pointermove', (e) => {
-            // Always update mouse position for the tilt/rotation effect
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
@@ -472,10 +512,9 @@
             const deltaX = lastPos.x - e.clientX;
             const deltaY = lastPos.y - e.clientY;
             
-            // Allow horizontal OR vertical swiping to move the animation timeline
             const movementDelta = (Math.abs(deltaX) > Math.abs(deltaY)) ? deltaX : deltaY;
             
-            currentScroll += movementDelta * 3.5; // Multiplier for swipe sensitivity
+            currentScroll += movementDelta * 3.5; 
             currentScroll = Math.max(0, Math.min(maxScroll, currentScroll));
             updateTargetScroll();
             
@@ -521,13 +560,23 @@
             shirtMesh.castShadow = true; shirtMesh.receiveShadow = true;
             scene.add(shirtMesh);
 
+            // 1. Text Mesh (The black lettering)
             const textGeo = new THREE.PlaneGeometry(2.3, 3.3); 
             const textMat = new THREE.MeshBasicMaterial({
                 map: textTex, transparent: true, opacity: 0.95, color: 0x000000, side: THREE.FrontSide
             });
             textMesh = new THREE.Mesh(textGeo, textMat);
-            textMesh.position.z = -0.28; textMesh.position.y = 0.1;
+            textMesh.position.z = -0.28; 
+            textMesh.position.y = 0.1;
             shirtMesh.add(textMesh);
+
+            // 2. Solid White Back Plane
+            const backPlaneGeo = new THREE.PlaneGeometry(2.5, 3.5);
+            const backPlaneMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide });
+            const backPlane = new THREE.Mesh(backPlaneGeo, backPlaneMat);
+            backPlane.position.z = -0.29; 
+            backPlane.position.y = 0.1;
+            shirtMesh.add(backPlane);
 
             const bgGeo = new THREE.PlaneGeometry(60, 60);
             const bgMat = new THREE.MeshStandardMaterial({
