@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NAMEOFMY | ARCHIVE</title>
+    <title>UNSUBSCRIBE | ARCHIVE</title>
     <style>
         /* --- BRUTALIST CORE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,6 +11,7 @@
         :root {
             --brand-red: #ff3333; 
             --bg-color: #ffffff;
+            --bg-hover: #f7f7f7;
             --text-color: #000000;
             --border-color: #000000;
             --spacing-unit: 20px;
@@ -30,6 +31,7 @@
         /* DARK MODE VARS */
         body.dark-mode {
             --bg-color: #050505;
+            --bg-hover: #111111;
             --text-color: #e0e0e0;
             --border-color: #333333;
         }
@@ -84,30 +86,37 @@
         }
 
         /* --- THE ARCHIVE GRID --- */
-        .relic-grid { display: grid; grid-template-columns: 1fr 1fr; }
+        .relic-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+            background-color: var(--border-color);
+            gap: 2px;
+            border-bottom: 2px solid var(--border-color);
+        }
 
         .door {
             padding: 30px;
             display: flex; flex-direction: column; justify-content: space-between;
+            background-color: var(--bg-color);
             transition: background-color 0.2s ease;
             position: relative; min-height: 550px;
         }
 
-        .door:nth-child(odd) { border-right: 2px solid var(--border-color); }
-        .door:nth-child(-n+2) { border-bottom: 2px solid var(--border-color); }
-        .door:hover { background-color: rgba(128,128,128,0.05); }
+        .door:hover { background-color: var(--bg-hover); }
         
         .door-header { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
         .door-number { font-size: 3rem; opacity: 0.15; position: absolute; top: 15px; right: 20px; font-weight: bold; pointer-events: none;}
         .door-title { font-size: 1.4rem; font-weight: bold; letter-spacing: -1px; line-height: 0.9; }
         .door-price { font-size: 1.1rem; color: var(--brand-red); font-weight: bold; margin-top: 5px;}
         
-        .scarcity-tag, .preorder-tag {
+        .tag-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+        .scarcity-tag, .preorder-tag, .equity-tag {
             font-size: 0.7rem; display: inline-block; width: fit-content;
-            padding: 2px 6px; margin-bottom: 5px; font-weight: bold; border: 1px solid currentColor;
+            padding: 2px 6px; font-weight: bold; border: 1px solid currentColor;
         }
         .scarcity-tag { color: var(--brand-red); }
         .preorder-tag { background: rgba(128,128,128,0.1); }
+        .equity-tag { color: var(--text-color); border-color: var(--text-color); }
 
         .door-visual {
             flex: 1; display: flex; align-items: center; justify-content: center;
@@ -116,31 +125,28 @@
             overflow: hidden; position: relative;
         }
         
-        .door-visual video, .door-visual img { width: 100%; height: 100%; object-fit: contain; }
-        .door-visual video, .door-visual img { mix-blend-mode: multiply; }
+        .door-visual video, .door-visual img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
         body.dark-mode .door-visual video, body.dark-mode .door-visual img { mix-blend-mode: normal; }
 
         .door-desc { font-size: 0.85rem; line-height: 1.3; margin-bottom: 25px; min-height: 3em; font-weight: bold; }
+        .artifact-desc { font-size: 0.8rem; font-weight: normal; opacity: 0.8; margin-top: 5px; }
 
-        .btn-enter {
-            width: 100%; padding: 15px; border: 2px solid var(--border-color);
-            background: transparent; color: var(--text-color);
+        .btn-enter, .btn-buy-now, .btn-inquire {
+            width: 100%; padding: 15px; 
             font-family: inherit; font-weight: bold; text-transform: uppercase;
             cursor: pointer; transition: 0.2s; font-size: 0.9rem;
         }
-        .btn-enter:hover { background: var(--brand-red); color: white; border-color: var(--brand-red); }
         
-        .btn-buy-now {
-            width: 100%; padding: 15px; border: 2px solid var(--brand-red);
-            background: var(--brand-red); color: white;
-            font-family: inherit; font-weight: bold; text-transform: uppercase;
-            cursor: pointer; transition: 0.2s; font-size: 0.9rem; margin-top: 10px;
-        }
+        .btn-enter { border: 2px solid var(--border-color); background: transparent; color: var(--text-color); }
+        .btn-enter:hover { background: var(--text-color); color: var(--bg-color); }
+
+        .btn-buy-now { border: 2px solid var(--brand-red); background: var(--brand-red); color: white; margin-bottom: 10px; }
         .btn-buy-now:hover { background: transparent; color: var(--brand-red); border-color: var(--brand-red); }
+
+        .btn-inquire { border: 2px solid var(--text-color); background: var(--text-color); color: var(--bg-color); }
+        .btn-inquire:hover { background: transparent; color: var(--text-color); }
         
-        .door-actions {
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        .door-actions { display: flex; flex-direction: column; gap: 5px; }
         
         .candle-explainer-link {
             display: inline-block; margin-top: 10px; margin-bottom: 10px;
@@ -151,6 +157,8 @@
         }
         .candle-explainer-link:hover { opacity: 0.7; border-bottom-width: 2px; }
 
+        .inquiry-note { font-size: 0.65rem; text-align: center; margin-top: 8px; opacity: 0.6; font-weight: bold; }
+
         /* --- CHECKOUT OVERLAY --- */
         #checkout-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -160,15 +168,12 @@
         .checkout-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
 
         .checkout-visual {
-            border-right: 2px solid var(--border-color);
-            display: flex; align-items: center; justify-content: center;
-            padding: 40px; background: rgba(128,128,128,0.05);
-            position: sticky; top: 0; height: 100vh;
+            border-right: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center;
+            padding: 40px; background: rgba(128,128,128,0.05); position: sticky; top: 0; height: 100vh;
         }
         
         .checkout-visual video, .checkout-visual img { 
-            max-width: 80%; max-height: 80vh; 
-            box-shadow: 10px 10px 0px var(--border-color); 
+            max-width: 80%; max-height: 80vh; box-shadow: 10px 10px 0px var(--border-color); 
             border: 2px solid var(--border-color); object-fit: contain;
         }
 
@@ -176,7 +181,7 @@
 
         .back-btn {
             position: fixed; top: 20px; left: 20px;
-            background: var(--bg-color); border: 2px solid var(--border-color);
+            background: var(--bg-color); border: 2px solid var(--border-color); color: var(--text-color);
             padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold;
             z-index: 210; font-size: 0.9rem; box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
         }
@@ -188,73 +193,39 @@
         .receipt-header { border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; }
 
         .submit-btn { 
-            width: 100%; padding: 18px; 
-            background: var(--text-color); color: var(--bg-color); 
+            width: 100%; padding: 18px; background: var(--text-color); color: var(--bg-color); 
             border: none; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; font-family: inherit; font-size: 1rem; margin-top: 10px;
+            text-transform: uppercase; font-family: inherit; font-size: 1rem; margin-top: 10px; transition: 0.2s;
         }
+        .submit-btn:hover { opacity: 0.8; }
 
-        /* --- HIDDEN EXPLAINER LINK --- */
         .hidden-explainer {
-            display: block;
-            margin-top: 15px;
-            font-size: 0.75rem;
-            text-decoration: none;
-            color: var(--brand-red);
-            font-weight: bold;
-            transition: opacity 0.3s;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--brand-red);
-            padding-bottom: 2px;
-            width: fit-content;
+            display: block; margin-top: 15px; font-size: 0.75rem; text-decoration: none;
+            color: var(--brand-red); font-weight: bold; transition: opacity 0.3s;
+            letter-spacing: 0.05em; border-bottom: 1px solid var(--brand-red); padding-bottom: 2px; width: fit-content;
         }
         .hidden-explainer:hover { opacity: 0.7; border-bottom-width: 2px; }
         
         /* --- FOOTER --- */
         footer {
-            border-top: 2px solid var(--border-color);
-            padding: 40px var(--spacing-unit);
-            margin-top: 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
+            padding: 40px var(--spacing-unit); margin-top: 20px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
         }
-        .footer-links {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
+        .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
         .footer-links a {
-            text-decoration: none;
-            color: var(--text-color);
-            font-size: 0.85rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: color 0.2s;
+            text-decoration: none; color: var(--text-color); font-size: 0.85rem;
+            font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.2s;
         }
-        .footer-links a:hover {
-            color: var(--brand-red);
-        }
-        .footer-text {
-            font-size: 0.7rem;
-            opacity: 0.6;
-            text-transform: uppercase;
-        }
+        .footer-links a:hover { color: var(--brand-red); }
+        .footer-text { font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; }
 
         /* --- MOBILE --- */
         @media (max-width: 900px) {
-            .relic-grid { grid-template-columns: 1fr; }
-            .door { border-right: none !important; border-bottom: 2px solid var(--border-color) !important; min-height: auto; }
+            .relic-grid { grid-template-columns: 1fr; gap: 2px; }
             .checkout-layout { grid-template-columns: 1fr; }
             .checkout-visual { position: relative; height: auto; border-right: none; border-bottom: 2px solid var(--border-color); }
-            .door-actions { gap: 8px; }
             footer { flex-direction: column; text-align: center; }
             .footer-links { justify-content: center; }
-            .nav-links { gap: 15px; }
-            .nav-link { font-size: 0.7rem; }
             nav { padding: 12px 15px; min-height: 60px; }
             .logo { height: 40px; }
         }
@@ -266,6 +237,7 @@
         <img src="CoCA-Vector-redrawn-photoshop.svg" class="logo" alt="CoCA Logo" onclick="window.location.href='index.html'">
         <div class="nav-links">
             <a href="biological-frustration.html" class="nav-link">Botanical Narrative</a>
+            <a href="mailto:sales@unsubscribe.llc" class="nav-link">Inquiries</a>
             <button id="theme-toggle" class="btn-toggle">🌑 DARK</button>
         </div>
     </nav>
@@ -280,14 +252,39 @@
     </section>
 
     <main class="relic-grid">
+
+        <div class="door" style="background-color: var(--bg-hover);">
+            <div class="door-number">00</div>
+            <div class="door-header">
+                <div class="tag-group">
+                    <span class="equity-tag uppercase">CULTURAL EQUITY TOKEN</span>
+                </div>
+                <span class="door-title uppercase">The Most Expensive Knockoff You'll Ever Buy</span>
+                <span class="door-price">$14,999.99</span>
+            </div>
+            <div class="door-visual" style="border-style: solid;">
+                <img src="Bazaart_C0156F34-59B7-4CFE-9FB2-43C6A6D50E47.png" alt="Acrylic Monolith Timepiece">
+            </div>
+            <div class="door-desc uppercase">
+                $200 Canal Street replica timepiece, permanently sealed inside an acrylic monolith.
+                <div class="artifact-desc">Governed by a hardcoded 50/50 open-market resale contract. We are using commercial perfection and legal friction to validate a piece of trash. The art doesn't exist without the financial transaction.</div>
+            </div>
+            <div class="door-actions">
+                <button class="btn-inquire" onclick="window.location.href='mailto:sales@unsubscribe.llc?subject=Bid Inquiry: Most Expensive Knockoff'">Contact to Bid</button>
+                <div class="inquiry-note uppercase">NOT FOR DIRECT SALE. PLACEHOLDER FOR INQUIRY ONLY.</div>
+            </div>
+        </div>
+
         <div class="door">
             <div class="door-number">01</div>
             <div class="door-header">
-                <span class="preorder-tag uppercase">PRE-ORDER</span>
+                <div class="tag-group">
+                    <span class="preorder-tag uppercase">PRE-ORDER</span>
+                </div>
                 <span class="door-title uppercase">LO-003: FEMALE SEXUAL FRUSTRATION</span>
                 <span class="door-price">$88.00</span>
             </div>
-            <div class="door-visual"><img src="IMG_2844.jpeg"></div>
+            <div class="door-visual"><img src="IMG_2844.jpeg" alt="Botanical Candle"></div>
             <div class="door-desc uppercase">Scented with unfulfilled potential.</div>
             <a href="biological-frustration.html" class="candle-explainer-link uppercase">View Botanical Narrative →</a>
             <div class="door-actions">
@@ -299,7 +296,9 @@
         <div class="door">
             <div class="door-number">02</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                <div class="tag-group">
+                    <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                </div>
                 <span class="door-title uppercase">The Doctrine</span>
                 <span class="door-price">$1200.00</span>
             </div>
@@ -314,7 +313,9 @@
         <div class="door">
             <div class="door-number">03</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                <div class="tag-group">
+                    <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                </div>
                 <span class="door-title uppercase">CoCA Tracksuit</span>
                 <span class="door-price">$450.00</span>
             </div>
@@ -329,7 +330,9 @@
         <div class="door" style="background-color: rgba(255, 51, 51, 0.03);">
             <div class="door-number text-red">04</div>
             <div class="door-header">
-                <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                <div class="tag-group">
+                    <span class="scarcity-tag uppercase">LIMITED EDITION</span>
+                </div>
                 <span class="door-title uppercase text-red">The Commitment</span>
                 <span class="door-price text-red">$1500.00</span>
             </div>
@@ -378,6 +381,9 @@
     <footer>
         <div class="footer-links">
             <a href="biological-frustration.html">Botanical Narrative</a>
+            <a href="mailto:sales@unsubscribe.llc">Inquiries</a>
+            <a href="#">Instagram</a>
+            <a href="#">X / Twitter</a>
             <a href="terms.html">Terms & Privacy</a>
         </div>
         <div class="footer-text">© 2026 UNSUBSCRIBE LLC | NYC</div>
@@ -440,7 +446,6 @@
             document.getElementById('availability-tag').innerText = data.availability;
             document.getElementById('submit-btn-text').innerText = data.btnText;
 
-            // Logic to toggle the hidden explainer link
             const explainer = document.getElementById('candle-explainer');
             if (key === 'candle') {
                 explainer.style.display = 'inline-block';
@@ -452,7 +457,7 @@
             if(key === 'founder') {
                 visualHTML = `<div style="display:flex; gap:10px;"><video autoplay loop muted playsinline style="width:48%"><source src="coca3.mp4"></video><video autoplay loop muted playsinline style="width:48%"><source src="coca4.mp4"></video></div>`;
             } else if (data.mediaType === 'image') {
-                visualHTML = `<img src="${data.src}">`;
+                visualHTML = `<img src="${data.src}" alt="${data.title}">`;
             } else {
                 visualHTML = `<video autoplay loop muted playsinline><source src="${data.src}"></video>`;
             }
@@ -477,6 +482,5 @@
             document.getElementById('theme-toggle').innerText = isDark ? '☀️ LIGHT' : '🌑 DARK';
         });
     </script>
-    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "54a8da0924a441eaaa45b186b2c0ebf0"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
