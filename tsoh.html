@@ -30,17 +30,6 @@
             width: 100%;
             margin: 3rem 0;
         }
-        /* Subtle image placeholder styling */
-        .img-placeholder {
-            background-color: #EFEFEF;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 0.875rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
         .btn-primary {
             display: inline-block;
             background-color: var(--ink);
@@ -61,7 +50,6 @@
 </head>
 <body class="selection:bg-black selection:text-white">
 
-    <!-- Navigation / Header -->
     <nav class="w-full p-6 md:p-12 flex justify-between items-start">
         <div class="text-sm tracking-widest uppercase text-gray-500">
             Limited Edition Drop
@@ -71,7 +59,6 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <main class="max-w-6xl mx-auto px-6 md:px-12 pb-24">
         
         <header class="text-center mt-12 mb-24">
@@ -82,12 +69,10 @@
             </p>
         </header>
 
-        <!-- The Collector's Set (Bundle Offer) -->
         <section class="mb-32">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <!-- Replace with dynamic layout of both shirts -->
-                <div class="aspect-[4/3] w-full img-placeholder relative group overflow-hidden">
-                    <span>[ Hero Image: Both Shirts / Lifestyle Shot ]</span>
+                <div class="aspect-[4/3] w-full relative group overflow-hidden bg-[#EFEFEF]">
+                    <img src="PATH_TO_YOUR_HERO_IMAGE.jpg" alt="The Exhibition Set" class="w-full h-full object-cover object-center">
                 </div>
                 
                 <div class="flex flex-col justify-center lg:pl-12">
@@ -100,7 +85,6 @@
                         <span class="text-2xl font-light">$250</span>
                         <span class="text-sm text-gray-400 line-through">$300</span>
                     </div>
-                    <!-- STRIPE LINK 1: BUNDLE -->
                     <div>
                         <a href="https://buy.stripe.com/bJe7sEaZ32ATb5d4hUdwc0b" class="btn-primary w-full md:w-auto text-center">
                             Acquire the Set — $250
@@ -113,13 +97,11 @@
 
         <div class="cut-line"></div>
 
-        <!-- Individual Products Grid -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 mb-32">
             
-            <!-- Product 1 -->
             <article class="flex flex-col">
-                <div class="aspect-[4/5] w-full img-placeholder mb-8">
-                    <span>[ Image: This Side of History Flat Lay ]</span>
+                <div class="aspect-[4/5] w-full mb-8 bg-[#EFEFEF]">
+                    <img src="tsoh.png" alt="This Side of History Flat Lay" class="w-full h-full object-cover object-center">
                 </div>
                 <div class="flex-grow">
                     <h3 class="font-serif-custom text-3xl mb-3">This Side of History</h3>
@@ -129,17 +111,15 @@
                 </div>
                 <div class="flex items-center justify-between mt-auto border-t border-gray-200 pt-6">
                     <span class="text-lg font-light">$150</span>
-                    <!-- STRIPE LINK 2: SHIRT 1 -->
                     <a href="https://buy.stripe.com/00wbIU1ot8Zh7T18yadwc06" class="text-xs uppercase tracking-widest hover:text-gray-500 transition-colors border-b border-black pb-1 hover:border-gray-500">
                         Purchase &rarr;
                     </a>
                 </div>
             </article>
 
-            <!-- Product 2 -->
             <article class="flex flex-col">
-                <div class="aspect-[4/5] w-full img-placeholder mb-8">
-                    <span>[ Image: bramble Flat Lay ]</span>
+                <div class="aspect-[4/5] w-full mb-8 bg-[#EFEFEF]">
+                    <img src="bramble.png" alt="bramble Flat Lay" class="w-full h-full object-cover object-center">
                 </div>
                 <div class="flex-grow">
                     <h3 class="font-serif-custom text-3xl mb-3">bramble</h3>
@@ -149,7 +129,6 @@
                 </div>
                 <div class="flex items-center justify-between mt-auto border-t border-gray-200 pt-6">
                     <span class="text-lg font-light">$150</span>
-                    <!-- STRIPE LINK 3: SHIRT 2 -->
                     <a href="https://buy.stripe.com/9B63co5EJdfxa1929Mdwc07" class="text-xs uppercase tracking-widest hover:text-gray-500 transition-colors border-b border-black pb-1 hover:border-gray-500">
                         Purchase &rarr;
                     </a>
@@ -158,7 +137,6 @@
 
         </section>
 
-        <!-- Artist Context (Placard Style) -->
         <section class="max-w-3xl mx-auto bg-[#F4F4F2] p-8 md:p-16 border border-gray-200">
             <h4 class="font-serif-custom text-2xl mb-6 text-center">About the Artist</h4>
             <div class="space-y-6 text-sm text-gray-600 font-light leading-loose text-justify">
@@ -176,7 +154,6 @@
 
     </main>
 
-    <!-- Footer -->
     <footer class="w-full border-t border-gray-200 py-12 px-6 md:px-12 mt-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-xs text-gray-400 tracking-wider uppercase">
         <div class="mb-4 md:mb-0">
             &copy; 2026 unsubscribe x Annabel Daou
@@ -184,10 +161,8 @@
         <div class="space-x-6">
             <a href="mailto:sales@unsubscribe.llc" class="hover:text-black transition-colors">Contact</a>
             <a href="terms.html" class="hover:text-black transition-colors">Terms</a>
-
         </div>
     </footer>
 
 </body>
 </html>
-
